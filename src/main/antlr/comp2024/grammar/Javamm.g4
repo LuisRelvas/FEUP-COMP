@@ -24,8 +24,11 @@ ID : [a-zA-Z]+ ;
 WS : [ \t\n\r\f]+ -> skip ;
 
 program
-    : classDecl EOF
-    ;
+    : importDeclaration* classDecl+ EOF;
+
+
+importDeclaration
+    : 'import' value+=ID( '.' value+=ID)*';' ;
 
 
 classDecl

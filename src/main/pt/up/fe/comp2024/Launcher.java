@@ -32,8 +32,8 @@ public class Launcher {
         JmmParserResult parserResult = parser.parse(code, config);
         TestUtils.noErrors(parserResult.getReports());
 
-        // Print AST
-        //System.out.println(parserResult.getRootNode().toTree());
+        //Print AST
+        System.out.println(parserResult.getRootNode().toTree());
 
         // Semantic Analysis stage
         JmmAnalysisImpl sema = new JmmAnalysisImpl();
