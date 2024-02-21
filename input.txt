@@ -1,3 +1,5 @@
-import java.lang.lists;
+class A {
 
-class foo {}
+int foo(int anInt, int[] anArray, boolean aBool, String aString) {return a;}
+
+}
