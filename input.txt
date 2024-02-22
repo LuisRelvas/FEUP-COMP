@@ -1,9 +1,5 @@
-class A {
 
-static void main(String[] args) {
-
-int newVar;
-
-}
-
+class A
+{
+String b;
 }

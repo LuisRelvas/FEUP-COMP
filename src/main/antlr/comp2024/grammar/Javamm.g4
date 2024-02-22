@@ -86,24 +86,19 @@ stmt
 expr
     : LPAREN expr RPAREN #ParenExpr //
     | 'new' type ((LRECT expr RRECT)|(LPAREN expr* RPAREN)) #NewArrayExpr //
-    | expr op= MUL expr #BinaryExpr //
-    | expr op= DIV expr #BinaryExpr
-    | expr op= ADD expr #BinaryExpr //
-    | expr op= SUB expr #BinaryExpr
-    | op= NOT expr #UnaryExpr
-    | expr op= '<' expr #BinaryExpr //
-    | expr op= '>' expr #BinaryExpr //
-    | expr op= '<=' expr #BinaryExpr //
-    | expr op= '>=' expr #BinaryExpr //
-    | expr op= '==' expr #BinaryExpr //
-    | expr op= '!=' expr #BinaryExpr //
-    | expr op= '&&' expr #BinaryExpr //
-    | expr op= '||' expr #BinaryExpr //
     | LRECT (expr (COMMA expr)*)? RRECT #ArrayInitExpr //
     | expr (LRECT expr RRECT)+  #ArrayAccessExpr //
-    |  ID ('.' ID LPAREN (expr (COMMA expr)*)? RPAREN)* #MethodCallExpr //
+    | ID ('.' ID LPAREN (expr (COMMA expr)*)? RPAREN)* #MethodCallExpr //
     | ID (('.' ID LPAREN (expr (COMMA expr)*)? RPAREN) | ('[' expr ']') | ('.' 'length'))* #ChainedExpr
     | ID ('.' 'length')* #LengthExpr //
+    | op= NOT expr #UnaryExpr
+    | expr op= (MUL | DIV) expr #BinaryExpr //
+    | expr op= (ADD | SUB) expr #BinaryExpr
+    | expr op= ('<' | '>') expr #BinaryExpr //
+    | expr op= ('<='| '>=') expr #BinaryExpr //
+    | expr op= ('==' | '!=') expr #BinaryExpr //
+    | expr op= '&&' expr #BinaryExpr //
+    | expr op= '||' expr #BinaryExpr //
     | value=INTEGER #IntegerLiteral //
     | BOOL #BooleanLiteral
     | name=ID #VarRefExpr //
