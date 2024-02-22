@@ -36,7 +36,7 @@ ID : [a-zA-Z]+ [a-zA-Z0-9]* ;
 WS : [ \t\n\r\f]+ -> skip ;
 
 program
-    : importDeclaration* classDecl* methodDecl* EOF;
+    : (importDeclaration)* classDecl EOF;
 
 
 importDeclaration
@@ -54,54 +54,55 @@ varDecl
     : type name=ID SEMI
     ;
 
+methodDecl locals[boolean isPublic=false]
+    : (PUBLIC {$isPublic=true;})? type name=ID LPAREN (type name=ID (COMMA type name=ID)*)? RPAREN LCURLY (varDecl)* (stmt)* 'return' expr SEMI RCURLY
+    | (PUBLIC)? STATIC VOID 'main' LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
+    ;
+
+
 type
-    : type LRECT RRECT #ArrayType
+    : INT LRECT RRECT #ArrayType
+    | INT ELLIPSIS #ArrayType
     | value=INT     #IntType
     | value=BOOLEAN #BooleanType
     | value=ID      #ClassType
-    | value=VOID    #VoidType
     | value=STRING  #StringType
     ;
 
-methodDecl locals[boolean isPublic=false, boolean isStatic=false]
-    : (PUBLIC {$isPublic=true;})? (STATIC {$isStatic=true;})?
-        type name=ID
-        LPAREN param RPAREN
-        LCURLY varDecl* stmt* RCURLY
-    ;
+
 param
     : type ELLIPSIS? name= ID (COMMA type ELLIPSIS? name=ID)*
     ;
 
 stmt
-    : expr EQUALS expr SEMI #AssignStmt //
-    | LCURLY (expr SEMI)* RCURLY #BlockStmt //
-    | ID LRECT ID RRECT EQUALS expr SEMI #ArrayAssignStmt //
-    | RETURN expr SEMI #ReturnStmt
-    | 'if' LPAREN expr RPAREN (LCURLY stmt* RCURLY | stmt) ('else' (LCURLY stmt* RCURLY | stmt))? #IfStmt //
-    | 'while' LPAREN expr RPAREN (LCURLY stmt* RCURLY | stmt) #WhileStmt //
-    | ID SEMI #GeneralStmt
+    : LCURLY (stmt)* RCURLY #BlockStmt //
+    | 'if' LPAREN expr RPAREN stmt 'else' stmt #IfStmt //
+    | 'while' LPAREN expr RPAREN stmt #WhileStmt //
+    | expr SEMI #ExprStmt //
+    | ID EQUALS expr SEMI #AssignStmt //
+    | ID LRECT expr RRECT EQUALS expr SEMI #ArrayAssignStmt //
     ;
 
 expr
-    : LPAREN expr RPAREN #ParenExpr //
-    | 'new' type ((LRECT expr RRECT)|(LPAREN expr* RPAREN)) #NewArrayExpr //
-    | LRECT (expr (COMMA expr)*)? RRECT #ArrayInitExpr //
-    | expr (LRECT expr RRECT)+  #ArrayAccessExpr //
-    | ID ('.' ID LPAREN (expr (COMMA expr)*)? RPAREN)* #MethodCallExpr //
-    | ID (('.' ID LPAREN (expr (COMMA expr)*)? RPAREN) | ('[' expr ']') | ('.' 'length'))* #ChainedExpr
-    | ID ('.' 'length')* #LengthExpr //
-    | op= NOT expr #UnaryExpr
+    : LPAREN expr RPAREN #BinaryExpr //
+    | 'new' INT LRECT expr RRECT #NewArrayExpr //
+    | 'new' value=ID LPAREN RPAREN #NewObjectExpr //
+    | LRECT (expr ( ',' expr)*)? RRECT #ArrayCreationExpr //
+    | expr LRECT expr RRECT #ArrayAccessExpr //
+    | expr '.' value=ID LPAREN (expr ( ',' expr )*)? RPAREN #MethodCallExpr //
+    | expr '.' 'length' #ArrayLengthExpr //
+    | value='this' #ThisExpr //
+    | value= NOT expr #UnaryExpr //
     | expr op= (MUL | DIV) expr #BinaryExpr //
     | expr op= (ADD | SUB) expr #BinaryExpr
     | expr op= ('<' | '>') expr #BinaryExpr //
     | expr op= ('<='| '>=') expr #BinaryExpr //
     | expr op= ('==' | '!=') expr #BinaryExpr //
     | expr op= '&&' expr #BinaryExpr //
-    | expr op= '||' expr #BinaryExpr //
-    | value=INTEGER #IntegerLiteral //
-    | BOOL #BooleanLiteral
-    | name=ID #VarRefExpr //
+    | value=INTEGER #IntegerExpr //
+    | value=BOOL #BooleanExpr //
+    | value=ID #VarExpr //
+
     ;
 
 

@@ -1,5 +1,6 @@
-
 class A
 {
-String b;
+
+static void main(String[] args) {}
+
 }
