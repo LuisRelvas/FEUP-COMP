@@ -1,5 +1,9 @@
 class A {
 
-int foo(int anInt, int[] anArray, boolean aBool, String aString) {return a;}
+static void main(String[] args) {
+
+int newVar;
+
+}
 
 }
