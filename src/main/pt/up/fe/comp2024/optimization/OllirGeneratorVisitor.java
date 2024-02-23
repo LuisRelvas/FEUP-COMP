@@ -161,6 +161,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
     }
 
 
+
     private String visitClass(JmmNode node, Void unused) {
 
         StringBuilder code = new StringBuilder();

@@ -12,17 +12,22 @@ import java.util.Map;
 
 public class JmmSymbolTable implements SymbolTable {
 
+
+    private final List<String> importDeclaration;
     private final String className;
     private final List<String> methods;
     private final Map<String, Type> returnTypes;
     private final Map<String, List<Symbol>> params;
     private final Map<String, List<Symbol>> locals;
 
-    public JmmSymbolTable(String className,
+    public JmmSymbolTable(
+                            List<String> importDeclaration,
+                            String className,
                           List<String> methods,
                           Map<String, Type> returnTypes,
                           Map<String, List<Symbol>> params,
                           Map<String, List<Symbol>> locals) {
+        this.importDeclaration = importDeclaration;
         this.className = className;
         this.methods = methods;
         this.returnTypes = returnTypes;
@@ -32,7 +37,7 @@ public class JmmSymbolTable implements SymbolTable {
 
     @Override
     public List<String> getImports() {
-        throw new NotImplementedException();
+        return importDeclaration;
     }
 
     @Override

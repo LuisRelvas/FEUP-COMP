@@ -1,6 +1,7 @@
-class A
-{
+import io;
+import List;
+import Java;
 
-static void main(String[] args) {}
+class T{
 
 }
