@@ -42,11 +42,12 @@ public class JmmSymbolTableBuilder {
         // Puts in an Array all the imports before the class declaration
         var imports = buildImports(root);
         var methods = buildMethods(classDecl);
+        var extended = buildExtended(classDecl);
         var returnTypes = buildReturnTypes(classDecl);
         var params = buildParams(classDecl);
         var locals = buildLocals(classDecl);
 
-        return new JmmSymbolTable(imports,className, methods, returnTypes, params, locals);
+        return new JmmSymbolTable(imports,className,extended, methods, returnTypes, params, locals);
     }
 
     private static List<String> buildImports(JmmNode root)
@@ -64,6 +65,31 @@ public class JmmSymbolTableBuilder {
         return imports;
     }
 
+    private static String buildExtended(JmmNode classDecl)
+    {
+        var checkIfImportExists = buildImports(classDecl.getParent());
+        System.out.println(checkIfImportExists);
+
+        if(!classDecl.hasAttribute("ext") || classDecl.get("ext").isBlank())
+        {
+            return "";
+        }
+
+        String extension = classDecl.get("ext");
+        System.out.println(extension);
+
+        for(int i = 0; i < checkIfImportExists.size(); i++)
+        {
+            if(checkIfImportExists.get(i).contains(extension))
+            {
+                System.out.println("The class can be extended");
+                return extension;
+            }
+        }
+
+        System.out.println("The class cant be extended");
+        return "";
+    }
     private static Map<String, Type> buildReturnTypes(JmmNode classDecl) {
         // TODO: Simple implementation that needs to be expanded
 
