@@ -1,6 +1,5 @@
-import io;
-import List;
+import UltraSuper;
 
-class T{
+class T extends UltraSuper{
 
 }

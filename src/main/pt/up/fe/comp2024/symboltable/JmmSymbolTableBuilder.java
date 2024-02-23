@@ -87,8 +87,7 @@ public class JmmSymbolTableBuilder {
             }
         }
 
-        System.out.println("The class cant be extended");
-        return "";
+        throw new IllegalArgumentException("You cant extend a class that you didnt import");
     }
     private static Map<String, Type> buildReturnTypes(JmmNode classDecl) {
         // TODO: Simple implementation that needs to be expanded
