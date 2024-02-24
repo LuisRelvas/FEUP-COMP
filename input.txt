@@ -1,7 +1,5 @@
-
-class MethodsAndFields{
-
-	public int getfield1(int[] a, int k){
-	int kapaaaa;
-    }
+class Parameters{
+	public int all(int a, boolean b, Parameters maf, int[] arr){
+		return 0;
+	}
 }
