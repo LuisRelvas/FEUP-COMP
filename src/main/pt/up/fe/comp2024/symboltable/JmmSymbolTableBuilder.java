@@ -170,17 +170,22 @@ public class JmmSymbolTableBuilder {
         {
             JmmNode child = classDecl.getChild(i);
             System.out.println(child);
+            String varType = "";
             if(child.getKind().equals("VarDecl"))
             {
                 String varName = child.get("name");
-                String varType = child.getChild(0).get("value");
-                if(varType == "ArrayType")
+                if(child.getChild(0).hasAttribute("value"))
                 {
+                    varType = child.getChild(0).get("value");
+                }
+                else if(child.getChild(0).getKind().equals("ArrayType")) {
                     isArray = true;
+                    varType = child.getChild(0).getChild(0).get("value");
                 }
                 symbols.add(new Symbol(new Type(varType,isArray),varName));
             }
         }
+        System.out.println(symbols);
         return symbols;
     }
 
