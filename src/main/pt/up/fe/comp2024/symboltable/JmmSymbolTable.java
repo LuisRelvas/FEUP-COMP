@@ -18,6 +18,8 @@ public class JmmSymbolTable implements SymbolTable {
 
     private final String extended;
     private final List<String> methods;
+
+    private final List<Symbol> fields;
     private final Map<String, Type> returnTypes;
     private final Map<String, List<Symbol>> params;
     private final Map<String, List<Symbol>> locals;
@@ -27,6 +29,7 @@ public class JmmSymbolTable implements SymbolTable {
                             String className,
                             String extended,
                           List<String> methods,
+                          List<Symbol> fields,
                           Map<String, Type> returnTypes,
                           Map<String, List<Symbol>> params,
                           Map<String, List<Symbol>> locals) {
@@ -34,6 +37,7 @@ public class JmmSymbolTable implements SymbolTable {
         this.className = className;
         this.extended = extended;
         this.methods = methods;
+        this.fields = fields;
         this.returnTypes = returnTypes;
         this.params = params;
         this.locals = locals;
@@ -56,7 +60,7 @@ public class JmmSymbolTable implements SymbolTable {
 
     @Override
     public List<Symbol> getFields() {
-        throw new NotImplementedException();
+        return fields;
     }
 
     @Override
@@ -66,8 +70,12 @@ public class JmmSymbolTable implements SymbolTable {
 
     @Override
     public Type getReturnType(String methodSignature) {
-        // TODO: Simple implementation that needs to be expanded
-        return new Type(TypeUtils.getIntTypeName(), false);
+        if(methodSignature.equals("main")){
+            return new Type("void", false);
+        } else {
+            System.out.println("MethodName is " + returnTypes.get(methodSignature).getName() + returnTypes.get(methodSignature).isArray());
+            return new Type(returnTypes.get(methodSignature).getName(), returnTypes.get(methodSignature).isArray());
+        }
     }
 
     @Override

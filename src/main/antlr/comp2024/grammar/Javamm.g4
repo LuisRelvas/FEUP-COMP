@@ -54,15 +54,19 @@ varDecl
     : type name=ID SEMI
     ;
 
+functionType
+    : type
+    ;
+
 methodDecl locals[boolean isPublic=false]
-    : (PUBLIC {$isPublic=true;})? type name=ID LPAREN (type name=ID (COMMA type name=ID)*)? RPAREN LCURLY (varDecl)* (stmt)* 'return' expr SEMI RCURLY
-    | (PUBLIC)? STATIC VOID 'main' LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
+    : (PUBLIC {$isPublic=true;})? type methodName=ID LPAREN param* RPAREN LCURLY (varDecl)* (stmt)* 'return' expr SEMI RCURLY
+    | (PUBLIC)? STATIC VOID methodName=ID LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
     ;
 
 
 type
-    : INT LRECT RRECT #ArrayType
-    | INT ELLIPSIS #ArrayType
+    : type LRECT RRECT #ArrayType
+    | type ELLIPSIS #ArrayType
     | value=INT     #IntType
     | value=BOOLEAN #BooleanType
     | value=ID      #ClassType
@@ -71,7 +75,7 @@ type
 
 
 param
-    : type ELLIPSIS? name= ID (COMMA type ELLIPSIS? name=ID)*
+    : type ELLIPSIS? paramName+=ID (COMMA type ELLIPSIS? paramName+=ID)*
     ;
 
 stmt

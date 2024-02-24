@@ -133,7 +133,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         }
 
         // name
-        var name = node.get("name");
+        var name = node.get("methodName");
         code.append(name);
 
         // param
