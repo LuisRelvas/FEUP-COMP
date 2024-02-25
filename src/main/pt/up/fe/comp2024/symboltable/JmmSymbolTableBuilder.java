@@ -49,6 +49,7 @@ public class JmmSymbolTableBuilder {
         System.out.println("the map of the return types is" + returnTypes);
         var params = buildParams(classDecl);
         var locals = buildLocals(classDecl);
+        System.out.println(locals);
 
         return new JmmSymbolTable(imports,className,extended, methods, fields, returnTypes, params, locals);
     }
@@ -198,13 +199,44 @@ public class JmmSymbolTableBuilder {
     }
 
 
+    private static Type getType(JmmNode varDecl) {
+        String varType = "";
+        boolean isArray = false;
+        {
+            for (int i = 0; i < varDecl.getNumChildren(); i++) {
+                if (varDecl.getChildren().get(i).getKind().equals("IntType")) {
+                    varType = "int";
+                }
+                else if(varDecl.getChildren().get(i).getKind().equals("BooleanType"))
+                {
+                    varType ="boolean";
+                }
+                else if(varDecl.getChildren().get(i).getKind().equals("StringType"))
+                {
+                    varType="String";
+                }
+                else if(varDecl.getChildren().get(i).getKind().equals("ClassType"))
+                {
+                    varType="class";
+                }
+                else if(varDecl.getChildren().get(i).getKind().equals("ArrayType"))
+                {
+                    varType= varDecl.getChildren().get(i).getChild(0).get("value");
+                    isArray = true;
+                }
+
+            }
+        }
+        return new Type(varType,isArray);
+    }
+
     private static List<Symbol> getLocalsList(JmmNode methodDecl) {
         // TODO: Simple implementation that needs to be expanded
 
         var intType = new Type(TypeUtils.getIntTypeName(), false);
 
         return methodDecl.getChildren(VAR_DECL).stream()
-                .map(varDecl -> new Symbol(intType, varDecl.get("name")))
+                .map(varDecl -> new Symbol(getType(varDecl), varDecl.get("name")))
                 .toList();
     }
 
