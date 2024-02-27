@@ -47,7 +47,6 @@ public class JmmSymbolTableBuilder {
         var extended = buildExtended(classDecl);
         var returnTypes = buildReturnTypes(classDecl);
         var params = buildParams(classDecl);
-        System.out.println(params);
         var locals = buildLocals(classDecl);
 
         return new JmmSymbolTable(imports,className,extended, methods, fields, returnTypes, params, locals);
@@ -92,20 +91,25 @@ public class JmmSymbolTableBuilder {
     private static Map<String, Type> buildReturnTypes(JmmNode classDecl) {
         Map<String, Type> map = new HashMap<>();
         for (var node : classDecl.getChildren(METHOD_DECL)) {
-            if (node.getNumChildren() != 0 && node.getChild(0).hasAttribute("value")) {
-                if (node.getChild(0).getKind().equals("ArrayType")) {
-                    map.put(node.get("methodName"), new Type(node.getChild(0).get("value"), true));
+            boolean isArray = false;
+            String varType = "";
+            if(!node.get("methodName").equals("main")) {
+                var returnType = node.getChild(0);
+                if (returnType.getKind().equals("ArrayType")) {
+                    varType = returnType.getChild(0).get("value");
+                    isArray = true;
                 }
-                else {
-                    map.put(node.get("methodName"), new Type(node.getChild(0).get("value"), false));
+                else if(returnType.hasAttribute("value"))
+                {
+                    varType = returnType.get("value");
                 }
+                map.put(node.get("methodName"),new Type(varType,isArray));
             }
-            else if(node.getNumChildren() != 0 && node.getChild(0).getKind().equals("ArrayType"))
-            {
-                map.put(node.get("methodName"), new Type(node.getChildren().get(0).getChildren().get(0).get("value"),true));
-            }
+
         }
         return map;
+
+
     }
 
     private static Map<String, List<Symbol>> buildParams(JmmNode classDecl) {
@@ -121,7 +125,6 @@ public class JmmSymbolTableBuilder {
                 List<JmmNode> typeNodes = param.getChildren();
                 for (int i = 0; i < paramNames.size(); i++) {
                     String paramName = paramNames.get(i);
-                    System.out.println("the value of the paramName is " + paramName);
                     if(typeNodes.get(i).hasAttribute("value"))
                     {
                         paramType = typeNodes.get(i).get("value");

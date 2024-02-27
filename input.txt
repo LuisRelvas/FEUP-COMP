@@ -11,33 +11,16 @@ class Test extends N {
     int[] e;
     String[] f;
 
-    public int[] foo(int[] param, String[] string, int... a, boolean checkme, String[] Frankeistein) {
-        local1 = 0;
-        local2 = false;
-        local3 = new M();
-        local5 = new int[10];
-        local6 = new int[10];
 
-        if(a.length > true) {
-            a[0] = 3;
-            b = true;
-            c = new M();
-            e = new int[10];
-            f = new int[10];
-        } else {
-            local1 = 4;
-            local2 = true;
-            local3 = new M();
-            local5 = new int[10];
-            local6 = new int[10];
-        }
-        return a;
-    }
 
-    public int callme(int param, String[] stringArgs, int... a, boolean makeme)
+    public int[] callme(int param, String[] stringArgs, int... a, boolean makeme)
     {
         return 1;
+    }
 
+    public int test()
+    {
+        return k;
     }
 
     public static void main(String[] args) {
