@@ -105,11 +105,8 @@ public class JmmSymbolTableBuilder {
                 }
                 map.put(node.get("methodName"),new Type(varType,isArray));
             }
-
         }
         return map;
-
-
     }
 
     private static Map<String, List<Symbol>> buildParams(JmmNode classDecl) {
@@ -119,12 +116,10 @@ public class JmmSymbolTableBuilder {
         for (JmmNode method : classDecl.getChildren(METHOD_DECL)) {
             List<Symbol> params = new ArrayList<>();
             for (JmmNode param : method.getChildren(PARAM)) {
-                String paramNameString = param.get("paramName");
-                paramNameString = paramNameString.replace("[", "").replace("]", "").replace(" ", "");
-                List<String> paramNames = Arrays.asList(paramNameString.split(","));
+                List<String> paramNameString = param.getObjectAsList("paramName",String.class);
                 List<JmmNode> typeNodes = param.getChildren();
-                for (int i = 0; i < paramNames.size(); i++) {
-                    String paramName = paramNames.get(i);
+                for (int i = 0; i < paramNameString.size(); i++) {
+                    String paramName = paramNameString.get(i);
                     if(typeNodes.get(i).hasAttribute("value"))
                     {
                         paramType = typeNodes.get(i).get("value");
@@ -139,6 +134,7 @@ public class JmmSymbolTableBuilder {
             }
             map.put(method.get("methodName"), params);
         }
+        System.out.println("the value of the map is" + map);
         return map;
     }
 
