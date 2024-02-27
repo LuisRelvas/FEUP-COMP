@@ -116,15 +116,17 @@ public class JmmSymbolTableBuilder {
             List<Symbol> params = new ArrayList<>();
             for (JmmNode param : method.getChildren(PARAM)) {
                 String paramNameString = param.get("paramName");
+                paramNameString = paramNameString.replace("[", "").replace("]", "").replace(" ", "");
                 List<String> paramNames = Arrays.asList(paramNameString.split(","));
                 List<JmmNode> typeNodes = param.getChildren();
                 for (int i = 0; i < paramNames.size(); i++) {
                     String paramName = paramNames.get(i);
+                    System.out.println("the value of the paramName is " + paramName);
                     if(typeNodes.get(i).hasAttribute("value"))
                     {
-                    paramType = typeNodes.get(i).get("value");
+                        paramType = typeNodes.get(i).get("value");
                     }
-                    else if(typeNodes.get(i).getKind().equals("isArray"))
+                    else if(typeNodes.get(i).getKind().equals("ArrayType"))
                     {
                         paramType = typeNodes.get(i).getChild(0).get("value");
                     }
@@ -136,6 +138,8 @@ public class JmmSymbolTableBuilder {
         }
         return map;
     }
+
+
 
     private static Map<String, List<Symbol>> buildLocals(JmmNode classDecl) {
         Map<String, List<Symbol>> map = new HashMap<>();
