@@ -4,6 +4,9 @@ grammar Javamm;
     package pt.up.fe.comp2024;
 }
 
+COMMENT: '//'.*?'\n' -> skip ;
+BLOCK_COMMENT: '/*'.*?'*/' -> skip ;
+
 EQUALS : '=';
 SEMI : ';' ;
 LCURLY : '{' ;
@@ -40,7 +43,7 @@ program
 
 
 importDeclaration
-    : 'import' value+=ID( '.' value+=ID)*';' ;
+    : 'import' value+=ID( '.' value+=ID)* ('.*')? ';' ;
 
 
 classDecl
@@ -60,7 +63,7 @@ functionType
 
 methodDecl locals[boolean isPublic=false]
     : (PUBLIC {$isPublic=true;})? type methodName=ID LPAREN param* RPAREN LCURLY (varDecl)* (stmt)* 'return' expr SEMI RCURLY
-    | (PUBLIC)? STATIC VOID methodName=ID LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
+    | (PUBLIC {$isPublic=true;})? STATIC VOID methodName=ID LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
     ;
 
 
@@ -83,7 +86,7 @@ stmt
     | 'if' LPAREN expr RPAREN stmt 'else' stmt #IfStmt //
     | 'while' LPAREN expr RPAREN stmt #WhileStmt //
     | expr SEMI #ExprStmt //
-    | ID EQUALS expr SEMI #AssignStmt //
+    | value+=ID EQUALS expr SEMI #AssignStmt //
     | ID LRECT expr RRECT EQUALS expr SEMI #ArrayAssignStmt //
     ;
 

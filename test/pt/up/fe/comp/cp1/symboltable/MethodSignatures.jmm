@@ -1,0 +1,9 @@
+class TestClass {
+    int method1(int a, int b) {
+        return a + b;
+    }
+
+    boolean method2(boolean a) {
+        return !a;
+    }
+}

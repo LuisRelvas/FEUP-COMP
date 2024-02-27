@@ -46,10 +46,9 @@ public class JmmSymbolTableBuilder {
         var fields = buildFields(classDecl);
         var extended = buildExtended(classDecl);
         var returnTypes = buildReturnTypes(classDecl);
-        System.out.println("the map of the return types is" + returnTypes);
         var params = buildParams(classDecl);
+        System.out.println(params);
         var locals = buildLocals(classDecl);
-        System.out.println(locals);
 
         return new JmmSymbolTable(imports,className,extended, methods, fields, returnTypes, params, locals);
     }
@@ -79,13 +78,11 @@ public class JmmSymbolTableBuilder {
         }
 
         String extension = classDecl.get("ext");
-        System.out.println(extension);
 
         for(int i = 0; i < checkIfImportExists.size(); i++)
         {
             if(checkIfImportExists.get(i).contains(extension))
             {
-                System.out.println("The class can be extended");
                 return extension;
             }
         }
@@ -93,8 +90,6 @@ public class JmmSymbolTableBuilder {
         throw new IllegalArgumentException("You cant extend a class that you didnt import");
     }
     private static Map<String, Type> buildReturnTypes(JmmNode classDecl) {
-        // TODO: Simple implementation that needs to be expanded
-
         Map<String, Type> map = new HashMap<>();
         for (var node : classDecl.getChildren(METHOD_DECL)) {
             if (node.getNumChildren() != 0 && node.getChild(0).hasAttribute("value")) {
@@ -139,13 +134,10 @@ public class JmmSymbolTableBuilder {
             }
             map.put(method.get("methodName"), params);
         }
-        System.out.println(map);
         return map;
     }
 
     private static Map<String, List<Symbol>> buildLocals(JmmNode classDecl) {
-        // TODO: Simple implementation that needs to be expanded
-
         Map<String, List<Symbol>> map = new HashMap<>();
 
 
@@ -178,7 +170,6 @@ public class JmmSymbolTableBuilder {
         for(int i = 0; i < classDecl.getNumChildren(); i++)
         {
             JmmNode child = classDecl.getChild(i);
-            System.out.println(child);
             String varType = "";
             if(child.getKind().equals("VarDecl"))
             {
@@ -194,7 +185,6 @@ public class JmmSymbolTableBuilder {
                 symbols.add(new Symbol(new Type(varType,isArray),varName));
             }
         }
-        System.out.println(symbols);
         return symbols;
     }
 
@@ -203,35 +193,18 @@ public class JmmSymbolTableBuilder {
         String varType = "";
         boolean isArray = false;
         {
-            for (int i = 0; i < varDecl.getNumChildren(); i++) {
-                if (varDecl.getChildren().get(i).getKind().equals("IntType")) {
-                    varType = "int";
-                }
-                else if(varDecl.getChildren().get(i).getKind().equals("BooleanType"))
-                {
-                    varType ="boolean";
-                }
-                else if(varDecl.getChildren().get(i).getKind().equals("StringType"))
-                {
-                    varType="String";
-                }
-                else if(varDecl.getChildren().get(i).getKind().equals("ClassType"))
-                {
-                    varType="class";
-                }
-                else if(varDecl.getChildren().get(i).getKind().equals("ArrayType"))
-                {
-                    varType= varDecl.getChildren().get(i).getChild(0).get("value");
-                    isArray = true;
-                }
-
+            if(varDecl.getChild(0).hasAttribute("value")){
+                varType = varDecl.getChild(0).get("value");}
+            else if(varDecl.getChild(0).getKind().equals("ArrayType"))
+            {
+                varType = varDecl.getChild(0).getChild(0).get("value");
+                isArray = true;
             }
         }
         return new Type(varType,isArray);
     }
 
     private static List<Symbol> getLocalsList(JmmNode methodDecl) {
-        // TODO: Simple implementation that needs to be expanded
 
         var intType = new Type(TypeUtils.getIntTypeName(), false);
 

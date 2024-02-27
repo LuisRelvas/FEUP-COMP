@@ -44,6 +44,7 @@ public class SymbolTableTest {
 
     }
 
+
     @Test
     public void Fields() {
         var semantics = test("symboltable/MethodsAndFields.jmm", false);
@@ -129,5 +130,24 @@ public class SymbolTableTest {
         assertEquals("Parameter 1", "int", parameters.get(0).getType().getName());
         assertEquals("Parameter 2", "boolean", parameters.get(1).getType().getName());
         assertEquals("Parameter 3", "Parameters", parameters.get(2).getType().getName());
+    }
+
+    @Test
+    public void TestMethodSignatures() {
+        var semantics = test("symboltable/MethodSignatures.jmm", false);
+        var st = semantics.getSymbolTable();
+        var methods = st.getMethods();
+        assertEquals(2, methods.size());
+
+        var method1 = methods.get(0);
+        var method2 = methods.get(1);
+
+        assertEquals("Method 1 name", "method1", method1);
+        assertEquals("Method 1 return type", "int", st.getReturnType(method1).getName());
+        assertEquals("Method 1 parameters", 2, st.getParameters(method1).size());
+
+        assertEquals("Method 2 name", "method2", method2);
+        assertEquals("Method 2 return type", "boolean", st.getReturnType(method2).getName());
+        assertEquals("Method 2 parameters", 1, st.getParameters(method2).size());
     }
 }

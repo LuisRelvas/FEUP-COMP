@@ -45,10 +45,10 @@ public class GrammarTest {
         TestUtils.parseVerbose("class Foo {int a; int[] b; int c; boolean d; Bar e;}");
     }
 
-   /*@Test
+   @Test
     public void testVarDeclString() {
-        TestUtils.parseVerbose("String aString;", "VarDecl");
-    }*/
+        TestUtils.parseVerbose("String aString;", "varDecl");
+    }
 
     @Test
     public void testMainMethodEmpty() {
@@ -252,4 +252,42 @@ public class GrammarTest {
         TestUtils.parseVerbose("[10, 20, 30]", EXPRESSION);
     }
 
+    // My tests :
+
+    @Test
+    public void testImportWildcard() {
+        TestUtils.parseVerbose("import bar.*;", IMPORT);
+    }
+
+    @Test
+    public void testClassWithInterface() {
+        TestUtils.parseVerbose("class Foo extends Bar {}");
+    }
+
+    @Test
+    public void testVarDeclDouble() {
+        TestUtils.parseVerbose("double aDouble;", "varDecl");
+    }
+    @Test
+    public void testInstanceMethodWithParameters() {
+        TestUtils.parseVerbose("int foo(int a, int b) {return a + b;}", INSTANCE_METHOD);
+    }
+    @Test
+    public void testExprNull() {
+        TestUtils.parseVerbose("null", EXPRESSION);
+    }
+    @Test
+    public void testExprMod() {
+        TestUtils.parseVerbose("10 / 3", EXPRESSION);
+    }
+
+    @Test
+    public void testExprComplex() {
+        TestUtils.parseVerbose("(1 + 2) * (3 / 4) - (5 / 6)", EXPRESSION);
+    }
+
+    @Test
+    public void testExprArrayInitWithValues() {
+        TestUtils.parseVerbose("[1, 2, 3, 4, 5]", EXPRESSION);
+    }
 }
