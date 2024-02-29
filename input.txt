@@ -1,10 +1,7 @@
 import java;
 import python;
 class MethodsAndFields{
-    public int getField1(boolean[] a , int b, String lotus){
-        return field1;
-    }
-    public int getSomething(int a ,String some){
-            return something;
+    public int a(b aa){
+        return 0;
     }
 }
