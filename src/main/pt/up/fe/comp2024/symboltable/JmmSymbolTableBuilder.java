@@ -109,6 +109,7 @@ public class JmmSymbolTableBuilder {
         return map;
     }
 
+
     private static Map<String, List<Symbol>> buildParams(JmmNode classDecl) {
         Map<String, List<Symbol>> map = new HashMap<>();
         String paramType = "";
@@ -134,9 +135,9 @@ public class JmmSymbolTableBuilder {
             }
             map.put(method.get("methodName"), params);
         }
-        System.out.println("the value of the map is" + map);
         return map;
     }
+
 
 
 
