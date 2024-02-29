@@ -82,7 +82,7 @@ type
 
 
 param
-    : type ELLIPSIS? paramName+=ID (COMMA type ELLIPSIS? paramName+=ID)*
+    : type paramName+=ID (COMMA type paramName+=ID)*
     ;
 
 stmt
