@@ -1,7 +1,10 @@
-class MethodsAndFields
-{
-    public int getField1(int a int int k)
-    {
-    return 1;
+import java;
+import python;
+class MethodsAndFields{
+    public int getField1(int a , int b, String lotus){
+        return field1;
+    }
+    public int getSomething(int a ,String some){
+            return something;
     }
 }
