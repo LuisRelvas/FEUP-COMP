@@ -1,7 +1,7 @@
 import java;
 import python;
 class MethodsAndFields{
-    public int getField1(int a , int b, String lotus){
+    public int getField1(boolean[] a , int b, String lotus){
         return field1;
     }
     public int getSomething(int a ,String some){

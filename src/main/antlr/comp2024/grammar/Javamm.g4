@@ -82,7 +82,7 @@ type
 
 
 param
-    : type paramName+=ID (COMMA type paramName+=ID)*
+    : type paramName+=ID ((COMMA type paramName+=ID)*)?
     ;
 
 stmt
