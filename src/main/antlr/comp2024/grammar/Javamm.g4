@@ -67,7 +67,7 @@ returnStmt
 
 methodDecl locals[boolean isPublic=false]
     : (PUBLIC {$isPublic=true;})? type methodName=ID LPAREN param* RPAREN LCURLY (varDecl)* (stmt)* returnStmt SEMI RCURLY
-    | (PUBLIC {$isPublic=true;})? STATIC VOID methodName='main' LPAREN STRING LRECT RRECT 'args' RPAREN LCURLY (varDecl)* (stmt)* RCURLY
+    | (PUBLIC {$isPublic=true;})? STATIC VOID methodName=ID LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
     ;
 
 
