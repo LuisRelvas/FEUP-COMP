@@ -15,10 +15,8 @@ public class JmmSymbolTable implements SymbolTable {
 
     private final List<String> importDeclaration;
     private final String className;
-
     private final String extended;
     private final List<String> methods;
-
     private final List<Symbol> fields;
     private final Map<String, Type> returnTypes;
     private final Map<String, List<Symbol>> params;
@@ -67,6 +65,8 @@ public class JmmSymbolTable implements SymbolTable {
     public List<String> getMethods() {
         return Collections.unmodifiableList(methods);
     }
+
+    public String getExtended() {return extended; }
 
     @Override
     public Type getReturnType(String methodSignature) {

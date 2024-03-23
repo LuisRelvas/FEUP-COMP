@@ -5,7 +5,7 @@ class IntInIfCondition {
     }
 
     public int foo() {
-        if (1 + 2) {
+        if (1 + 2 ) {
         } else {
         }
 

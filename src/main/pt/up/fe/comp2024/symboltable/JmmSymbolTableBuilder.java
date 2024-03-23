@@ -60,10 +60,9 @@ public class JmmSymbolTableBuilder {
         {
             if(root.getChild(i).getKind().equals("ImportDeclaration"))
             {
-                imports.add(root.getChild(i).get("value"));
+                imports.add(root.getChild(i).get("ID"));
             }
         }
-
         return imports;
     }
 
@@ -209,8 +208,6 @@ public class JmmSymbolTableBuilder {
     }
 
     private static List<Symbol> getLocalsList(JmmNode methodDecl) {
-
-        var intType = new Type(TypeUtils.getIntTypeName(), false);
 
         return methodDecl.getChildren(VAR_DECL).stream()
                 .map(varDecl -> new Symbol(getType(varDecl), varDecl.get("name")))

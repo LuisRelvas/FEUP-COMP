@@ -49,6 +49,8 @@ public class TypeUtils {
 
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
         // TODO: Simple implementation that needs to be expanded
+        var kind = Kind.fromString(varRefExpr.getKind());
+
         return new Type(INT_TYPE_NAME, false);
     }
 

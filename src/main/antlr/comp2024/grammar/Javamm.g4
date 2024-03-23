@@ -112,7 +112,7 @@ expr
     | expr op= '&&' expr #BinaryExpr //
     | value=INTEGER #IntegerExpr //
     | value=BOOL #BooleanExpr //
-    | value=ID #VarExpr //
+    | value=ID #VarRef //
 
     ;
 

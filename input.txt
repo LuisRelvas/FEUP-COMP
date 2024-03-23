@@ -1,7 +1,18 @@
-import java;
-import python;
-class MethodsAndFields{
-    public int a(b aa){
-        return 0;
+import A;
+
+class AssumeArguments {
+
+    public static void main(String[] args) {
+
+    }
+
+    public int bar() {
+        A a;
+        boolean b;
+
+        a = new A();
+        b = true;
+
+        return a.foo(b);
     }
 }

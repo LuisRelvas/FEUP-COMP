@@ -9,6 +9,9 @@ import pt.up.fe.comp2024.ast.Kind;
 import pt.up.fe.comp2024.ast.NodeUtils;
 import pt.up.fe.specs.util.SpecsCheck;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Checks if the type of the expression in a return statement is compatible with the method return type.
  *
@@ -21,7 +24,46 @@ public class UndeclaredVariable extends AnalysisVisitor {
     @Override
     public void buildVisitor() {
         addVisit(Kind.METHOD_DECL, this::visitMethodDecl);
-        addVisit(Kind.VAR_REF_EXPR, this::visitVarRefExpr);
+        addVisit("VarRef", this::visitVarRefExpr);
+        addVisit("ExprStmt", this::visitExprStmt);
+    }
+
+
+    private Void visitExprStmt(JmmNode exprStmt, SymbolTable table)
+    {
+        var expr = exprStmt.getChildren().get(0);
+        List<String> methodsDeclared = new ArrayList<>();
+        String extended = table.getSuper();
+        boolean check;
+        check = false;
+
+        if(expr.getKind().equals("MethodCallExpr"))
+        {
+            methodsDeclared = table.getMethods();
+            for(var i: methodsDeclared)
+            {
+                if(i.equals(expr.get("value")))
+                {
+                    check = true;
+                }
+            }
+        }
+        if(extended != "" )
+        {
+            check = true;
+        }
+        if(check == false)
+        {
+            var message = String.format("Method '%s' does not exist.", expr.get("value"));
+            addReport(Report.newError(
+                    Stage.SEMANTIC,
+                    NodeUtils.getLine(exprStmt),
+                    NodeUtils.getColumn(exprStmt),
+                    message,
+                    null)
+            );
+        }
+        return null;
     }
 
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
@@ -33,7 +75,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         SpecsCheck.checkNotNull(currentMethod, () -> "Expected current method to be set");
 
         // Check if exists a parameter or variable declaration with the same name as the variable reference
-        var varRefName = varRefExpr.get("name");
+        var varRefName = varRefExpr.get("value");
 
         // Var is a field, return
         if (table.getFields().stream()

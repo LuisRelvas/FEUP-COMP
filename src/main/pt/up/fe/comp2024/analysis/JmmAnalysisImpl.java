@@ -8,6 +8,7 @@ import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.comp2024.analysis.passes.UndeclaredVariable;
+import pt.up.fe.comp2024.analysis.passes.InvalidOperations;
 import pt.up.fe.comp2024.symboltable.JmmSymbolTableBuilder;
 
 import java.util.ArrayList;
@@ -18,9 +19,12 @@ public class JmmAnalysisImpl implements JmmAnalysis {
 
     private final List<AnalysisPass> analysisPasses;
 
+    private final List<AnalysisPass> analysisPasses_invalid;
+
     public JmmAnalysisImpl() {
 
         this.analysisPasses = List.of(new UndeclaredVariable());
+        this.analysisPasses_invalid = List.of(new InvalidOperations());
 
     }
 
@@ -43,6 +47,20 @@ public class JmmAnalysisImpl implements JmmAnalysis {
                         -1,
                         -1,
                         "Problem while executing analysis pass '" + analysisPass.getClass() + "'",
+                        e)
+                );
+            }
+
+        }
+        for (var analysisPass_invalid : analysisPasses_invalid) {
+            try {
+                var passReports = analysisPass_invalid.analyze(rootNode, table);
+                reports.addAll(passReports);
+            } catch (Exception e) {
+                reports.add(Report.newError(Stage.SEMANTIC,
+                        -1,
+                        -1,
+                        "Problem while executing analysis pass '" + analysisPass_invalid.getClass() + "'",
                         e)
                 );
             }
