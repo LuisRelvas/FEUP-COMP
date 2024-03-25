@@ -19,7 +19,7 @@ public enum Kind {
     BINARY_EXPR,
     INTEGER_LITERAL,
     VAR_EXPR,
-
+    VAR_REF,
     VAR_REF_EXPR;
 
 
@@ -85,7 +85,6 @@ public enum Kind {
      * @param node
      */
     public void checkOrThrow(JmmNode node) {
-
         if (!check(node)) {
             throw new RuntimeException("Node '" + node + "' is not a '" + getNodeName() + "'");
         }

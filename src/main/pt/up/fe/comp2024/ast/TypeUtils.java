@@ -4,6 +4,7 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+
 public class TypeUtils {
 
     private static final String INT_TYPE_NAME = "int";
@@ -22,12 +23,14 @@ public class TypeUtils {
     public static Type getExprType(JmmNode expr, SymbolTable table) {
         // TODO: Simple implementation that needs to be expanded
 
-        var kind = Kind.fromString(expr.getKind());
+
+
+        var kind = expr.getKind();
 
         Type type = switch (kind) {
-            case BINARY_EXPR -> getBinExprType(expr);
-            case VAR_REF_EXPR -> getVarExprType(expr, table);
-            case INTEGER_LITERAL -> new Type(INT_TYPE_NAME, false);
+            //case BINARY_EXPR -> getBinExprType(expr);
+            case "VarRef" -> getVarExprType(expr, table);
+            //case INTEGER_LITERAL -> new Type(INT_TYPE_NAME, false);
             default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
 
@@ -48,8 +51,10 @@ public class TypeUtils {
 
 
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
+
         // TODO: Simple implementation that needs to be expanded
         var kind = Kind.fromString(varRefExpr.getKind());
+
 
         return new Type(INT_TYPE_NAME, false);
     }
