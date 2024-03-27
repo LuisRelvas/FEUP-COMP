@@ -49,6 +49,7 @@ public class JasminGeneratorVisitor extends AJmmVisitor<Void, String> {
 
         // Get class decl node
         var classDecl = program.getChild(0);
+
         SpecsCheck.checkArgument(classDecl.isInstance("ClassDecl"), () -> "Expected a node of type 'ClassDecl', but instead got '" + classDecl.getKind() + "'");
 
         return visit(classDecl);
