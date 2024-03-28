@@ -270,18 +270,31 @@ public class JasminGenerator {
     private String generateBinaryOp(BinaryOpInstruction binaryOp) {
         var code = new StringBuilder();
 
-        // load values on the left and on the right
-        code.append(generators.apply(binaryOp.getLeftOperand()));
-        code.append(generators.apply(binaryOp.getRightOperand()));
 
-        // apply operation
-        var op = switch (binaryOp.getOperation().getOpType()) {
-            case ADD -> "iadd";
-            case MUL -> "imul";
-            default -> throw new NotImplementedException(binaryOp.getOperation().getOpType());
-        };
-
-        code.append(op).append(NL);
+        switch (binaryOp.getOperation().getOpType()){
+            case ADD :
+                code.append(generators.apply(binaryOp.getLeftOperand()));
+                code.append(generators.apply(binaryOp.getRightOperand()));
+                code.append("iadd").append(NL);
+                break;
+            case SUB :
+                code.append(generators.apply(binaryOp.getRightOperand()));
+                code.append(generators.apply(binaryOp.getLeftOperand()));
+                code.append("isub").append(NL);
+                break;
+            case MUL :
+                code.append(generators.apply(binaryOp.getLeftOperand()));
+                code.append(generators.apply(binaryOp.getRightOperand()));
+                code.append("imul").append(NL);
+                break;
+            case DIV :
+                code.append(generators.apply(binaryOp.getRightOperand()));
+                code.append(generators.apply(binaryOp.getLeftOperand()));
+                code.append("idiv").append(NL);
+                break;
+            default:
+                throw new NotImplementedException(binaryOp.getOperation().getOpType());
+        }
 
         return code.toString();
     }
