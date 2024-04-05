@@ -1,0 +1,13 @@
+class Test {
+
+public boolean[] foo() {
+        boolean[] a;
+        int k;
+        boolean b;
+        b = true;
+        k = 0;
+        a = [b, b, b];
+        return a;
+    }
+
+}

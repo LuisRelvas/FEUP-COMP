@@ -215,6 +215,26 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
             }
         }
+        if(childExpr.getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
+        {
+            if(returnType.isArray())
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+
+            }
+            Type type = TypeUtils.getExprType(childExpr.getChild(0),table);
+            if(!type.getName().equals(returnType.getName())) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        if(childExpr.getKind().equals(Kind.VAR_REF.toString()))
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
         return null;
     }
 
