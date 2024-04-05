@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp2024.analysis.JmmAnalysisImpl;
+import pt.up.fe.comp2024.ast.Kind;
 import pt.up.fe.comp2024.backend.JasminBackendImpl;
 import pt.up.fe.comp2024.optimization.JmmOptimizationImpl;
 import pt.up.fe.comp2024.parser.JmmParserImpl;
@@ -42,7 +43,7 @@ public class Launcher {
 
 
         // Optimization stage
-        // JmmOptimizationImpl ollirGen = new JmmOptimizationImpl();
+        //JmmOptimizationImpl ollirGen = new JmmOptimizationImpl();
         // OllirResult ollirResult = ollirGen.toOllir(semanticsResult);
         // TestUtils.noErrors(ollirResult.getReports());
 
@@ -55,7 +56,7 @@ public class Launcher {
         // TestUtils.noErrors(jasminResult.getReports());
 
         // Print Jasmin code
-        //System.out.println(jasminResult.getJasminCode());
+        // System.out.println(jasminResult.getJasminCode());
     }
 
 }

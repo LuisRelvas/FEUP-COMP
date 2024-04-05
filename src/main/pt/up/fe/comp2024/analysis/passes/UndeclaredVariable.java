@@ -1,12 +1,15 @@
 package pt.up.fe.comp2024.analysis.passes;
 
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.comp2024.analysis.AnalysisVisitor;
 import pt.up.fe.comp2024.ast.Kind;
 import pt.up.fe.comp2024.ast.NodeUtils;
+import pt.up.fe.comp2024.ast.TypeUtils;
 import pt.up.fe.specs.util.SpecsCheck;
 
 import java.util.ArrayList;
@@ -24,89 +27,185 @@ public class UndeclaredVariable extends AnalysisVisitor {
     @Override
     public void buildVisitor() {
         addVisit(Kind.METHOD_DECL, this::visitMethodDecl);
-        addVisit("VarRef", this::visitVarRefExpr);
-        addVisit("ExprStmt", this::visitExprStmt);
-    }
-
-
-    private Void visitExprStmt(JmmNode exprStmt, SymbolTable table)
-    {
-        var expr = exprStmt.getChildren().get(0);
-        List<String> methodsDeclared = new ArrayList<>();
-        String extended = table.getSuper();
-        boolean check;
-        check = false;
-
-        if(expr.getKind().equals("MethodCallExpr"))
-        {
-            methodsDeclared = table.getMethods();
-            for(var i: methodsDeclared)
-            {
-                if(i.equals(expr.get("value")))
-                {
-                    check = true;
-                }
-            }
-        }
-        if(extended != "" )
-        {
-            check = true;
-        }
-        if(check == false)
-        {
-            var message = String.format("Method '%s' does not exist.", expr.get("value"));
-            addReport(Report.newError(
-                    Stage.SEMANTIC,
-                    NodeUtils.getLine(exprStmt),
-                    NodeUtils.getColumn(exprStmt),
-                    message,
-                    null)
-            );
-        }
-        return null;
+        addVisit(Kind.BINARY_EXPR, this::visitBinaryExpr);
+        addVisit(Kind.VAR_REF, this::visitVarRef);
+        addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
+        addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
+        addVisit(Kind.ASSIGN_STMT, this::visitAssignStmt);
+        addVisit(Kind.IF_STMT, this::visitIfStmt);
+        addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
     }
 
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
+        TypeUtils.setCurrentMethod(currentMethod);
         return null;
     }
 
-    private Void visitVarRefExpr(JmmNode varRefExpr, SymbolTable table) {
-        SpecsCheck.checkNotNull(currentMethod, () -> "Expected current method to be set");
+    private Void visitBinaryExpr(JmmNode expr, SymbolTable table)
+    {
+        Type type = TypeUtils.getExprType(expr, table);
+        JmmNode leftNode = expr.getChildren().get(0);
+        JmmNode rightNode = expr.getChildren().get(1);
 
-        // Check if exists a parameter or variable declaration with the same name as the variable reference
-        var varRefName = varRefExpr.get("value");
-
-        // Var is a field, return
-        if (table.getFields().stream()
-                .anyMatch(param -> param.getName().equals(varRefName))) {
-            return null;
+        // Check if leftNode or rightNode is a BinaryExpr
+        if (leftNode.getKind().equals("BinaryExpr")) {
+            visitBinaryExpr(leftNode, table);
+        }
+        if (rightNode.getKind().equals("BinaryExpr")) {
+            visitBinaryExpr(rightNode, table);
         }
 
-        // Var is a parameter, return
-        if (table.getParameters(currentMethod).stream()
-                .anyMatch(param -> param.getName().equals(varRefName))) {
-            return null;
+        Type leftType = TypeUtils.getExprType(leftNode, table);
+        Type rightType = TypeUtils.getExprType(rightNode, table);
+        if(!leftType.getName().equals("int") || !rightType.getName().equals("int"))
+        {
+            addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
+        }
+        if(!leftType.equals(rightType))
+        {
+            addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
+        }
+        return null;
+    }
+
+    private Void visitIfStmt(JmmNode ifStmt, SymbolTable table)
+    {
+        JmmNode condition = ifStmt.getChild(0);
+        Type type;
+        if(condition.getKind().equals("BinaryExpr"))
+        {
+            type = TypeUtils.getExprType(condition,table);
+            if(!type.getName().equals("boolean"))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the if statement", null));
+            }
+        }
+        return null;
+    }
+    private Void visitVarRef(JmmNode expr, SymbolTable table)
+    {
+        Type type = TypeUtils.getExprType(expr,table);
+        if(type == null)
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + expr.get("value") + " not declared", null));}
+        return null;
+    }
+
+    private Void visitMethodCallExpr(JmmNode expr, SymbolTable table)
+    {
+        var imports = table.getImports();
+        var extended = table.getSuper();
+        Type type = TypeUtils.getExprType(expr.getChild(0), table);
+        // verify if the method is declared
+        if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
+        {
+            if(!table.getMethods().contains(expr.get("value")))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
+            }
+            // check if the parameters are correct
+            if(table.getParameters(expr.get("value")).isEmpty())
+            {
+                if(expr.getNumChildren() > 1)
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " has no parameters", null));
+                }
+            }
+            else
+            {
+                var paramList = table.getParameters(expr.get("value"));
+                for (int i = 0; i < paramList.size(); i++) {
+                    if (!paramList.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
+                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                    }
+                }
+            }
         }
 
-        // Var is a declared variable, return
-        if (table.getLocalVariables(currentMethod).stream()
-                .anyMatch(varDecl -> varDecl.getName().equals(varRefName))) {
-            return null;
-        }
-
-        // Create error report
-        var message = String.format("Variable '%s' does not exist.", varRefName);
-        addReport(Report.newError(
-                Stage.SEMANTIC,
-                NodeUtils.getLine(varRefExpr),
-                NodeUtils.getColumn(varRefExpr),
-                message,
-                null)
-        );
 
         return null;
     }
+
+    private Void visitAssignStmt(JmmNode assign, SymbolTable table)
+    {
+        String varAssigned = assign.get("ID");
+        // Check if there is a BinaryExpr
+        JmmNode expr = assign.getChild(0);
+        var extended = table.getSuper();
+        var imports = table.getImports();
+        Type typeExpr = TypeUtils.getExprType(expr, table);
+        Type typeAssign = TypeUtils.getExprType(assign, table);
+        if(expr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
+        {
+            if(expr.get("value").equals("varargs"))
+            {
+                for(int i = 0; i < expr.getNumChildren(); i++)
+                {
+                    if(!TypeUtils.getExprType(expr.getChild(i),table).equals(typeAssign))
+                    {
+                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
+                    }
+                }
+            }
+        }
+        else if(!typeExpr.equals(typeAssign) && (!imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName())))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
+        }
+        else if(imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName()))
+        {
+            if(!extended.contains(typeExpr.getName()))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of " + varAssigned + " because it isn't extended.", null));
+            }
+        }
+        else if (!imports.contains(typeExpr.getName()) && imports.contains(typeAssign.getName()))
+        {
+            if(!extended.contains(typeAssign.getName()))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of " + varAssigned + " because it isn't extended.", null));
+            }
+        }
+
+
+        return null;
+    }
+
+    private Void visitArrayAccessExpr(JmmNode expr, SymbolTable table)
+    {
+        JmmNode array = expr.getChild(0);
+        JmmNode index = expr.getChild(1);
+        Type typeArray = TypeUtils.getExprType(array,table);
+        Type typeIndex = TypeUtils.getExprType(index,table);
+
+        if(!typeArray.isArray())
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + array.get("value") + " is not an array", null));
+        }
+        if(!typeIndex.getName().equals("int"))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0 ,"Variable" + index.get("value") + " is not an integer", null));
+        }
+        return null;
+    }
+
+    private Void visitReturnStmt(JmmNode expr, SymbolTable table)
+    {
+        Type typeMethod = table.getReturnType(currentMethod);
+        JmmNode childExpr = expr.getChild(0);
+        var returnType = table.getReturnType(currentMethod);
+        if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
+        {
+            if(!returnType.getName().equals(TypeUtils.getExprType(childExpr.getChild(0),table)) && !table.getImports().contains(TypeUtils.getExprType(childExpr.getChild(0),table).getName()))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+
+        }
+        return null;
+    }
+
 
 
 }

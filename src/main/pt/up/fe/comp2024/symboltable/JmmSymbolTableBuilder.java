@@ -56,11 +56,32 @@ public class JmmSymbolTableBuilder {
     {
         List<String> imports = new ArrayList<>();
 
+        List<String> aux = new ArrayList<>();
+
         for(int i = 0; i < root.getNumChildren(); i++)
         {
             if(root.getChild(i).getKind().equals("ImportDeclaration"))
             {
-                imports.add(root.getChild(i).get("ID"));
+                aux.add(root.getChild(i).get("value"));
+                var k = root.getChild(i).getObjectAsList("value", String.class);
+                if(k.size() > 1)
+                {
+                    //Lets concatenate all the import in one string separated by a dot
+                    String importString = "";
+                    for(int j = 0; j < k.size(); j++)
+                    {
+                        importString += k.get(j);
+                        if(j != k.size() - 1)
+                        {
+                            importString += ".";
+                        }
+                    }
+                    imports.add(importString);
+                }
+                else
+                {
+                    imports.add(root.getChild(i).get("ID"));
+                }
             }
         }
         return imports;
