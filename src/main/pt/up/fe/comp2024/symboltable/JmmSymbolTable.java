@@ -73,7 +73,7 @@ public class JmmSymbolTable implements SymbolTable {
         if(methodSignature.equals("main")){
             return new Type("void", false);
         } else {
-            System.out.println("MethodName is " + returnTypes.get(methodSignature).getName() + returnTypes.get(methodSignature).isArray());
+            //System.out.println("MethodName is " + returnTypes.get(methodSignature).getName() + returnTypes.get(methodSignature).isArray());
             return new Type(returnTypes.get(methodSignature).getName(), returnTypes.get(methodSignature).isArray());
         }
     }

@@ -32,6 +32,7 @@ public enum Kind {
     VAR_REF;
 
 
+
     private static final Set<Kind> STATEMENTS = Set.of(ASSIGN_STMT, RETURN_STMT);
     private static final Set<Kind> EXPRESSIONS = Set.of(BINARY_EXPR, INTEGER_LITERAL,VAR_REF,VAR_EXPR);
 
@@ -94,7 +95,6 @@ public enum Kind {
      * @param node
      */
     public void checkOrThrow(JmmNode node) {
-
         if (!check(node)) {
             throw new RuntimeException("Node '" + node + "' is not a '" + getNodeName() + "'");
         }

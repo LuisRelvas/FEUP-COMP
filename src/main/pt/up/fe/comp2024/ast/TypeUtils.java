@@ -8,6 +8,7 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
 import pt.up.fe.comp2024.analysis.passes.UndeclaredVariable;
 
+
 public class TypeUtils {
 
     private static final String INT_TYPE_NAME = "int";
@@ -34,6 +35,7 @@ public class TypeUtils {
      */
     public static Type getExprType(JmmNode expr, SymbolTable table) {
         // TODO: Simple implementation that needs to be expanded
+
 
         var kind = Kind.fromString(expr.getKind());
 
@@ -117,6 +119,7 @@ public class TypeUtils {
 
 
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
+
         // TODO: Simple implementation that needs to be expanded
         // Get the method name
         var kind = Kind.fromString(varRefExpr.getKind());
@@ -167,6 +170,7 @@ public class TypeUtils {
             }
         }
         return null;
+
     }
 
 

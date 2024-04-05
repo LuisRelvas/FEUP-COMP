@@ -23,7 +23,7 @@ public class JasminTest {
         testOllirToJasmin("pt/up/fe/comp/cp2/jasmin/OllirToJasminArithmetics.ollir");
     }
 
-    @Test
+    @Test   
     public void ollirToJasminInvoke() {
         testOllirToJasmin("pt/up/fe/comp/cp2/jasmin/OllirToJasminInvoke.ollir");
     }
@@ -52,12 +52,12 @@ public class JasminTest {
             result = TestUtils.backend(ollirResult);
         }
 
-        
+
         var testName = new File(resource).getName();
         System.out.println(testName + ":\n" + result.getJasminCode());
         var runOutput = result.runWithFullOutput();
         assertEquals("Error while running compiled Jasmin: " + runOutput.getOutput(), 0, runOutput.getReturnValue());
-        System.out.println("\n Result: " + runOutput.getOutput());
+        //System.out.println("\n Result: " + runOutput.getOutput());
 
         if (expectedOutput != null) {
             assertEquals(expectedOutput, runOutput.getOutput());

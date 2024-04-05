@@ -34,9 +34,13 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
 
     private OllirExprResult visitInteger(JmmNode node, Void unused) {
+        if(true){
+            return new OllirExprResult("ainda por fazer");
+        }
         var intType = new Type(TypeUtils.getIntTypeName(), false);
         String ollirIntType = OptUtils.toOllirType(intType);
         String code = node.get("value") + ollirIntType;
+
         return new OllirExprResult(code);
     }
 
@@ -71,13 +75,19 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
     private OllirExprResult visitVarRef(JmmNode node, Void unused) {
 
-        var id = node.get("name");
-        Type type = TypeUtils.getExprType(node, table);
-        String ollirType = OptUtils.toOllirType(type);
+        if (node.getKind().equals("VarRef")){
+            return new OllirExprResult("");
+        }
+        else {
+            var id = node.get("name");
+            System.out.println(id);
+            Type type = TypeUtils.getExprType(node, table);
+            String ollirType = OptUtils.toOllirType(type);
 
-        String code = id + ollirType;
+            String code = id + ollirType;
 
-        return new OllirExprResult(code);
+            return new OllirExprResult(code);
+        }
     }
 
     /**
