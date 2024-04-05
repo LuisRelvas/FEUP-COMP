@@ -201,10 +201,61 @@ public class UndeclaredVariable extends AnalysisVisitor {
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
-
+        }
+        if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
+        {
+            JmmNode leftNode = childExpr.getChild(0);
+            JmmNode rightNode = childExpr.getChild(1);
+            var returnExprTypes = traverseAst(leftNode,rightNode,table);
+            for(int i = 0; i < returnExprTypes.size(); i++)
+            {
+                if(!returnType.equals(returnExprTypes.get(i)))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement " + returnExprTypes.get(i).getName() + " with " + returnType.getName(), null));
+                }
+            }
         }
         return null;
     }
+
+    private List<Type> traverseAst(JmmNode leftNode, JmmNode rightNode, SymbolTable table) {
+        List<Type> typesfinal = new ArrayList<>();
+
+        if (leftNode.getKind().equals(Kind.BINARY_EXPR.toString())) {
+            typesfinal.addAll(traverseAst(leftNode.getChild(0), leftNode.getChild(1), table));
+        }
+        else if (leftNode.getKind().equals(Kind.VAR_REF.toString())) {
+            Type typeLeft = TypeUtils.getExprType(leftNode, table);
+            typesfinal.add(typeLeft);
+        }
+        else if (leftNode.getKind().equals(Kind.INTEGER_LITERAL.toString())) {
+            Type typeLeft = new Type("int", false);
+            typesfinal.add(typeLeft);
+        }
+        else if(leftNode.getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
+            Type typeLeft = new Type("boolean", false);
+            typesfinal.add(typeLeft);
+        }
+
+        if (rightNode.getKind().equals(Kind.BINARY_EXPR.toString())) {
+            typesfinal.addAll(traverseAst(rightNode.getChild(0), rightNode.getChild(1), table));
+        }
+        else if (rightNode.getKind().equals(Kind.VAR_REF.toString())) {
+            Type typeRight = TypeUtils.getExprType(rightNode, table);
+            typesfinal.add(typeRight);
+        }
+        else if (rightNode.getKind().equals(Kind.INTEGER_LITERAL.toString())) {
+            Type typeRight = new Type("int", false);
+            typesfinal.add(typeRight);
+        }
+        else if(rightNode.getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
+            Type typeRight = new Type("boolean", false);
+            typesfinal.add(typeRight);
+        }
+
+        return typesfinal;
+    }
+
 
 
 
