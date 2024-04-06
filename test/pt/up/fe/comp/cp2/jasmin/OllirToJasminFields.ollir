@@ -10,7 +10,7 @@ Test {
 		ret.V;
 	}
 
-	
+
 	.method public foo().V {
 
 		putfield(this, intField.i32, 10.i32).V;

@@ -55,7 +55,7 @@ public class JasminGenerator {
         generators.put(ReturnInstruction.class, this::generateReturn);
         generators.put(CallInstruction.class,this::generateCallInstruction);
         generators.put(PutFieldInstruction.class,this::generatePutFields);
-        //generators.put(GetFieldInstruction.class,this::generateGetFields); //TODO : AQUI /A
+        generators.put(GetFieldInstruction.class,this::generateGetFields); //TODO : AQUI /A
 
     }
 
@@ -79,27 +79,18 @@ public class JasminGenerator {
     }
 
     //TODO : apagar maybe
-    private String generateGetFields(PutFieldInstruction getFieldInstruction) {
+    private String generateGetFields(GetFieldInstruction getFieldInstruction) {
         StringBuilder putCode = new StringBuilder();
-        putCode.append("aload ");
-        putCode.append(getIntFromLiteral(getFieldInstruction.getValue())+NL);
-        //TODO : verificar com outros typos a ver se realmente é necessário o switch /A
-        switch (getFieldInstruction.getValue().getType().toString()) {
-            case "INT32":
-                putCode.append("getfield ");
-                putCode.append(getFunctionObjectName(getFieldInstruction.getOperands().get(0).toString()) + "/");
-                putCode.append(getFieldInstruction.getField().getName() + SPACE + ollirToJasminType(getFieldInstruction.getField().getType().toString())+NL);
-                putCode.append("aload_0"+NL);
-                break;
-            default:
-                break;
-        }
+        putCode.append("getfield"+SPACE);
+        putCode.append(getFunctionObjectName(getFieldInstruction.getOperands().get(0).toString()) + "/");
+        putCode.append(getFieldInstruction.getField().getName() + SPACE + ollirToJasminType(getFieldInstruction.getField().getType().toString())+NL);
         return putCode.toString();
     }
 
     private String generatePutFields(PutFieldInstruction putFieldInstruction) {
+
         StringBuilder putCode = new StringBuilder();
-        putCode.append("aload ");
+        putCode.append("bipush ");
         putCode.append(getIntFromLiteral(putFieldInstruction.getValue())+NL);
         //TODO : verificar com outros typos a ver se realmente é necessário o switch /A
         switch (putFieldInstruction.getValue().getType().toString()) {
@@ -145,7 +136,6 @@ public class JasminGenerator {
     private String generateClassUnit(ClassUnit classUnit) {
 
         var code = new StringBuilder();
-
         // generate class name
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
@@ -157,11 +147,13 @@ public class JasminGenerator {
             superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
         }
+
         //fields
         StringBuilder fields = new StringBuilder();
         for (var field :classUnit.getFields()){
             fields.append(".field ");
-            fields.append(field.getFieldAccessModifier().toString().toLowerCase()).append(SPACE);
+            //System.out.println(field.getFieldAccessModifier().toString().toLowerCase());
+            //fields.append(field.getFieldAccessModifier().toString().toLowerCase()).append(SPACE);
             fields.append(field.getFieldName()).append(SPACE);
             fields.append(ollirToJasminType(field.getFieldType().toString())).append(NL);
         }
@@ -247,8 +239,9 @@ public class JasminGenerator {
         //TODO : no cp3 não é suposto ser "99", porém no pdf do moodle diz para deixarmos assim de momento /A
         code.append(TAB).append(".limit stack 99").append(NL);
         code.append(TAB).append(".limit locals 99").append(NL);
-
-
+        if (!currentMethod.isStaticMethod()){
+            code.append(TAB+"aload_0").append(NL);
+        }
         for (var inst : method.getInstructions()) {
             var instCode = StringLines.getLines(generators.apply(inst)).stream()
                     .collect(Collectors.joining(NL + TAB, TAB, NL));
@@ -281,7 +274,6 @@ public class JasminGenerator {
         var code = new StringBuilder();
 
         // generate code for loading what's on the right
-        System.out.println(assign.getRhs());
         code.append(generators.apply(assign.getRhs()));
         // store value in the stack in destination
         var lhs = assign.getDest();
@@ -297,19 +289,18 @@ public class JasminGenerator {
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
 
         StringBuilder type = new StringBuilder();
-        System.out.println(operand.getType().toString());
         switch (operand.getType().toString()){
             case "INT32" :
-                type.append("istore ").append(reg).append(NL);
+                type.append("istore_").append(reg).append(NL);
                 break;
             case "BOOLEAN" :
-                type.append("istore ").append(reg).append(NL);
+                type.append("istore_").append(reg).append(NL);
                 break;
             default :
                 type.append("new ").append(getFunctionObjectName(operand.getType().toString())).append(NL).append("dup"); //TODO : de momento a assumir que só há bools/ints e o que não for é um invoke
                 break;
         };
-        code.append(type).append(NL);
+        code.append(type);
         return code.toString();
     }
 
