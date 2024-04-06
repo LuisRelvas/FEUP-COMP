@@ -95,7 +95,7 @@ stmt
     ;
 
 expr
-    : LPAREN expr RPAREN #BinaryExpr //
+    : LPAREN expr RPAREN #ParenthesisExpr //
     | 'new' INT LRECT expr RRECT #NewArrayExpr //
     | 'new' value=ID LPAREN RPAREN #NewObjectExpr //
     | LRECT (expr ( ',' expr)*)? RRECT #ArrayCreationExpr //
