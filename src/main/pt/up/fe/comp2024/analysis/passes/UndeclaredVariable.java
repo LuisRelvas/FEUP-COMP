@@ -31,14 +31,68 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
         addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
+        addVisit(Kind.ARRAY_ASSIGN_STMT, this::visitArrayAssignStmt);
         addVisit(Kind.ASSIGN_STMT, this::visitAssignStmt);
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
+        addVisit(Kind.WHILE_STMT,this::visitWhileStmt);
     }
 
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         TypeUtils.setCurrentMethod(currentMethod);
+        return null;
+    }
+
+    private Void visitWhileStmt(JmmNode whileExpr, SymbolTable table)
+    {
+        Type type = TypeUtils.getExprType(whileExpr.getChild(0),table);
+        if(!type.getName().equals("boolean") || type.isArray())
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the while statement", null));
+        }
+        return null;
+    }
+
+    private Void visitArrayAssignStmt(JmmNode arrayAssignStmt, SymbolTable table)
+    {
+        Type typeArray = new Type("int",false);
+        String array = arrayAssignStmt.get("ID");
+        for(Symbol s: table.getLocalVariables(currentMethod))
+        {
+            if(s.getName().equals(array))
+            {
+                typeArray = new Type(s.getType().getName(),false);
+            }
+        }
+        for(Symbol s: table.getParameters(currentMethod))
+        {
+            if(s.getName().equals(array))
+            {
+                typeArray = new Type(s.getType().getName(),false);
+            }
+        }
+        for(Symbol s: table.getFields())
+        {
+            if(s.getName().equals(array))
+            {
+                typeArray = new Type(s.getType().getName(),false);
+            }
+        }
+        // First Child of ArrayAssign must be the Index
+        Type typeIndex = TypeUtils.getExprType(arrayAssignStmt.getChild(0), table);
+        if(!typeIndex.getName().equals("int") || typeIndex.isArray())
+        {
+            addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
+        }
+        for(int i = 1; i < arrayAssignStmt.getNumChildren(); i++)
+        {
+            Type type = TypeUtils.getExprType(arrayAssignStmt.getChild(i), table);
+            if(!type.equals(typeArray))
+            {
+                addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
+            }
+        }
         return null;
     }
 
@@ -58,7 +112,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
         Type leftType = TypeUtils.getExprType(leftNode, table);
         Type rightType = TypeUtils.getExprType(rightNode, table);
-        if(!leftType.getName().equals("int") || !rightType.getName().equals("int"))
+        // Permitimos as operações binarias entre dois elementos com o mesmo tipo exceto para arrays
+        if(!leftType.equals(rightType) || (leftType.isArray()) || (rightType.isArray()) )
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
         }
@@ -149,6 +204,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
             }
         }
+        else if (imports.isEmpty() && !typeExpr.equals(typeAssign))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
+        }
         else if(!typeExpr.equals(typeAssign) && (!imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName())))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
@@ -197,9 +256,23 @@ public class UndeclaredVariable extends AnalysisVisitor {
         var returnType = table.getReturnType(currentMethod);
         if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
         {
-            if(!returnType.getName().equals(TypeUtils.getExprType(childExpr.getChild(0),table)) && !table.getImports().contains(TypeUtils.getExprType(childExpr.getChild(0),table).getName()))
+            // The first child of childExpr must be the class name
+            var k = TypeUtils.getExprType(childExpr.getChild(0),table);
+            //k must be a valid class name
+            if (table.getImports().contains(k.getName()))
             {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                return null; // Assume the method is declared by the import
+            }
+            else if (!k.getName().equals(table.getClassName())) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Class not declared " + k.getName(), null));
+            }
+            else
+            {
+                var typeMethodCalled = table.getReturnType(childExpr.get("value"));
+                if(!typeMethodCalled.equals(returnType) && !table.getImports().contains(typeMethodCalled.getName()))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                }
             }
         }
         if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))

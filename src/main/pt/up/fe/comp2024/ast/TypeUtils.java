@@ -47,14 +47,35 @@ public class TypeUtils {
             case VAR_DECL -> getVarDeclType(expr,table);
             case ASSIGN_STMT -> getAssignType(expr,table);
             case NEW_OBJECT_EXPR -> new Type(expr.get("value"), false);
-            case METHOD_CALL_EXPR -> new Type(expr.get("value"), false);
+            case METHOD_CALL_EXPR -> getMethodCallExprType(expr,table);
             case ARRAY_CREATION_EXPR -> getArrayExprType(expr,table);
+            case ARRAY_ACCESS_EXPR -> getArrayAccessExprType(expr,table);
+            case THIS_EXPR -> new Type(table.getClassName(), false);
+            case NEW_ARRAY_EXPR -> new Type(getExprType(expr.getChild(0),table).getName(),true);
             default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
 
         return type;
     }
 
+
+    private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
+    {
+        var returnType = table.getReturnType(methodCallExpr.get("value"));
+        return returnType;
+    }
+    private static Type getArrayAccessExprType(JmmNode arrayAccessExpr, SymbolTable table)
+    {
+        var expr = arrayAccessExpr.getChildren().get(0);
+        var typeArray = getExprType(expr, table);
+        var index = arrayAccessExpr.getChildren().get(1);
+        var typeIndex = getExprType(index,table);
+        if(!typeIndex.getName().equals(INT_TYPE_NAME) || typeIndex.isArray())
+        {
+            throw new RuntimeException("Index type is not an integer");
+        }
+        return new Type(typeArray.getName(), false);
+    }
     private static Type getArrayExprType(JmmNode arrayExpr, SymbolTable table) {
         var typeParent  = getAssignType(arrayExpr.getParent(),table);
         for(int i = 0; i < arrayExpr.getNumChildren(); i++)
@@ -73,7 +94,7 @@ public class TypeUtils {
         // Search the attributes that are going to be in the binary expression
         return switch (operator) {
             case "+", "*", "-", "/" -> new Type(INT_TYPE_NAME, false);
-            case "<", ">", "<=", ">=", "==", "!=" -> new Type(BOOLEAN_TYPE_NAME, false);
+            case "<", ">", "<=", ">=", "==", "!=", "&&", "||" -> new Type(BOOLEAN_TYPE_NAME, false);
             default ->
                     throw new RuntimeException("Unknown operator '" + operator + "' of expression '" + binaryExpr + "'");
         };
