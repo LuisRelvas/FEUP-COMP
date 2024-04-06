@@ -1,13 +1,11 @@
-class Test {
+class T3NoReports {
 
-public boolean[] foo() {
-        boolean[] a;
-        int k;
-        boolean b;
-        b = true;
-        k = 0;
-        a = [b, b, b];
-        return a;
+    int foo(int[] a) {
+        int r;
+
+        r = a[0] + 1;
+        r = 2 + a[1] + 10 + a[2];
+
+        return r;
     }
-
 }

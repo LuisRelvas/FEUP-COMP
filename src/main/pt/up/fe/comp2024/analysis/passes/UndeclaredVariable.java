@@ -197,9 +197,23 @@ public class UndeclaredVariable extends AnalysisVisitor {
         var returnType = table.getReturnType(currentMethod);
         if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
         {
-            if(!returnType.getName().equals(TypeUtils.getExprType(childExpr.getChild(0),table)) && !table.getImports().contains(TypeUtils.getExprType(childExpr.getChild(0),table).getName()))
+            // The first child of childExpr must be the class name
+            var k = TypeUtils.getExprType(childExpr.getChild(0),table);
+            //k must be a valid class name
+            if (table.getImports().contains(k.getName()))
             {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                return null; // Assume the method is declared by the import
+            }
+            else if (!k.getName().equals(table.getClassName())) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Class not declared " + k.getName(), null));
+            }
+            else
+            {
+                var typeMethodCalled = table.getReturnType(childExpr.get("value"));
+                if(!typeMethodCalled.equals(returnType) && !table.getImports().contains(typeMethodCalled.getName()))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                }
             }
         }
         if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
