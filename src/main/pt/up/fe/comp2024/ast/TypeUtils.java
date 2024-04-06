@@ -47,7 +47,7 @@ public class TypeUtils {
             case VAR_DECL -> getVarDeclType(expr,table);
             case ASSIGN_STMT -> getAssignType(expr,table);
             case NEW_OBJECT_EXPR -> new Type(expr.get("value"), false);
-            case METHOD_CALL_EXPR -> new Type(expr.get("value"), false);
+            case METHOD_CALL_EXPR -> getMethodCallExprType(expr,table);
             case ARRAY_CREATION_EXPR -> getArrayExprType(expr,table);
             case ARRAY_ACCESS_EXPR -> getArrayAccessExprType(expr,table);
             case THIS_EXPR -> new Type(table.getClassName(), false);
@@ -58,6 +58,12 @@ public class TypeUtils {
         return type;
     }
 
+
+    private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
+    {
+        var returnType = table.getReturnType(methodCallExpr.get("value"));
+        return returnType;
+    }
     private static Type getArrayAccessExprType(JmmNode arrayAccessExpr, SymbolTable table)
     {
         var expr = arrayAccessExpr.getChildren().get(0);

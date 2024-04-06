@@ -1,12 +1,22 @@
-import io;
-
-class A {
-
-	int a;
-
-    public static void main(String[] args){
-        int a;
-        a = 10;
-        io.print(10);
+import ioPlus;
+class ComplexExpressions {
+    public int func() {
+        return 5;
     }
+
+    public int toInt(boolean b) {
+        int i;
+        if (b) {
+            i = 1;
+        } else {
+            i = 0;
+        }
+        return i;
+    }
+
+	public static void main(String[] args) {
+	    ComplexExpressions c;
+	    c = new ComplexExpressions();
+        ioPlus.printResult(c.func() + 1);
+	}
 }
