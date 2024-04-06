@@ -50,6 +50,7 @@ public class TypeUtils {
             case METHOD_CALL_EXPR -> new Type(expr.get("value"), false);
             case ARRAY_CREATION_EXPR -> getArrayExprType(expr,table);
             case ARRAY_ACCESS_EXPR -> getArrayAccessExprType(expr,table);
+            case THIS_EXPR -> new Type(table.getClassName(), false);
             default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
 

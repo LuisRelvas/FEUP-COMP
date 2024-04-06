@@ -1,11 +1,11 @@
-class T3NoReports {
+class Array_Index_Bad {
 
-    int foo(int[] a) {
-        int r;
 
-        r = a[0] + 1;
-        r = 2 + a[1] + 10 + a[2];
+	public boolean[] foo() {
+            boolean[] arr;
 
-        return r;
+    		arr[0] = true;
+
+    		return arr;
     }
 }

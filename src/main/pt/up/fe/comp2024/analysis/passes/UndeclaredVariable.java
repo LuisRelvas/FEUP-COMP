@@ -31,6 +31,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
         addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
+        addVisit(Kind.ARRAY_ASSIGN_STMT, this::visitArrayAssignStmt);
         addVisit(Kind.ASSIGN_STMT, this::visitAssignStmt);
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
@@ -39,6 +40,48 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         TypeUtils.setCurrentMethod(currentMethod);
+        return null;
+    }
+
+    private Void visitArrayAssignStmt(JmmNode arrayAssignStmt, SymbolTable table)
+    {
+        Type typeArray = new Type("int",false);
+        String array = arrayAssignStmt.get("ID");
+        for(Symbol s: table.getLocalVariables(currentMethod))
+        {
+            if(s.getName().equals(array))
+            {
+                typeArray = new Type(s.getType().getName(),false);
+            }
+        }
+        for(Symbol s: table.getParameters(currentMethod))
+        {
+            if(s.getName().equals(array))
+            {
+                typeArray = new Type(s.getType().getName(),false);
+            }
+        }
+        for(Symbol s: table.getFields())
+        {
+            if(s.getName().equals(array))
+            {
+                typeArray = new Type(s.getType().getName(),false);
+            }
+        }
+        // First Child of ArrayAssign must be the Index
+        Type typeIndex = TypeUtils.getExprType(arrayAssignStmt.getChild(0), table);
+        if(!typeIndex.getName().equals("int") || typeIndex.isArray())
+        {
+            addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
+        }
+        for(int i = 1; i < arrayAssignStmt.getNumChildren(); i++)
+        {
+            Type type = TypeUtils.getExprType(arrayAssignStmt.getChild(i), table);
+            if(!type.equals(typeArray))
+            {
+                addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
+            }
+        }
         return null;
     }
 
