@@ -29,7 +29,9 @@ public enum Kind {
     VAR_EXPR,
 
     THIS_EXPR,
+    NEW_ARRAY_EXPR,
 
+    WHILE_STMT,
     ARRAY_ASSIGN_STMT,
     ARRAY_ACCESS_EXPR,
     VAR_REF;

@@ -35,11 +35,22 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.ASSIGN_STMT, this::visitAssignStmt);
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
+        addVisit(Kind.WHILE_STMT,this::visitWhileStmt);
     }
 
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         TypeUtils.setCurrentMethod(currentMethod);
+        return null;
+    }
+
+    private Void visitWhileStmt(JmmNode whileExpr, SymbolTable table)
+    {
+        Type type = TypeUtils.getExprType(whileExpr.getChild(0),table);
+        if(!type.getName().equals(Kind.BOOLEAN_LITERAL.toString()) || type.isArray())
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the while statement", null));
+        }
         return null;
     }
 
