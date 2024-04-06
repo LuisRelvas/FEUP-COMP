@@ -54,6 +54,65 @@ public class JasminGenerator {
         generators.put(BinaryOpInstruction.class, this::generateBinaryOp);
         generators.put(ReturnInstruction.class, this::generateReturn);
         generators.put(CallInstruction.class,this::generateCallInstruction);
+        generators.put(PutFieldInstruction.class,this::generatePutFields);
+        //generators.put(GetFieldInstruction.class,this::generateGetFields); //TODO : AQUI /A
+
+    }
+
+
+    private String getIntFromLiteral(Element ele){
+        String fullEle = ele.toString();
+        String typeString = ele.getType().toString();
+        fullEle = fullEle.replaceAll(typeString,"");
+        return getNumberOfLiteral(fullEle);
+    }
+
+    private String getNumberOfLiteral(String literalElement) {
+        StringBuilder answer = new StringBuilder();
+
+        int startInd = literalElement.indexOf(':');
+        int endInd = literalElement.indexOf('.');
+        answer.append(literalElement.substring(startInd+1,endInd));
+        String answer2 = answer.toString();
+        answer2 = answer2.replaceAll(" ","");
+        return answer2;
+    }
+
+    //TODO : apagar maybe
+    private String generateGetFields(PutFieldInstruction getFieldInstruction) {
+        StringBuilder putCode = new StringBuilder();
+        putCode.append("aload ");
+        putCode.append(getIntFromLiteral(getFieldInstruction.getValue())+NL);
+        //TODO : verificar com outros typos a ver se realmente é necessário o switch /A
+        switch (getFieldInstruction.getValue().getType().toString()) {
+            case "INT32":
+                putCode.append("getfield ");
+                putCode.append(getFunctionObjectName(getFieldInstruction.getOperands().get(0).toString()) + "/");
+                putCode.append(getFieldInstruction.getField().getName() + SPACE + ollirToJasminType(getFieldInstruction.getField().getType().toString())+NL);
+                putCode.append("aload_0"+NL);
+                break;
+            default:
+                break;
+        }
+        return putCode.toString();
+    }
+
+    private String generatePutFields(PutFieldInstruction putFieldInstruction) {
+        StringBuilder putCode = new StringBuilder();
+        putCode.append("aload ");
+        putCode.append(getIntFromLiteral(putFieldInstruction.getValue())+NL);
+        //TODO : verificar com outros typos a ver se realmente é necessário o switch /A
+        switch (putFieldInstruction.getValue().getType().toString()) {
+            case "INT32":
+                putCode.append("putfield ");
+                putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
+                putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
+                putCode.append("aload_0"+NL);
+                break;
+            default:
+                break;
+        }
+        return putCode.toString();
     }
 
     private String generateCallInstruction(CallInstruction callInstruction) {
@@ -64,7 +123,7 @@ public class JasminGenerator {
         }
         answer.append(callInstruction.getInvocationType()+SPACE);
         answer.append(getFunctionObjectName(callInstruction.getOperands().get(0).getType().toString()));
-        //System.out.println(callInstruction.getOperands().get(0).getType());
+
         answer.append("/<init>()V"+NL);
         answer.append("pop"+NL);
         return answer.toString();
@@ -111,7 +170,6 @@ public class JasminGenerator {
 
         // generate a single constructor method
         StringBuilder defaultConstructor = new StringBuilder();
-        // TODO : verificar se é necessário ";default constructor" /A
         defaultConstructor.append(";default constructor"+NL);
         defaultConstructor.append(".method"+SPACE);
         defaultConstructor.append("public <init>()V"+NL);
@@ -132,13 +190,14 @@ public class JasminGenerator {
             // Ignore constructor, since there is always one constructor
             // that receives no arguments, and has been already added
             // previously
+
             if (method.isConstructMethod()) {
                 continue;
             }
 
             code.append(generators.apply(method));
-
         }
+
         return code.toString();
     }
 
@@ -191,11 +250,10 @@ public class JasminGenerator {
 
 
         for (var inst : method.getInstructions()) {
-
             var instCode = StringLines.getLines(generators.apply(inst)).stream()
                     .collect(Collectors.joining(NL + TAB, TAB, NL));
-
             code.append(instCode);
+
 
         }
 
@@ -219,11 +277,12 @@ public class JasminGenerator {
     }
 
     private String generateAssign(AssignInstruction assign) {
+
         var code = new StringBuilder();
 
         // generate code for loading what's on the right
+        System.out.println(assign.getRhs());
         code.append(generators.apply(assign.getRhs()));
-
         // store value in the stack in destination
         var lhs = assign.getDest();
 
@@ -238,6 +297,7 @@ public class JasminGenerator {
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
 
         StringBuilder type = new StringBuilder();
+        System.out.println(operand.getType().toString());
         switch (operand.getType().toString()){
             case "INT32" :
                 type.append("istore ").append(reg).append(NL);
@@ -293,6 +353,7 @@ public class JasminGenerator {
                 code.append("idiv").append(NL);
                 break;
             default:
+
                 throw new NotImplementedException(binaryOp.getOperation().getOpType());
         }
 
