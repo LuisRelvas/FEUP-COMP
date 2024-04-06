@@ -47,7 +47,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitWhileStmt(JmmNode whileExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(whileExpr.getChild(0),table);
-        if(!type.getName().equals(Kind.BOOLEAN_LITERAL.toString()) || type.isArray())
+        if(!type.getName().equals("boolean") || type.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the while statement", null));
         }
@@ -112,7 +112,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
         Type leftType = TypeUtils.getExprType(leftNode, table);
         Type rightType = TypeUtils.getExprType(rightNode, table);
-        if(!leftType.getName().equals("int") || !rightType.getName().equals("int"))
+        // Permitimos as operações binarias entre dois elementos com o mesmo tipo exceto para arrays
+        if(!leftType.equals(rightType) || (leftType.isArray()) || (rightType.isArray()) )
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
         }
@@ -202,6 +203,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     }
                 }
             }
+        }
+        else if (imports.isEmpty() && !typeExpr.equals(typeAssign))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
         }
         else if(!typeExpr.equals(typeAssign) && (!imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName())))
         {

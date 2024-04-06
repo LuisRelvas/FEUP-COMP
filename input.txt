@@ -1,16 +1,12 @@
-class ArrayInWhileCondition {
+import io;
 
-    public static void main(String[] args) {
+class A {
 
-    }
+	int a;
 
-    public int foo() {
-        int[] a;
-        a = new int[2];
-
-        while (a) {
-        }
-
-        return 0;
+    public static void main(String[] args){
+        int a;
+        a = 10;
+        io.print(10);
     }
 }
