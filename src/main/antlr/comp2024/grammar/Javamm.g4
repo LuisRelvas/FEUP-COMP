@@ -100,6 +100,7 @@ expr
     | 'new' value=ID LPAREN RPAREN #NewObjectExpr //
     | LRECT (expr ( ',' expr)*)? RRECT #ArrayCreationExpr //
     | expr LRECT expr RRECT #ArrayAccessExpr //
+    | value=ID LPAREN (expr ( ',' expr )*)? RPAREN #MethodCallExpr //
     | expr '.' value=ID LPAREN (expr ( ',' expr )*)? RPAREN #MethodCallExpr //
     | expr '.' 'length' #ArrayLengthExpr //
     | value='this' #ThisExpr //
@@ -110,8 +111,8 @@ expr
     | expr op= ('<='| '>=') expr #BinaryExpr //
     | expr op= ('==' | '!=') expr #BinaryExpr //
     | expr op= '&&' expr #BinaryExpr //
-    | value=INTEGER #IntegerExpr //
-    | value=BOOL #BooleanExpr //
+    | value=INTEGER #IntegerLiteral //
+    | value=BOOL #BooleanLiteral //
     | value=ID #VarRef //
 
     ;

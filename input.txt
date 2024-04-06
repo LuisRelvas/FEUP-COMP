@@ -1,18 +1,13 @@
-import A;
+class Test {
 
-class AssumeArguments {
-
-    public static void main(String[] args) {
-
-    }
-
-    public int bar() {
-        A a;
+public boolean[] foo() {
+        boolean[] a;
+        int k;
         boolean b;
-
-        a = new A();
         b = true;
-
-        return a.foo(b);
+        k = 0;
+        a = [b, b, b];
+        return a;
     }
+
 }
