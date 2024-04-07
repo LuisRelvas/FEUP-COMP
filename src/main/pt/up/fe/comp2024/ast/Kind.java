@@ -40,7 +40,9 @@ public enum Kind {
     WHILE_STMT,
     ARRAY_ASSIGN_STMT,
     ARRAY_ACCESS_EXPR,
-    VAR_REF;
+    VAR_REF, IMPORT_DECL(), EXPR_STMT(), VAR_REF_EXPR();
+
+
 
 
 

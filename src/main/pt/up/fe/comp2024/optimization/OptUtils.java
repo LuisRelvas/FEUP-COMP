@@ -32,18 +32,11 @@ public class OptUtils {
 
     public static String toOllirType(JmmNode typeNode) {
 
-        switch (typeNode.getKind()){
-            case "IntField":
-                return toOllirType("int");
-            case "IntType":
-                return toOllirType("int");
-            case "BooleanType" :
-                return toOllirType("boolean");
-            default:
-                TYPE.checkOrThrow(typeNode);
-                String typeName = typeNode.get("name");
-                return toOllirType(typeName);
-        }
+        TYPE.checkOrThrow(typeNode);
+
+        String typeName = typeNode.get("name");
+
+        return toOllirType(typeName);
     }
 
     public static String toOllirType(Type type) {
@@ -54,9 +47,9 @@ public class OptUtils {
         String type = "." + switch (typeName) {
                                 case "int" -> "i32";
                                 case "boolean" -> "bool";
-                                case "String" -> "array.i8";
-                                case "void" -> "void";
-                                default -> typeName; // for class types
+                                case "String" -> "array.String";
+                                case "void" -> "V";
+                                default -> throw new NotImplementedException(typeName);
         };
 
         return type;
