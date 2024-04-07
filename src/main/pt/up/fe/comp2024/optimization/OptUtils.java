@@ -1,15 +1,20 @@
 package pt.up.fe.comp2024.optimization;
 
 import org.specs.comp.ollir.Instruction;
+import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp2024.ast.Kind;
 import pt.up.fe.comp2024.ast.NodeUtils;
+import pt.up.fe.comp2024.ast.TypeUtils;
 import pt.up.fe.specs.util.exceptions.NotImplementedException;
 
 import java.util.List;
 import java.util.Optional;
 
+import static pt.up.fe.comp2024.ast.Kind.INTEGER_LITERAL;
 import static pt.up.fe.comp2024.ast.Kind.TYPE;
+import static pt.up.fe.comp2024.ast.Kind.*;
 
 public class OptUtils {
     private static int tempNumber = -1;
@@ -32,14 +37,16 @@ public class OptUtils {
 
     public static String toOllirType(JmmNode typeNode) {
 
-        TYPE.checkOrThrow(typeNode);
 
-        String typeName = typeNode.get("name");
+        TYPES.contains(typeNode.getKind());
+
+        String typeName = typeNode.get("value");
 
         return toOllirType(typeName);
     }
 
-    public static String toOllirType(Type type) {
+    public static String toOllirType(Type type)
+    {
         return toOllirType(type.getName());
     }
 

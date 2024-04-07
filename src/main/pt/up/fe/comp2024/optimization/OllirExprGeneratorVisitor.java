@@ -61,11 +61,11 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         String code = OptUtils.getTemp() + resOllirType;
 
         computation.append(code).append(SPACE)
-                .append(ASSIGN).append(resOllirType).append(SPACE)
-                .append(lhs.getCode()).append(SPACE);
+                .append(ASSIGN).append(resOllirType).append(SPACE).append(node.getJmmChild(0).get("value")).append(resOllirType).append(SPACE);
+                ;
 
         Type type = TypeUtils.getExprType(node, table);
-        computation.append(node.get("op")).append(OptUtils.toOllirType(type)).append(SPACE)
+        computation.append(node.get("op")).append(SPACE).append(resOllirType).append(SPACE).append(node.getJmmChild(1).get("value")).append(OptUtils.toOllirType(type)).append(SPACE)
                 .append(rhs.getCode()).append(END_STMT);
 
         return new OllirExprResult(code, computation);

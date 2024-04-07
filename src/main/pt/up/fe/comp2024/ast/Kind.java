@@ -40,12 +40,15 @@ public enum Kind {
     WHILE_STMT,
     ARRAY_ASSIGN_STMT,
     ARRAY_ACCESS_EXPR,
+
+    INT_TYPE,
+    BOOLEAN_TYPE,
+
+    CLASS_TYPE,
+    STRING_TYPE,
     VAR_REF, IMPORT_DECL(), EXPR_STMT(), VAR_REF_EXPR();
 
-
-
-
-
+    public static final Set<Kind> TYPES = Set.of(INT_TYPE, BOOLEAN_TYPE, CLASS_TYPE, STRING_TYPE);
     private static final Set<Kind> STATEMENTS = Set.of(ASSIGN_STMT, RETURN_STMT);
     private static final Set<Kind> EXPRESSIONS = Set.of(BINARY_EXPR, INTEGER_LITERAL,VAR_REF,VAR_EXPR);
 
@@ -91,6 +94,8 @@ public enum Kind {
     public boolean isExpr() {
         return EXPRESSIONS.contains(this);
     }
+
+    public boolean isType() {return TYPES.contains(this);}
 
     /**
      * Tests if the given JmmNode has the same kind as this type.
