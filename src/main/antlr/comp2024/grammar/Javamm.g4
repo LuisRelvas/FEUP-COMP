@@ -90,7 +90,7 @@ stmt
     | 'if' LPAREN expr RPAREN stmt 'else' stmt #IfStmt //
     | 'while' LPAREN expr RPAREN stmt #WhileStmt //
     | expr SEMI #ExprStmt //
-    | value+=ID EQUALS expr SEMI #AssignStmt //
+    | value=ID EQUALS expr SEMI #AssignStmt //
     | value+=ID LRECT expr RRECT EQUALS expr SEMI #ArrayAssignStmt //
     ;
 

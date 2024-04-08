@@ -57,7 +57,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitArrayAssignStmt(JmmNode arrayAssignStmt, SymbolTable table)
     {
         Type typeArray = new Type("int",false);
-        String array = arrayAssignStmt.get("ID");
+        String array = arrayAssignStmt.get("value");
         for(Symbol s: table.getLocalVariables(currentMethod))
         {
             if(s.getName().equals(array))
@@ -184,7 +184,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitAssignStmt(JmmNode assign, SymbolTable table)
     {
-        String varAssigned = assign.get("ID");
+        String varAssigned = assign.get("value");
         // Check if there is a BinaryExpr
         JmmNode expr = assign.getChild(0);
         var extended = table.getSuper();

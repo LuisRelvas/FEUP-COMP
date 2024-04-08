@@ -105,7 +105,7 @@ public class TypeUtils {
 
     private static Type getAssignType(JmmNode assign, SymbolTable table)
     {
-        var left = assign.get("ID");
+        var left = assign.get("value");
         var locals = table.getLocalVariables(currentMethod);
         var fields = table.getFields();
         var params = table.getParameters(currentMethod);
