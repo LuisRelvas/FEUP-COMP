@@ -148,10 +148,27 @@ public class TypeUtils {
         // Get the method name
         var kind = Kind.fromString(varRefExpr.getKind());
         var varName = varRefExpr.get("value");
-        var defined = getVarDeclType(varRefExpr,table);
-        if (defined != null)
+        var imports = table.getImports();
+        for(String s: imports)
         {
-            return defined;
+            if (s.equals(varName))
+            {
+                return new Type(varName, false);
+            }
+        }
+        var definedAsDeclaration = getVarDeclType(varRefExpr,table);
+        var parameters = table.getParameters(currentMethod);
+
+        for(Symbol s: parameters)
+        {
+            if (s.getName().equals(varName))
+            {
+                return s.getType();
+            }
+        }
+        if (definedAsDeclaration != null)
+        {
+            return definedAsDeclaration;
         }
         else
         {

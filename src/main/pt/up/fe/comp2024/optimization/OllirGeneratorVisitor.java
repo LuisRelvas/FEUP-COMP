@@ -105,6 +105,8 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         code.append(typeString);
         code.append(SPACE);
 
+        var ollirRhs = exprVisitor.visit(node.getJmmChild(0));
+
         code.append(ASSIGN);
         code.append(typeString);
         code.append(SPACE);
@@ -165,7 +167,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
 
 
     private String visitMethodDecl(JmmNode node, Void unused) {
-
+        TypeUtils.setCurrentMethod(node.get("methodName"));
         StringBuilder code = new StringBuilder(".method ");
 
         boolean isPublic = NodeUtils.getBooleanAttribute(node, "isPublic", "false");

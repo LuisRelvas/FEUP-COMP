@@ -18,19 +18,25 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
     private static final String ASSIGN = ":=";
     private final String END_STMT = ";\n";
 
+    public String currentMethod;
     private final SymbolTable table;
 
     public OllirExprGeneratorVisitor(SymbolTable table) {
         this.table = table;
     }
 
+    public void setCurrentMethod(String currentMethod)
+    {
+        this.currentMethod = currentMethod;
+    }
+
     @Override
     protected void buildVisitor() {
         //addVisit(NEG_EXPR, this::visitNegExpr); ainda não está
-        addVisit(VAR_REF_EXPR, this::visitVarRef);
+        addVisit(VAR_REF, this::visitVarRef);
         addVisit(BINARY_EXPR, this::visitBinExpr);
         addVisit(INTEGER_LITERAL, this::visitInteger);
-        addVisit(METHOD_INVOCATION, this::visitMethodInvocation);
+        addVisit(METHOD_CALL_EXPR, this::visitMethodInvocation);
 
         setDefaultVisit(this::defaultVisit);
     }
@@ -65,7 +71,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
                 ;
 
         Type type = TypeUtils.getExprType(node, table);
-        computation.append(node.get("op")).append(SPACE).append(resOllirType).append(SPACE).append(node.getJmmChild(1).get("value")).append(OptUtils.toOllirType(type)).append(SPACE)
+        computation.append(node.get("op")).append(SPACE).append(resOllirType).append(SPACE).append(OptUtils.toOllirType(type)).append(SPACE)
                 .append(rhs.getCode()).append(END_STMT);
 
         return new OllirExprResult(code, computation);
@@ -74,7 +80,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
     private OllirExprResult visitVarRef(JmmNode node, Void unused) {
 
-        var id = node.get("name");
+        var id = node.get("value");
         Type type = TypeUtils.getExprType(node, table);
         String ollirType = OptUtils.toOllirType(type);
 
@@ -84,7 +90,6 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
     }
 
     private OllirExprResult visitMethodInvocation(JmmNode node, Void unused) {
-
         var imp = visit(node.getJmmChild(0));
         var arg = visit(node.getJmmChild(1));
 
@@ -94,7 +99,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         computation.append(imp.getComputation());
         computation.append(arg.getComputation());
 
-        String code = "invokestatic(" + imp.getCode() + ", \"" + node.get("name") + "\", " + arg.getCode() + ")";
+        String code = "invokestatic(" + imp.getCode() + ", \"" + node.get("value") + "\", " + arg.getCode() + ")";
 
         return new OllirExprResult(code, computation);
     }

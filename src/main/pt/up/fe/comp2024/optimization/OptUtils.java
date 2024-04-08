@@ -51,6 +51,10 @@ public class OptUtils {
     }
 
     private static String toOllirType(String typeName) {
+        if(typeName.equals("io"))
+        {
+            return ""; // io is not a type
+        }
         String type = "." + switch (typeName) {
                                 case "int" -> "i32";
                                 case "boolean" -> "bool";
