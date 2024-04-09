@@ -117,7 +117,7 @@ public class JasminGenerator {
         String caller = callInstruction.getCaller().toString();
         int indx1 = caller.indexOf(" ");
         int indx2 = caller.indexOf(".");
-        String callerName = caller.substring(indx1, indx2);
+        String callerName = caller.substring(indx1+1, indx2);
         answer.append(callerName);
         switch(callInstruction.getMethodName().getType().toString()){
             case "STRING" :
@@ -132,7 +132,7 @@ public class JasminGenerator {
                 answer.append("/<init>()V"+NL);
                 break;
         }
-        answer.append("pop"+NL);
+        //answer.append("pop"+NL);
         return answer.toString();
     }
 
