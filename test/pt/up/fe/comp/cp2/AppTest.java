@@ -27,5 +27,4 @@ public class AppTest {
         var result = TestUtils.runJasmin(jasminResult.getJasminCode(), Collections.emptyMap());
         assertEquals("30", result.strip());
     }
-
 }

@@ -152,12 +152,13 @@ public class JasminGenerator {
     private String generateClassUnit(ClassUnit classUnit) {
         var code = new StringBuilder();
         // generate class name
+        var imports = classUnit.getImports();
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
         String superClass = classUnit.getSuperClass();
         //if (classUnit.getChildren().get(0). .equals("this"))
         // TODO: Hardcoded to Object, needs to be expanded
-        if (superClass != null ){
+        if (superClass != null){
             superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
         }else{

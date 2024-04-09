@@ -13,6 +13,7 @@ class Simple {
         int c;
         Simple s;
         a = 20;
+        a= 20;
         b = 10;
         s = new Simple();
         c = s.add(a,b);
