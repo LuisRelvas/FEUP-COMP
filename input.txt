@@ -1,8 +1,9 @@
 import io;
 class Simple {
+
     public int add(int a, int b){
         int c;
-        c = a + this.constInstr();
+        c = a + this.constInstr() * b * a;
         return c;
     }
 

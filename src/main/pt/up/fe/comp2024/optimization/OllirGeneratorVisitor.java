@@ -107,7 +107,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         }
         if(node.getJmmChild(0).getKind().equals(VAR_REF.toString()))
         {
-            computation.append(lhs).append(ollirType).append(ASSIGN).append(rhs.getComputation()).append(END_STMT);
+            computation.append(lhs).append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(rhs.getCode()).append(END_STMT);
         }
         code += computation.toString();
 
@@ -121,6 +121,8 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         Type retType = table.getReturnType(methodName);
 
         StringBuilder code = new StringBuilder();
+        var type = OptUtils.toOllirType(retType);
+
 
         var expr = OllirExprResult.EMPTY;
 
@@ -132,7 +134,6 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         if(expr.getComputation().startsWith("tmp"))
         {
 
-            var type = OptUtils.toOllirType(retType);
             code.append(expr.getComputation());
             code.append("ret");
             code.append(SPACE);
@@ -143,7 +144,9 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         {
             code.append("ret");
             code.append(SPACE);
-            code.append(expr.getComputation());
+            code.append(type);
+            code.append(SPACE);
+            code.append(expr.getCode());
         }
         code.append(END_STMT);
 
