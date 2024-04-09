@@ -192,9 +192,14 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
 
 
     private String visitMethodDecl(JmmNode node, Void unused) {
+
+        //vamos dar set do current method que estamos a explorar
         TypeUtils.setCurrentMethod(node.get("methodName"));
+        var afterParam = 0;
+
         StringBuilder code = new StringBuilder(".method ");
 
+        //Atribuição do public e do static que vem da gramatica
         boolean isPublic = NodeUtils.getBooleanAttribute(node, "isPublic", "false");
 
         if (isPublic) {
@@ -210,18 +215,18 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         // name
         var name = node.get("methodName");
         code.append(name);
-
-        // param
-        var afterParam = 1;
-
-        code.append("(");
+        //we are dealing with a main method : Parameters known
         if(name.equals("main"))
         {
-            code.append("args.array.String).V");
+            code.append("(args.array.String).V");
         }
-        else if(!table.getParameters(node.get("methodName")).isEmpty()) {
-            for (int i = afterParam; PARAM.check(node.getJmmChild(i)); i++){
-
+        else if(!table.getParameters(node.get("methodName")).isEmpty())
+        {
+            //the first child always declared in a default method is the type of the function
+            afterParam = 1;
+            code.append("(");
+            for(int i = afterParam; PARAM.check(node.getJmmChild(i));i++)
+            {
                 if (i > 1) {
                     code.append(", ");
                 }
@@ -236,15 +241,14 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         }
         else if(table.getParameters(node.get("methodName")).isEmpty())
         {
+            code.append("(");
             code.append(")");
         }
-
-
 
         // type
         if(node.getNumChildren() > 0) {
             var retType = OptUtils.toOllirType(node.getJmmChild(0));
-            if(retType == null)
+            if(retType.equals(".V"))
             {
                 retType = "";
 

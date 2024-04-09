@@ -112,13 +112,30 @@ public class JasminGenerator {
         if (invoker.equals("NEW")){
             return "";
         }
-        answer.append(callInstruction.getInvocationType()+SPACE);
-        answer.append(getFunctionObjectName(callInstruction.getOperands().get(0).getType().toString()));
 
-        answer.append("/<init>()V"+NL);
-        answer.append("pop"+NL);
+        answer.append(callInstruction.getInvocationType()+SPACE);
+        String caller = callInstruction.getCaller().toString();
+        int indx1 = caller.indexOf(" ");
+        int indx2 = caller.indexOf(".");
+        String callerName = caller.substring(indx1+1, indx2);
+        answer.append(callerName);
+        switch(callInstruction.getMethodName().getType().toString()){
+            case "STRING" :
+                int ind1 = callInstruction.getMethodName().toString().indexOf('"');
+                String argAux = callInstruction.getMethodName().toString().substring(ind1+1);
+                int ind2 = argAux.indexOf('"');
+                String arg = argAux.substring(0,ind2);
+                answer.append('/'+arg);
+                answer.append("()"+ollirToJasminType(callInstruction.getReturnType().toString())+NL);
+                break;
+            default:
+                answer.append("/<init>()V"+NL);
+                break;
+        }
+        //answer.append("pop"+NL);
         return answer.toString();
     }
+
 
 
     public List<Report> getReports() {
