@@ -137,11 +137,13 @@ public class JasminGenerator {
 
         var code = new StringBuilder();
         // generate class name
+        var imports = classUnit.getImports();
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
         String superClass = classUnit.getSuperClass();
         // TODO: Hardcoded to Object, needs to be expanded
         if (superClass != null){
+            superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
         }else{
             superClass = "java/lang/Object";
@@ -315,7 +317,7 @@ public class JasminGenerator {
     private String generateOperand(Operand operand) {
         // get register
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
-        return "iload " + reg + NL;
+        return "iload_" + reg + NL;
     }
 
     private String generateBinaryOp(BinaryOpInstruction binaryOp) {

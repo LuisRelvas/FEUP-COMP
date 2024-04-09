@@ -39,7 +39,6 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         addVisit(INTEGER_LITERAL, this::visitInteger);
         addVisit(METHOD_CALL_EXPR, this::visitMethodInvocation);
         addVisit(NEW_OBJECT_EXPR, this::visitNewObjectExpr);
-        // addVisit(ASSIGN_STMT, this::visitAssignStmt);
         addVisit(THIS_EXPR, this::visitThisExpr);
 
         setDefaultVisit(this::defaultVisit);
@@ -189,7 +188,6 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         String code = id;
         return new OllirExprResult(code,computation);
     }
-
     private OllirExprResult visitMethodInvocation(JmmNode node, Void unused) {
 
         StringBuilder computation = new StringBuilder();
@@ -215,7 +213,6 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             computation.append(node.getJmmChild(0).get("value"));
             computation.append(",");
             computation.append("\"" + node.get("value") + "\"");
-            computation.append(",");
             //Exists params
             if(node.getNumChildren() > 1){
             for(int i = 1; i < node.getNumChildren();i++)
@@ -224,10 +221,12 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
                 {
                     var typeParam = TypeUtils.getExprType(node.getChild(i),table);
                     var OllirType = OptUtils.toOllirType(typeParam);
+                    computation.append(",");
                     computation.append(node.getChild(i).get("value"));
                     computation.append(OllirType);
                 }
                 else {
+                    computation.append(",");
                     var typeParam = TypeUtils.getExprType(node.getChild(i),table);
                     var OllirType = OptUtils.toOllirType(typeParam);
                     computation.append(node.getChild(i).get("value"));

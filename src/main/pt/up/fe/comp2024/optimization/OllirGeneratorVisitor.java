@@ -105,6 +105,10 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         if(node.getJmmChild(0).getKind().equals(INTEGER_LITERAL.toString())) {
             computation.append(lhs).append(ollirType).append(ASSIGN).append(rhs.getComputation()).append(END_STMT);
         }
+        if(node.getJmmChild(0).getKind().equals(VAR_REF.toString()))
+        {
+            computation.append(lhs).append(ollirType).append(ASSIGN).append(rhs.getComputation()).append(END_STMT);
+        }
         code += computation.toString();
 
         return code.toString();
@@ -215,7 +219,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         {
             code.append("args.array.String).V");
         }
-        else if(node.getNumChildren() > 0) {
+        else if(!table.getParameters(node.get("methodName")).isEmpty()) {
             for (int i = afterParam; PARAM.check(node.getJmmChild(i)); i++){
 
                 if (i > 1) {
@@ -230,6 +234,11 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
             }
             code.append(")");
         }
+        else if(table.getParameters(node.get("methodName")).isEmpty())
+        {
+            code.append(")");
+        }
+
 
 
         // type
