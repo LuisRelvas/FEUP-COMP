@@ -67,7 +67,7 @@ returnStmt
 
 methodDecl locals[boolean isPublic=false, boolean isStatic = false]
     : (PUBLIC {$isPublic=true;})? type methodName=ID LPAREN (param)? RPAREN LCURLY (varDecl)* (stmt)* returnStmt SEMI RCURLY
-    | (PUBLIC {$isPublic=true;})? (STATIC {$isStatic=true;}) VOID methodName=ID LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
+    | (PUBLIC {$isPublic=true;})? (STATIC {$isStatic=true;}) type methodName=ID LPAREN STRING LRECT RRECT name=ID RPAREN LCURLY (varDecl)* (stmt)* RCURLY
     ;
 
 
@@ -78,6 +78,7 @@ type
     | value=BOOLEAN #BooleanType
     | value=ID      #ClassType
     | value=STRING  #StringType
+    | value=VOID #VoidType
     ;
 
 
