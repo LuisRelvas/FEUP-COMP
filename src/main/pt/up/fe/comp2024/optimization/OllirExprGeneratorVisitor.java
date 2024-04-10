@@ -110,7 +110,8 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         // code to compute self
         Type resType = TypeUtils.getExprType(node, table);
         String resOllirType = OptUtils.toOllirType(resType);
-        String code = OptUtils.getTemp() + resOllirType;
+        var temp = OptUtils.getTemp();
+        String code = temp + resOllirType;
 
         computation.append(code).append(SPACE)
                 .append(ASSIGN).append(resOllirType).append(SPACE)
@@ -122,8 +123,6 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
         return new OllirExprResult(code, computation);
     }
-
-
 
     private OllirExprResult visitVarRef(JmmNode node, Void unused) {
         StringBuilder computation = new StringBuilder();
@@ -145,109 +144,62 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         return new OllirExprResult(code,computation);
     }
     private OllirExprResult visitMethodInvocation(JmmNode node, Void unused) {
-
+        String code = "";
         StringBuilder computation = new StringBuilder();
-        StringBuilder params = new StringBuilder();
-        Type returnTypeMethods = new Type(null, false);
-        var imp = visit(node.getJmmChild(0));
         String typeFunction = "";
+        StringBuilder params = new StringBuilder(); // to store the parameters
+        boolean hasArgs = false;
+        Type returnType = new Type("int", false);
+        var ollirType = "";
+        var lhs = visit(node.getJmmChild(0));
+        if(!node.getJmmChild(0).getKind().equals(INTEGER_LITERAL.toString()) && !node.getJmmChild(0).getKind().equals(VAR_REF.toString()))
+        {
+            computation.append(lhs.getComputation());
+        }
         if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) || table.getMethods().contains(node.get("value")))
         {
+            returnType = table.getReturnType(node.get("value"));
+            ollirType = OptUtils.toOllirType(returnType);
             typeFunction = "invokevirtual";
         }
         else
         {
-            typeFunction ="invokestatic";
+            typeFunction = "invokestatic";
         }
-
-
-        //Handle the case where it can be in the imports
-        if(table.getImports().contains(node.getJmmChild(0).get("value")))
-        {
-            computation.append(typeFunction);
-            computation.append("(");
-            computation.append(node.getJmmChild(0).get("value"));
-            computation.append(",");
-            computation.append("\"" + node.get("value") + "\"");
-            //Exists params
-            if(node.getNumChildren() > 1){
+        if(typeFunction.equals("invokevirtual")) {
+            var temp = OptUtils.getTemp();
+            code = temp + ollirType;
+            for (int i = 1; i < node.getNumChildren(); i++) {
+                    var rhs = visit(node.getJmmChild(i));
+                    if(node.getJmmChild(i).getKind().equals(INTEGER_LITERAL.toString()))
+                    {
+                        params.append(rhs.getCode());
+                    }
+                    else {
+                        computation.append(rhs.getComputation());
+                        params.append(rhs.getCode());
+                    }
+                hasArgs = true;
+            }
+            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"").append(",").append(params).append(")").append(ollirType).append(END_STMT);
+        }
+        else {
             for(int i = 1; i < node.getNumChildren();i++)
             {
-                if(i == node.getNumChildren() - 1)
+                var rhs = visit(node.getJmmChild(i));
+                if(node.getJmmChild(i).getKind().equals(INTEGER_LITERAL.toString()))
                 {
-                    var typeParam = TypeUtils.getExprType(node.getChild(i),table);
-                    var OllirType = OptUtils.toOllirType(typeParam);
-                    computation.append(",");
-                    computation.append(node.getChild(i).get("value"));
-                    computation.append(OllirType);
+                    params.append(rhs.getCode());
                 }
                 else {
-                    computation.append(",");
-                    var typeParam = TypeUtils.getExprType(node.getChild(i),table);
-                    var OllirType = OptUtils.toOllirType(typeParam);
-                    computation.append(node.getChild(i).get("value"));
-                    computation.append(OllirType);
-                    computation.append(",");
+                    computation.append(rhs.getComputation());
+                    params.append(rhs.getCode());
                 }
             }
-            }
-            computation.append(") .V");
-            String code = computation.toString();
-            return new OllirExprResult(code,computation);
-        }
-        //Handle the other cases where its different from the main
-        else if (!node.get("value").equals("main")) {
-            returnTypeMethods = table.getReturnType(node.get("value"));
-            var OllirTypeMethodCall = OptUtils.toOllirType(returnTypeMethods);
-            var temp = OptUtils.getTemp();
-            var OllirExprTemp = temp + OllirTypeMethodCall;
+            computation.append(typeFunction).append("(").append(node.getJmmChild(0).get("value")).append(",").append("\"").append(node.get("value")).append("\"").append(",").append(params).append(")").append(".V").append(END_STMT);
 
-            String code = "";
-            if (node.getNumChildren() >= 2) {
-                computation.append(OllirExprTemp);
-                computation.append(ASSIGN);
-                computation.append(OllirTypeMethodCall);
-                computation.append(SPACE);
-                computation.append(typeFunction);
-                computation.append("(");
-                computation.append(imp.getComputation());
-                computation.append(",");
-                computation.append("\"" + node.get("value") + "\"");
-                computation.append(",");
-                for (int i = 1; i < node.getNumChildren(); i++) {
-                    //params
-                    if (i == node.getNumChildren() - 1) {
-                        computation.append(visit(node.getChild(i)).getComputation().substring(0, visit(node.getChild(i)).getComputation().length()));
-                    } else {
-                        computation.append(visit(node.getChild(i)).getComputation().substring(0, visit(node.getChild(i)).getComputation().length()));
-                        computation.append(",");
-                    }
-                }
-                computation.append(")");
-                computation.append(OllirTypeMethodCall);
-                computation.append(END_STMT);
-                code = temp + OllirTypeMethodCall;
-                return new OllirExprResult(code, computation);
-            }
-
-            // code to compute the children
-            computation.append(OllirExprTemp);
-            computation.append(ASSIGN);
-            computation.append(OllirTypeMethodCall);
-            computation.append(SPACE);
-            computation.append(typeFunction);
-            computation.append("(");
-            computation.append(imp.getCode());
-            computation.append(",");
-            computation.append("\"" + node.get("value") + "\"");
-            computation.append(")");
-            computation.append(OllirTypeMethodCall);
-            computation.append(END_STMT);
-            code = temp +OllirTypeMethodCall;
-            return new OllirExprResult(code, computation);
         }
-        System.out.println("Didnt enter");
-        return new OllirExprResult("", computation);
+        return new OllirExprResult(code,computation);
     }
 
     /**
