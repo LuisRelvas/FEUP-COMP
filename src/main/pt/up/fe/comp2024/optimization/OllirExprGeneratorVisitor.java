@@ -171,7 +171,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             code = temp + ollirType;
             for (int i = 1; i < node.getNumChildren(); i++) {
                     var rhs = visit(node.getJmmChild(i));
-                    if(node.getJmmChild(i).getKind().equals(INTEGER_LITERAL.toString()))
+                    if(node.getJmmChild(i).getKind().equals(INTEGER_LITERAL.toString()) || node.getJmmChild(i).getKind().equals(VAR_REF.toString()))
                     {
                         params.append(rhs.getCode());
                     }
@@ -187,7 +187,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             for(int i = 1; i < node.getNumChildren();i++)
             {
                 var rhs = visit(node.getJmmChild(i));
-                if(node.getJmmChild(i).getKind().equals(INTEGER_LITERAL.toString()))
+                if(node.getJmmChild(i).getKind().equals(INTEGER_LITERAL.toString()) || node.getJmmChild(i).getKind().equals(VAR_REF.toString()))
                 {
                     params.append(rhs.getCode());
                 }
