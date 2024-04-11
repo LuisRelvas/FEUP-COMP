@@ -1,21 +1,12 @@
-import B;
+class Varargs {
 
-class ObjectAssignmentFail extends B{
-
-    public static void main(String[] args) {
-
+    public int foo() {
+        int a;
+        a = this.varargs(10, 20, 30);
+        return a;
     }
 
-    public ObjectAssignmentFail foo() {
-        ObjectAssignmentFail a;
-        B b;
-
-        a = new ObjectAssignmentFail();
-        b = new B();
-
-        // ObjectAssignmentFail does not extend B
-        a = b;
-
-        return a;
+    public int varargs(int... a) {
+        return a[0];
     }
 }
