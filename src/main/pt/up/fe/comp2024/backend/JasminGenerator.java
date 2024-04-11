@@ -109,30 +109,109 @@ public class JasminGenerator {
     private String generateCallInstruction(CallInstruction callInstruction) {
         StringBuilder answer = new StringBuilder();
         String invoker = callInstruction.getInvocationType().toString();
-        if (invoker.equals("NEW")){
-            return "";
-        }
 
-        answer.append(callInstruction.getInvocationType()+SPACE);
-        String caller = callInstruction.getCaller().toString();
-        int indx1 = caller.indexOf(" ");
-        int indx2 = caller.indexOf(".");
-        String callerName = caller.substring(indx1+1, indx2);
-        answer.append(callerName);
-        switch(callInstruction.getMethodName().getType().toString()){
-            case "STRING" :
-                int ind1 = callInstruction.getMethodName().toString().indexOf('"');
-                String argAux = callInstruction.getMethodName().toString().substring(ind1+1);
-                int ind2 = argAux.indexOf('"');
-                String arg = argAux.substring(0,ind2);
-                answer.append('/'+arg);
-                answer.append("()"+ollirToJasminType(callInstruction.getReturnType().toString())+NL);
-                break;
-            default:
-                answer.append("/<init>()V"+NL);
-                break;
+        if(invoker.equals("NEW")){
+
         }
-        //answer.append("pop"+NL);
+        else {
+            if (callInstruction.getInvocationType().toString().equals("invokespecial")){
+                String caller = callInstruction.getCaller().toString();
+                int indx1 = caller.indexOf("(");
+                int indx2 = caller.indexOf(")");
+                String callerName = caller.substring(indx1 + 1, indx2);
+                answer.append("new "+ callerName+NL);
+                answer.append("dup"+NL);
+                answer.append(callInstruction.getInvocationType() + SPACE);
+                answer.append(callerName);
+                answer.append("/<init>()V" + NL);
+                var operand = (Operand) callInstruction.getOperands().get(0);
+                var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
+                answer.append("astore "+reg+NL);
+
+            }
+            if(callInstruction.getInvocationType().toString().equals("invokestatic")){
+
+                var args = callInstruction.getOperands();
+                if(args.size() >2){
+                    for(int i = 2; i < args.size(); i++){
+                        Operand op = (Operand) args.get(i);
+                        var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
+                        answer.append("iload "+reg+NL);
+                    }
+                }
+
+                //getFunction
+                int ind1 = callInstruction.getMethodName().toString().indexOf('"');
+                String argAux = callInstruction.getMethodName().toString().substring(ind1 + 1);
+                int ind2 = argAux.indexOf('"');
+                String function = argAux.substring(0, ind2);
+
+                ind1 = callInstruction.getCaller().toString().indexOf(' ');
+                String argAux2 = callInstruction.getCaller().toString().substring(ind1 + 1);
+                ind2 = argAux2.indexOf('.');
+                String functionClass = argAux2.substring(0, ind2);
+
+                answer.append("invokestatic ");
+                answer.append(functionClass+"/"+function+"(");
+
+                if(args.size() >2){
+                    for(int i = 2; i < args.size(); i++){
+                        answer.append(ollirToJasminType(args.get(i).getType().toString()));
+                    }
+                }
+                answer.append(")" + ollirToJasminType(callInstruction.getReturnType().toString()) + NL);
+
+            }
+            if(callInstruction.getInvocationType().toString().equals("invokevirtual")){//TODO : verificar aload_0
+                StringBuilder answerAux = new StringBuilder();
+                answerAux.append(callInstruction.getInvocationType() + SPACE);
+                String caller = callInstruction.getCaller().toString();
+                int indx1 = caller.indexOf("(");
+                int indx2 = caller.indexOf(")");
+                String callerName = caller.substring(indx1 + 1, indx2);
+                answerAux.append(callerName);
+                switch (callInstruction.getMethodName().getType().toString()) {
+                    case "STRING":
+                        int ind1 = callInstruction.getMethodName().toString().indexOf('"');
+                        String argAux = callInstruction.getMethodName().toString().substring(ind1 + 1);
+                        int ind2 = argAux.indexOf('"');
+                        String arg = argAux.substring(0, ind2);
+                        answerAux.append('/' + arg);
+
+                        answerAux.append("(");
+                        var args = callInstruction.getOperands();
+                        StringBuilder loads = new StringBuilder();
+                        if(args.size() >2){
+                            for(int i = 2; i < args.size(); i++){
+                                answerAux.append(ollirToJasminType(args.get(i).getType().toString()));
+                                var operand = (Operand) args.get(i);
+                                var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
+                                var type = currentMethod.getVarTable().get(operand.getName()).getVarType();
+                                switch(type.toString()){
+                                    case "INT32" :
+                                        loads.append("iload "+reg+NL);
+                                        break;
+                                    case "BOOLEAN" :
+                                        loads.append("iload "+reg+NL);
+                                        break;
+                                    default:
+                                        loads.append("aload "+reg+NL);
+                                        break;
+                                }
+
+                            }
+                        }
+                        answerAux.append(")" + ollirToJasminType(callInstruction.getReturnType().toString()) + NL);
+                        answer.append(loads);
+                        answer.append(answerAux);
+                        break;
+                    default:
+                        answer.append("/<init>()V" + NL);
+                        answer.append("pop"+NL);
+                        break;
+                }
+            }
+        }
         return answer.toString();
     }
 
@@ -156,7 +235,7 @@ public class JasminGenerator {
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
         String superClass = classUnit.getSuperClass();
-        //if (classUnit.getChildren().get(0). .equals("this"))
+
         // TODO: Hardcoded to Object, needs to be expanded
         if (superClass != null){
             superClass = "java/lang/Object";
@@ -166,16 +245,10 @@ public class JasminGenerator {
             code.append(".super "+ superClass).append(NL).append(NL);
         }
 
-        /*
-        ir buscar o que tem o mesmo nome ao fim, replace com "." "\"
-        se for this entao é só o nome
-         */
         //fields
         StringBuilder fields = new StringBuilder();
         for (var field :classUnit.getFields()){
             fields.append(".field ");
-            //System.out.println(field.getFieldAccessModifier().toString().toLowerCase());
-            //fields.append(field.getFieldAccessModifier().toString().toLowerCase()).append(SPACE);
             fields.append(field.getFieldName()).append(SPACE);
             fields.append(ollirToJasminType(field.getFieldType().toString())).append(NL);
         }
@@ -309,21 +382,12 @@ public class JasminGenerator {
 
         // get register
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
-
-        StringBuilder type = new StringBuilder();
-        switch (operand.getType().toString()){
-            case "INT32" :
-                type.append("istore_").append(reg).append(NL);
-                break;
-            case "BOOLEAN" :
-                type.append("istore_").append(reg).append(NL);
-                break;
-            default :
-                type.append("new ").append(getFunctionObjectName(operand.getType().toString())).append(NL).append("dup"); //TODO : de momento a assumir que só há bools/ints e o que não for é um invoke
-                break;
-        };
-        code.append(type);
+        if (operand.getType().toString().equals("INT32") ||operand.getType().toString().equals("INT32")){
+            code.append("istore ").append(reg);
+            return code.toString();
+        }
         return code.toString();
+
     }
 
     private String generateSingleOp(SingleOpInstruction singleOp) {
@@ -337,7 +401,16 @@ public class JasminGenerator {
     private String generateOperand(Operand operand) {
         // get register
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
-        return "iload_" + reg + NL;
+        var type = currentMethod.getVarTable().get(operand.getName()).getVarType();
+        switch(type.toString()){
+            case "INT32" :
+                return "iload "+reg+NL;
+
+            case "BOOLEAN" :
+                return "iload "+reg+NL;
+            default:
+                return  "aload "+reg+NL;
+        }
     }
 
     private String generateBinaryOp(BinaryOpInstruction binaryOp) {
@@ -382,7 +455,7 @@ public class JasminGenerator {
         }
         else{
             code.append(generators.apply(returnInst.getOperand()));
-            code.append("ireturn").append(NL);
+            code.append("ireturn");
         }
 
         return code.toString();
