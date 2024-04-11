@@ -149,11 +149,17 @@ public class TypeUtils {
         var kind = Kind.fromString(varRefExpr.getKind());
         var varName = varRefExpr.get("value");
         var imports = table.getImports();
-        for(String s: imports)
+        //always check the last substring of the imports list;
+        for(String importItem : imports)
         {
-            if (s.equals(varName))
+            int lastDotIndex = importItem.lastIndexOf('.');
+            if(lastDotIndex != -1)
             {
-                return new Type(varName, false);
+                String lastSubstring = importItem.substring(lastDotIndex + 1);
+                if(lastSubstring.equals(varName))
+                {
+                    return new Type(importItem, false);
+                }
             }
         }
         var definedAsDeclaration = getVarDeclType(varRefExpr,table);

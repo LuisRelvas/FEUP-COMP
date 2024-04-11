@@ -57,7 +57,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitArrayAssignStmt(JmmNode arrayAssignStmt, SymbolTable table)
     {
         Type typeArray = new Type("int",false);
-        String array = arrayAssignStmt.get("value");
+        String array = arrayAssignStmt.get("ID");
         for(Symbol s: table.getLocalVariables(currentMethod))
         {
             if(s.getName().equals(array))
@@ -170,9 +170,23 @@ public class UndeclaredVariable extends AnalysisVisitor {
             else
             {
                 var paramList = table.getParameters(expr.get("value"));
-                for (int i = 0; i < paramList.size(); i++) {
-                    if (!paramList.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
-                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                if(expr.get("value").equals("varargs"))
+                {
+                    for(int i = 0; i < expr.getNumChildren() - 1;i++)
+                    {
+                        var aux1 = paramList.get(0).getType().getName();
+                        var aux2 = TypeUtils.getExprType(expr.getChild(i+1),table).getName();
+                        if(!paramList.get(0).getType().getName().equals(TypeUtils.getExprType(expr.getChild(i+1), table).getName()))
+                        {
+                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                        }
+                    }
+                }
+                else {
+                    for (int i = 0; i < paramList.size(); i++) {
+                        if (!paramList.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
+                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                        }
                     }
                 }
             }
@@ -195,7 +209,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             if(expr.get("value").equals("varargs"))
             {
-                for(int i = 0; i < expr.getNumChildren(); i++)
+                for(int i = 1; i < expr.getNumChildren(); i++)
                 {
                     if(!TypeUtils.getExprType(expr.getChild(i),table).equals(typeAssign))
                     {
