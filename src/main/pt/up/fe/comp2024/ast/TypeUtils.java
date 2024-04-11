@@ -70,7 +70,16 @@ public class TypeUtils {
 
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
-        var returnType = table.getReturnType(methodCallExpr.get("value"));
+        var returnType = new Type("int", false);
+        if(table.getMethods().contains(methodCallExpr.get("value")))
+        {
+            returnType = table.getReturnType(methodCallExpr.get("value"));
+        }
+        //if we dont know the method, we assume it is a method from the imports and give the correct type
+        else if(!table.getImports().isEmpty() && !table.getSuper().isEmpty() )
+        {
+            returnType = getExprType(methodCallExpr.getParent(),table);
+        }
         return returnType;
     }
     private static Type getArrayAccessExprType(JmmNode arrayAccessExpr, SymbolTable table)

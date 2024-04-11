@@ -1,7 +1,12 @@
-class TestClass {
+import B;
+class TestClass extends B {
     int nonStaticField;
-
-    public static void main(String[] args) {
-        nonStaticField = 5;
+    public int foo()
+    {
+    B b;
+    int k;
+    b = new B();
+    k = b.bar().test();
+    return b.bar().test();
     }
 }

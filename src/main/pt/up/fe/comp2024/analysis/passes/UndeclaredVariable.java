@@ -157,6 +157,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Main method not declared static.",null));
         }
+        if(!currentMethod.equals("main") && isStatic.equals(true))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " declared static.",null));
+        }
         TypeUtils.setCurrentMethod(currentMethod);
         TypeUtils.setStatic(NodeUtils.getBooleanAttribute(method, "isStatic", "false"));
         //check if there are any duplicated methods
@@ -275,6 +279,13 @@ public class UndeclaredVariable extends AnalysisVisitor {
     {
         var imports = table.getImports();
         var extended = table.getSuper();
+        if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(TypeUtils.getExprType(expr.getChild(0),table).getName()))
+        {
+            return null; // Assume the method is declared by the import
+        }
+        {
+
+        }
         Type type = TypeUtils.getExprType(expr.getChild(0), table);
         // verify if the method is declared
         if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
@@ -396,7 +407,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         Type typeMethod = table.getReturnType(currentMethod);
         JmmNode childExpr = expr.getChild(0);
         var returnType = table.getReturnType(currentMethod);
-        if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
+        if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()) && table.getMethods().contains(childExpr.get("value")))
         {
             // The first child of childExpr must be the class name
             var k = TypeUtils.getExprType(childExpr.getChild(0),table);
@@ -450,7 +461,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
         }
-        else
+        else if(table.getMethods().contains(childExpr.get("value")))
         {
             Type type = TypeUtils.getExprType(childExpr,table);
             if(!type.equals(returnType))
