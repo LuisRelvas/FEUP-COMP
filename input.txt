@@ -1,12 +1,10 @@
 import B;
-class TestClass extends B {
+class TestClass {
     int nonStaticField;
-    public int foo()
+    public boolean foo()
     {
-    B b;
-    int k;
-    b = new B();
-    k = b.bar().test();
-    return b.bar().test();
+        B b;
+        b = new B();
+        return true;
     }
 }

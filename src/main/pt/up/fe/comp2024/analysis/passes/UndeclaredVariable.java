@@ -378,6 +378,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non static field in a static method", null));
             }
         }
+        //check if the object created is in the imports and in the extended
+        if(imports.contains(typeAssign.getName()) && !extended.contains(typeAssign.getName()))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non extended class", null));
+        }
 
 
 
@@ -469,6 +474,19 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
         }
+        else if(!table.getMethods().contains(childExpr.get("value")) && childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
+        {
+            return null; // Assume the method is declared by the import
+        }
+        else
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+
         return null;
     }
 
