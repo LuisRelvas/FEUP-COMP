@@ -4,11 +4,9 @@ class IncompatibleReturn {
 
     }
 
-    public int foo(int a) {
-        int[] b;
-        int j;
-        b = new int[5];
-        j = b.length;
-        return a + j;
+    public boolean foo(int a) {
+        boolean[] b;
+        b = new int[2];
+        return b[1];
     }
 }

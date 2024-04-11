@@ -38,23 +38,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.ASSIGN_STMT, this::visitAssignStmt);
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
-        addVisit(Kind.WHILE_STMT,this::visitWhileStmt);
+        addVisit(Kind.WHILE_STMT, this::visitWhileStmt);
         addVisit(Kind.THIS_EXPR, this::visitThisExpr);
         addVisit(Kind.VAR_DECL, this::visitVarDecl);
         addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
         addVisit(Kind.PARAM, this::visitParam);
-        addVisit(Kind.ARRAY_CREATION_EXPR,this::visitArrayCreationExpr);
-        addVisit(Kind.ARRAY_LENGTH_EXPR,this::visitArrayLengthExpr);
-    }
-
-    private Void visitArrayLengthExpr(JmmNode arrayLengthExpr, SymbolTable table)
-    {
-        Type type = TypeUtils.getExprType(arrayLengthExpr.getChild(0),table);
-        if(!type.isArray())
-        {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.get("value") + " is not an array", null));
-        }
-        return null;
+        addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
     }
 
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
