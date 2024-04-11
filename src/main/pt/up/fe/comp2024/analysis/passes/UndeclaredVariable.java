@@ -194,20 +194,26 @@ public class UndeclaredVariable extends AnalysisVisitor {
     {
         Type typeArray = new Type("int",false);
         String array = arrayAssignStmt.get("ID");
-        for(Symbol s: table.getLocalVariables(currentMethod))
-        {
-            if(s.getName().equals(array))
-            {
-                typeArray = new Type(s.getType().getName(),false);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
+        var optionalParams = table.getParametersTry(currentMethod);
+        var optionalFields = table.getFields();
+        if(optionalLocals.isPresent()) {
+            List<Symbol> locals = optionalLocals.get();
+            for (Symbol s : locals) {
+                if (s.getName().equals(array)) {
+                    typeArray = new Type(s.getType().getName(), false);
+                }
             }
         }
-        for(Symbol s: table.getParameters(currentMethod))
-        {
-            if(s.getName().equals(array))
-            {
-                typeArray = new Type(s.getType().getName(),false);
+        if(optionalParams.isPresent()) {
+            List<Symbol> params = optionalParams.get();
+            for (Symbol s : params) {
+                if (s.getName().equals(array)) {
+                    typeArray = new Type(s.getType().getName(), false);
+                }
             }
         }
+
         for(Symbol s: table.getFields())
         {
             if(s.getName().equals(array))
@@ -287,14 +293,21 @@ public class UndeclaredVariable extends AnalysisVisitor {
     {
         var imports = table.getImports();
         var extended = table.getSuper();
-        if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(TypeUtils.getExprType(expr.getChild(0),table).getName()))
+        if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(expr.getJmmChild(0).get("value")))
         {
             return null; // Assume the method is declared by the import
         }
-        {
-
-        }
         Type type = TypeUtils.getExprType(expr.getChild(0), table);
+        if(imports.contains(type.getName()))
+        {
+            return null; // Assume the method is declared by the import
+        }
+        else if(table.getClassName().equals(type.getName()) && !extended.isEmpty())
+        {
+            return null;
+        }
+        var optionalParams = table.getParametersTry(expr.get("value"));
+
         // verify if the method is declared
         if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
         {
@@ -303,43 +316,32 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
             }
             // check if the parameters are correct
-            if(table.getParameters(expr.get("value")).isEmpty())
-            {
-                if(expr.getNumChildren() > 1)
-                {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " has no parameters", null));
-                }
-            }
-            else
-            {
-                var paramList = table.getParameters(expr.get("value"));
+            if(optionalParams.isPresent()) {
+                var params = optionalParams.get();
+
 
                     //vargs must be the last parameter of the function
-                for (int i = 0; i < paramList.size(); i++) {
-                    //can be var args or a list
-                    if(paramList.get(i).getType().isArray())
-                    {
-                        if(expr.getJmmChild(i+1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i+1).getKind().equals(Kind.BOOLEAN_LITERAL.toString()))
-                        {
-                            for(int j = i + 1; j < expr.getNumChildren(); j++)
-                            {
-                                if(!paramList.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j),table).getName()))
-                                {
-                                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                    for (int i = 0; i < params.size(); i++) {
+                        //can be var args or a list
+                        if (params.get(i).getType().isArray()) {
+                            if (expr.getJmmChild(i + 1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i + 1).getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
+                                for (int j = i + 1; j < expr.getNumChildren(); j++) {
+                                    if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j), table).getName())) {
+                                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                    }
                                 }
+                            } else {
+                                var m = visit(expr.getJmmChild(i + 1), table);
+                            }
+                        } else {
+                            if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
+                                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                             }
                         }
-                        else {
-                        var m = visit(expr.getJmmChild(i+1),table);}
-                    }
-                    else {
-                    if (!paramList.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
-                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
-                    }
                     }
                 }
             }
-        }
+
 
 
         return null;
@@ -397,7 +399,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitReturnStmt(JmmNode expr, SymbolTable table)
     {
-        Type typeMethod = table.getReturnType(currentMethod);
         JmmNode childExpr = expr.getChild(0);
         var returnType = table.getReturnType(currentMethod);
         if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()) && table.getMethods().contains(childExpr.get("value")))
@@ -450,6 +451,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             Type type = TypeUtils.getExprType(childExpr,table);
             if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        else if(childExpr.getKind().equals(Kind.ARRAY_LENGTH_EXPR.toString()))
+        {
+            String type = TypeUtils.getExprType(childExpr.getJmmChild(0),table).getName();
+            if(!type.equals(returnType.getName()))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
