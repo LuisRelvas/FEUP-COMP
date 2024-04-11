@@ -1,13 +1,11 @@
-class Varargs {
+class T
+{
 
-    public int foo() {
-        int a;
-        int... b;
-        a = this.varargs(true, 20, 10,10);
-        return a;
-    }
+public boolean xau()
+{
+    return 1;
 
-    public int varargs(boolean b,int... a) {
-        return a[0];
-    }
+}
+
+
 }

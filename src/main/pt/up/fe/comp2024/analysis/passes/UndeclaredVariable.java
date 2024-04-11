@@ -407,7 +407,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
             }
         }
-        if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
+        else if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
         {
             JmmNode leftNode = childExpr.getChild(0);
             JmmNode rightNode = childExpr.getChild(1);
@@ -420,7 +420,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
             }
         }
-        if(childExpr.getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
+        else if(childExpr.getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
         {
             if(returnType.isArray())
             {
@@ -432,7 +432,15 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
         }
-        if(childExpr.getKind().equals(Kind.VAR_REF.toString()))
+        else if(childExpr.getKind().equals(Kind.VAR_REF.toString()))
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        else
         {
             Type type = TypeUtils.getExprType(childExpr,table);
             if(!type.equals(returnType))
