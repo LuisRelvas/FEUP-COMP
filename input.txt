@@ -1,11 +1,7 @@
-class T
-{
+class TestClass {
+    int nonStaticField;
 
-public boolean xau()
-{
-    return 1;
-
-}
-
-
+    public static void main(String[] args) {
+        nonStaticField = 5;
+    }
 }

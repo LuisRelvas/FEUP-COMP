@@ -335,7 +335,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
         var imports = table.getImports();
         Type typeExpr = TypeUtils.getExprType(expr, table);
         Type typeAssign = TypeUtils.getExprType(assign, table);
-
         if (imports.isEmpty() && !typeExpr.equals(typeAssign))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
@@ -358,6 +357,17 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of " + varAssigned + " because it isn't extended.", null));
             }
         }
+        else if(isStatic)
+        {
+            //check if the value that is being assigned is a static field as we dont have static types we only need to check if the variable that it is accessing is in the fields, otherwise it is in the params or in the locals
+            List <Symbol> fields = table.getFields();
+            List <String> fieldNames = fields.stream().map(Symbol::getName).toList();
+            if(fieldNames.contains(varAssigned))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non static field in a static method", null));
+            }
+        }
+
 
 
         return null;

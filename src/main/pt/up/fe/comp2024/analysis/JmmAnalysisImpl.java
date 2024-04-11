@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JmmAnalysisImpl implements JmmAnalysis {
-
-
     private final List<AnalysisPass> analysisPasses;
 
     public JmmAnalysisImpl() {
