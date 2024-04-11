@@ -73,7 +73,7 @@ methodDecl locals[boolean isPublic=false, boolean isStatic = false]
 
 type
     : type LRECT RRECT #ArrayType
-    | type ELLIPSIS #ArrayType
+    | type ELLIPSIS #VarArgsType
     | value=INT     #IntType
     | value=BOOLEAN #BooleanType
     | value=ID      #ClassType

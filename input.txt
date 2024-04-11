@@ -1,12 +1,14 @@
-import java.util.list;
-import ioPlus;
-class HelloWorld {
-    int a;
-    public int println(int a, int f,int c, int b) {
+class Varargs {
+
+    public int foo() {
         int a;
-        return 0;
+        int b;
+        b = 10;
+        a = this.varargs(10, 20, 30);
+        return a;
     }
-    public main(String[] args) {
-        int a;
+
+    public int varargs(int... a,boolean b) {
+        return a[0];
     }
 }
