@@ -1,10 +1,9 @@
 import B;
-class TestClass {
-    int nonStaticField;
+
+class ObjectAssignmentPassExtends extends B {
+
     public boolean foo()
     {
-        B b;
-        b = new B();
-        return true;
+    return 1;
     }
 }

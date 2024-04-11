@@ -139,6 +139,15 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs cannot be defined in the fields", null));
         }
+        if(varDecl.getChild(0).getKind().equals(Kind.CLASS_TYPE.toString()))
+        {
+            if(!table.getImports().contains(varDecl.getChild(0).get("value")) && !varDecl.getChild(0).get("value").equals(table.getClassName()))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Class " + varDecl.getChild(0).get("value") + " not declared", null));
+            }
+        }
+
+
         return null;
     }
     private Void visitThisExpr(JmmNode thisExpr, SymbolTable table)
@@ -337,8 +346,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         return null;
     }
 
-    private Void visitAssignStmt(JmmNode assign, SymbolTable table)
-    {
+    private Void visitAssignStmt(JmmNode assign, SymbolTable table) {
         String varAssigned = assign.get("value");
         // Check if there is a BinaryExpr
         JmmNode expr = assign.getChild(0);
@@ -346,47 +354,28 @@ public class UndeclaredVariable extends AnalysisVisitor {
         var imports = table.getImports();
         Type typeExpr = TypeUtils.getExprType(expr, table);
         Type typeAssign = TypeUtils.getExprType(assign, table);
-        if (imports.isEmpty() && !typeExpr.equals(typeAssign))
-        {
+        if (imports.isEmpty() && !typeExpr.equals(typeAssign)) {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
-        }
-        else if(!typeExpr.equals(typeAssign) && (!imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName())))
-        {
+        } else if (!typeExpr.equals(typeAssign) && (!imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName()))) {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
-        }
-        else if(imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName()))
-        {
-            if(!extended.contains(typeExpr.getName()))
-            {
+        } else if (imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName())) {
+            if (!extended.contains(typeExpr.getName())) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of " + varAssigned + " because it isn't extended.", null));
             }
-        }
-        else if (!imports.contains(typeExpr.getName()) && imports.contains(typeAssign.getName()))
-        {
-            if(!extended.contains(typeAssign.getName()))
-            {
+        } else if (!imports.contains(typeExpr.getName()) && imports.contains(typeAssign.getName())) {
+            if (!extended.contains(typeAssign.getName())) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of " + varAssigned + " because it isn't extended.", null));
             }
-        }
-        else if(isStatic)
-        {
+        } else if (isStatic) {
             //check if the value that is being assigned is a static field as we dont have static types we only need to check if the variable that it is accessing is in the fields, otherwise it is in the params or in the locals
-            List <Symbol> fields = table.getFields();
-            List <String> fieldNames = fields.stream().map(Symbol::getName).toList();
-            if(fieldNames.contains(varAssigned))
-            {
+            List<Symbol> fields = table.getFields();
+            List<String> fieldNames = fields.stream().map(Symbol::getName).toList();
+            if (fieldNames.contains(varAssigned)) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non static field in a static method", null));
             }
         }
-        //check if the object created is in the imports and in the extended
-        if(imports.contains(typeAssign.getName()) && !extended.contains(typeAssign.getName()))
-        {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non extended class", null));
-        }
-
-
-
         return null;
+
     }
 
     private Void visitArrayAccessExpr(JmmNode expr, SymbolTable table)
