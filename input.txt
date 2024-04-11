@@ -1,17 +1,21 @@
-import ioPlus;
-class ConstFold {
-    public int fun() {
-        int a;
-        int b;
-        int c;
-        a = 10;
-        b = a * a + a;
-        c = 10 + 10;
+import B;
+
+class ObjectAssignmentFail extends B{
+
+    public static void main(String[] args) {
+
+    }
+
+    public ObjectAssignmentFail foo() {
+        ObjectAssignmentFail a;
+        B b;
+
+        a = new ObjectAssignmentFail();
+        b = new B();
+
+        // ObjectAssignmentFail does not extend B
+        a = b;
 
         return a;
     }
-
-	public static void main(String[] args) {
-	    ioPlus.printResult(new ConstFold().fun());
-	}
 }
