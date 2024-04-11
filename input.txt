@@ -1,9 +1,14 @@
-import B;
+class IncompatibleReturn {
 
-class ObjectAssignmentPassExtends extends B {
+    public static void main(String[] args) {
 
-    public boolean foo()
-    {
-    return 1;
+    }
+
+    public int foo(int a) {
+        int[] b;
+        int j;
+        b = new int[5];
+        j = b.length;
+        return a + j;
     }
 }
