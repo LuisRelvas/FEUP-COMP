@@ -43,10 +43,22 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.VAR_DECL, this::visitVarDecl);
         addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
         addVisit(Kind.PARAM, this::visitParam);
+        addVisit(Kind.ARRAY_CREATION_EXPR,this::visitArrayCreationExpr);
     }
 
 
-
+    private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
+    {
+        Type type = TypeUtils.getExprType(arrayCreationExpr.getChild(0),table);
+        for(int i = 1; i < arrayCreationExpr.getNumChildren(); i++)
+        {
+            if(!type.equals(TypeUtils.getExprType(arrayCreationExpr.getChild(i),table)))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the array creation expression", null));
+            }
+        }
+        return null;
+    }
     private Void visitImportDecl(JmmNode importDecl, SymbolTable table)
     {
         var imports = table.getImports();
@@ -76,11 +88,24 @@ public class UndeclaredVariable extends AnalysisVisitor {
         List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
 
         List<String> paramNames = param.getObjectAsList("paramName",String.class); // assuming paramName is a list of strings
-
+        //check duplicates
         for (String paramName : paramNames) {
             int frequency = Collections.frequency(symbolNames, paramName);
             if (frequency > 1) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Parameter " + paramName + " is duplicated", null));
+            }
+        }
+
+        //check if varargs is the last parameter declared
+        for(var aux : param.getChildren())
+        {
+            if(aux.getKind().equals("VarArgsType"))
+            {
+                //must be the last one declared
+                if(aux.getIndexOfSelf() != param.getNumChildren() - 1)
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs must be the last parameter declared", null));
+                }
             }
         }
 
@@ -264,23 +289,29 @@ public class UndeclaredVariable extends AnalysisVisitor {
             else
             {
                 var paramList = table.getParameters(expr.get("value"));
-                if(expr.get("value").equals("varargs"))
-                {
-                    for(int i = 0; i < expr.getNumChildren() - 1;i++)
+
+                    //vargs must be the last parameter of the function
+                for (int i = 0; i < paramList.size(); i++) {
+                    //can be var args or a list
+                    if(paramList.get(i).getType().isArray())
                     {
-                        var aux1 = paramList.get(0).getType().getName();
-                        var aux2 = TypeUtils.getExprType(expr.getChild(i+1),table).getName();
-                        if(!paramList.get(0).getType().getName().equals(TypeUtils.getExprType(expr.getChild(i+1), table).getName()))
+                        if(expr.getJmmChild(i+1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i+1).getKind().equals(Kind.BOOLEAN_LITERAL.toString()))
                         {
-                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                            for(int j = i + 1; j < expr.getNumChildren(); j++)
+                            {
+                                if(!paramList.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j),table).getName()))
+                                {
+                                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                }
+                            }
                         }
+                        else {
+                        var m = visit(expr.getJmmChild(i+1),table);}
                     }
-                }
-                else {
-                    for (int i = 0; i < paramList.size(); i++) {
-                        if (!paramList.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
-                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
-                        }
+                    else {
+                    if (!paramList.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
+                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                    }
                     }
                 }
             }
@@ -299,20 +330,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         var imports = table.getImports();
         Type typeExpr = TypeUtils.getExprType(expr, table);
         Type typeAssign = TypeUtils.getExprType(assign, table);
-        if(expr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
-        {
-            if(expr.get("value").equals("varargs"))
-            {
-                for(int i = 1; i < expr.getNumChildren(); i++)
-                {
-                    if(!TypeUtils.getExprType(expr.getChild(i),table).equals(typeAssign))
-                    {
-                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
-                    }
-                }
-            }
-        }
-        else if (imports.isEmpty() && !typeExpr.equals(typeAssign))
+
+        if (imports.isEmpty() && !typeExpr.equals(typeAssign))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
         }
