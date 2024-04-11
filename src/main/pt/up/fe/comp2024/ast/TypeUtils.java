@@ -14,6 +14,8 @@ public class TypeUtils {
     private static final String INT_TYPE_NAME = "int";
 
     private static String currentMethod;
+
+    private static Boolean isStatic;
     private static final String BOOLEAN_TYPE_NAME = "boolean";
 
     private static final String STRING_TYPE_NAME = "String";
@@ -24,6 +26,10 @@ public class TypeUtils {
 
     public static void setCurrentMethod(String methodName) {
         currentMethod = methodName;
+    }
+
+    public static void setStatic(Boolean isSta) {
+        isStatic = isSta;
     }
 
     /**

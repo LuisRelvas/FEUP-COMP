@@ -24,6 +24,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private String currentMethod;
 
+    private Boolean isStatic;
+
     @Override
     public void buildVisitor() {
         addVisit(Kind.METHOD_DECL, this::visitMethodDecl);
@@ -36,11 +38,22 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
         addVisit(Kind.WHILE_STMT,this::visitWhileStmt);
+        addVisit(Kind.THIS_EXPR, this::visitThisExpr);
     }
-
+    private Void visitThisExpr(JmmNode thisExpr, SymbolTable table)
+    {
+        //check if the call to the this expr is in a static method if so raise an report
+        if(isStatic)
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot use this token in a static method", null));
+        }
+        return null;
+    }
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
+        isStatic = NodeUtils.getBooleanAttribute(method, "isStatic", "false");
         TypeUtils.setCurrentMethod(currentMethod);
+        TypeUtils.setStatic(NodeUtils.getBooleanAttribute(method, "isStatic", "false"));
         return null;
     }
 

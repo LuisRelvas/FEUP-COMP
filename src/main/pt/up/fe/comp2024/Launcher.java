@@ -40,7 +40,7 @@ public class Launcher {
         JmmAnalysisImpl sema = new JmmAnalysisImpl();
         JmmSemanticsResult semanticsResult = sema.semanticAnalysis(parserResult);
         TestUtils.noErrors(semanticsResult.getReports());
-
+        /*
 
         // Optimization stage
         JmmOptimizationImpl ollirGen = new JmmOptimizationImpl();
@@ -57,6 +57,8 @@ public class Launcher {
 
         // Print Jasmin code
         // System.out.println(jasminResult.getJasminCode());
+        */
+
     }
 
 }

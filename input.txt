@@ -1,12 +1,9 @@
-class Varargs {
-
-    public int foo() {
-        int a;
-        a = this.varargs(10, 20, 30);
-        return a;
+import ioPlus;
+class HelloWorld {
+    public int println() {
+        return 0;
     }
-
-    public int varargs(int... a) {
-        return a[0];
+    public static void main(String[] args) {
+        this.println();
     }
 }
