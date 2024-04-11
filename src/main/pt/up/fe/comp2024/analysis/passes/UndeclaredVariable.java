@@ -13,6 +13,7 @@ import pt.up.fe.comp2024.ast.TypeUtils;
 import pt.up.fe.specs.util.SpecsCheck;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,6 +40,76 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
         addVisit(Kind.WHILE_STMT,this::visitWhileStmt);
         addVisit(Kind.THIS_EXPR, this::visitThisExpr);
+        addVisit(Kind.VAR_DECL, this::visitVarDecl);
+        addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
+        addVisit(Kind.PARAM, this::visitParam);
+    }
+
+
+
+    private Void visitImportDecl(JmmNode importDecl, SymbolTable table)
+    {
+        var imports = table.getImports();
+        var refactoredImports = new ArrayList<String>();
+        //check if the import is complex if so only consider the last part of the import
+        for(var s : imports)
+        {
+            if(s.contains("."))
+            {
+                var aux = s.split("\\.");
+                refactoredImports.add(aux[aux.length - 1]);
+            }
+            else {
+                refactoredImports.add(s);
+            }
+        }
+        var frequency = Collections.frequency(refactoredImports,importDecl.get("ID"));
+        if(frequency > 1)
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + importDecl.get("ID") + " is duplicated", null));
+        }
+        return null;
+    }
+
+    private Void visitParam(JmmNode param, SymbolTable table) {
+        List<Symbol> symbols = table.getParameters(currentMethod);
+        List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
+
+        List<String> paramNames = param.getObjectAsList("paramName",String.class); // assuming paramName is a list of strings
+
+        for (String paramName : paramNames) {
+            int frequency = Collections.frequency(symbolNames, paramName);
+            if (frequency > 1) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Parameter " + paramName + " is duplicated", null));
+            }
+        }
+
+        return null;
+    }
+
+    private Void visitVarDecl(JmmNode varDecl, SymbolTable table)
+    {
+        //fields
+        if(varDecl.getParent().getKind().equals(Kind.CLASS_DECL.toString())){
+            List<Symbol> symbols = table.getFields();
+            List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
+            int frequency = Collections.frequency(symbolNames,varDecl.get("name"));
+            if(frequency > 1)
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Field " + varDecl.get("name") + " is duplicated", null));
+            }
+        }
+        else
+        {
+            List<Symbol> symbols = table.getLocalVariables(currentMethod);
+            List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
+            int frequency = Collections.frequency(symbolNames,varDecl.get("name"));
+            if(frequency > 1)
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Local Variable " + varDecl.get("name") + " is duplicated", null));
+            }
+        }
+        return null;
     }
     private Void visitThisExpr(JmmNode thisExpr, SymbolTable table)
     {
@@ -52,8 +123,18 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         isStatic = NodeUtils.getBooleanAttribute(method, "isStatic", "false");
+        if(currentMethod.equals("main") && isStatic.equals(false))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Main method not declared static.",null));
+        }
         TypeUtils.setCurrentMethod(currentMethod);
         TypeUtils.setStatic(NodeUtils.getBooleanAttribute(method, "isStatic", "false"));
+        //check if there are any duplicated methods
+        var frequency = Collections.frequency(table.getMethods(),currentMethod);
+        if(frequency > 1)
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " is duplicated", null));
+        }
         return null;
     }
 

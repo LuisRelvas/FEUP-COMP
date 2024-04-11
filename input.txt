@@ -1,9 +1,12 @@
+import java.util.list;
 import ioPlus;
 class HelloWorld {
-    public int println() {
+    int a;
+    public int println(int a, int f,int c, int b) {
+        int a;
         return 0;
     }
-    public static void main(String[] args) {
-        this.println();
+    public main(String[] args) {
+        int a;
     }
 }
