@@ -1,11 +1,13 @@
 class Varargs {
+
     public int foo() {
         int a;
-        a = this.varargs([1,true,3], 20, 10,10);
+        int... b;
+        a = this.varargs(true, 20, 10,10);
         return a;
     }
 
-    public int varargs(int[] b,int... a) {
+    public int varargs(boolean b,int... a) {
         return a[0];
     }
 }

@@ -114,6 +114,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitVarDecl(JmmNode varDecl, SymbolTable table)
     {
+        // in the fields and in the locals we cannot have varargs defined
         //fields
         if(varDecl.getParent().getKind().equals(Kind.CLASS_DECL.toString())){
             List<Symbol> symbols = table.getFields();
@@ -133,6 +134,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Local Variable " + varDecl.get("name") + " is duplicated", null));
             }
+        }
+        if(varDecl.getChild(0).getKind().equals("VarArgsType"))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs cannot be defined in the fields", null));
         }
         return null;
     }
