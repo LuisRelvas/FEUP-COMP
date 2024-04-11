@@ -72,7 +72,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         return code.toString();
     }
 
-    private String visitExpr (JmmNode node, Void unused) {
+    private String visitExpr(JmmNode node, Void unused) {
 
         var expr = exprVisitor.visit(node.getJmmChild(0));
 
@@ -91,6 +91,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         var utilsType = TypeUtils.getExprType(node,table);
         var ollirType = OptUtils.toOllirType(utilsType);
         var rhs = exprVisitor.visit(node.getJmmChild(0));
+
         String code = "";
 
         StringBuilder computation = new StringBuilder();

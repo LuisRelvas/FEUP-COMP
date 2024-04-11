@@ -1,20 +1,17 @@
 import ioPlus;
-class ComplexExpressions {
-    public int func() {
-            return 5;
-        }
+class ConstFold {
+    public int fun() {
+        int a;
+        int b;
+        int c;
+        a = 10;
+        b = a * a + a;
+        c = 10 + 10;
 
-       public int toInt(boolean b) {
-               int i;
-               i = 0;
-               return i;
-           }
-
+        return a;
+    }
 
 	public static void main(String[] args) {
-    	    ComplexExpressions c;
-    	    c = new ComplexExpressions();
-            ioPlus.printResult(c.func() + 1);
-            ioPlus.printResult(c.toInt(c.func() < 1));
-    	}
+	    ioPlus.printResult(new ConstFold().fun());
+	}
 }

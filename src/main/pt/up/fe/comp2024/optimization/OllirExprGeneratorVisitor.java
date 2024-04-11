@@ -40,7 +40,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         addVisit(METHOD_CALL_EXPR, this::visitMethodInvocation);
         addVisit(NEW_OBJECT_EXPR, this::visitNewObjectExpr);
         addVisit(THIS_EXPR, this::visitThisExpr);
-
+        addVisit(PARENTHESIS_EXPR, this::visitParenthesisExpr);
         setDefaultVisit(this::defaultVisit);
     }
 
@@ -52,6 +52,15 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         computation.append(table.getClassName());
         code = computation.toString();
         return new OllirExprResult(code);
+    }
+
+    private OllirExprResult visitParenthesisExpr(JmmNode node, Void unused)
+    {
+        StringBuilder computation = new StringBuilder();
+        var expr = visit(node.getJmmChild(0));
+        computation.append(expr.getComputation());
+        String code = expr.getCode();
+        return new OllirExprResult(code,computation);
     }
 
     private OllirExprResult visitNewObjectExpr(JmmNode node, Void unused) {
@@ -98,11 +107,11 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         StringBuilder computation = new StringBuilder();
 
         // code to compute the children
-        if(node.getJmmChild(0).getKind().equals(METHOD_CALL_EXPR.toString())|| node.getJmmChild(0).getKind().equals(BINARY_EXPR.toString()))
+        if(node.getJmmChild(0).getKind().equals(METHOD_CALL_EXPR.toString())|| node.getJmmChild(0).getKind().equals(BINARY_EXPR.toString()) || node.getJmmChild(0).getKind().equals(NEW_OBJECT_EXPR.toString()) || node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) || node.getJmmChild(0).getKind().equals(PARENTHESIS_EXPR.toString()))
         {
             computation.append(lhs.getComputation());
         }
-        if(node.getJmmChild(1).getKind().equals(METHOD_CALL_EXPR.toString())|| node.getJmmChild(1).getKind().equals(BINARY_EXPR.toString()))
+        if(node.getJmmChild(1).getKind().equals(METHOD_CALL_EXPR.toString())|| node.getJmmChild(1).getKind().equals(BINARY_EXPR.toString()) || node.getJmmChild(1).getKind().equals(NEW_OBJECT_EXPR.toString()) || node.getJmmChild(1).getKind().equals(THIS_EXPR.toString()) || node.getJmmChild(1).getKind().equals(PARENTHESIS_EXPR.toString()))
         {
             computation.append(rhs.getComputation());
         }
@@ -111,7 +120,9 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         Type resType = TypeUtils.getExprType(node, table);
         String resOllirType = OptUtils.toOllirType(resType);
         var temp = OptUtils.getTemp();
+        System.out.println(temp); 
         String code = temp + resOllirType;
+
 
         computation.append(code).append(SPACE)
                 .append(ASSIGN).append(resOllirType).append(SPACE)
