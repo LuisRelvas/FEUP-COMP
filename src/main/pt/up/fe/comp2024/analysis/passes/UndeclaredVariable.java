@@ -291,66 +291,59 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitMethodCallExpr(JmmNode expr, SymbolTable table)
     {
-        //check the type of the Object that is calling the method
-        Type type = TypeUtils.getExprType(expr.getChild(0),table);
-        //se for da classe atual, se o metodo nao estiver definido entao este tem que extender outra classe
-        if(type.getName().equals(table.getClassName()))
-        {
-            if(!table.getMethods().contains(expr.get("value")))
-            {
-                if(table.getSuper().isEmpty())
-                {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
-                }
-                else
-                {
-                    return null;  // Assume the method is declared by the import
-                }
-            }
-            //metodo esta declarado temos que verificar o seu type e argumentos que sao passados
-            else
-            {
-                var returnType = table.getReturnType(expr.get("value"));
-                var optionalParams = table.getParametersTry(expr.get("value"));
-                //o metodo contem parametros
-                if(optionalParams.isPresent())
-                {
-                    var params = optionalParams.get();
-                    for(int i = 1; i < expr.getNumChildren(); i++)
-                    {
-                        Type param = TypeUtils.getExprType(expr.getChild(i),table);
-                        if(params.get(i-1).getType().isArray())
-                        {
-                            int j;
-                            for(j = i; j < expr.getNumChildren(); j++)
-                            {
-                                if(!TypeUtils.getExprType(expr.getChild(j),table).getName().equals(params.get(i-1).getType().getName()))
-                                {
-                                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the method call " + expr.get("value"), null));
-                                }
-                            }
-                            i = j;
-                        }
-                        else if(!param.equals(params.get(i - 1).getType()))
-                        {
-                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the method call " + expr.get("value"), null));
-                        }
-                    }
-                }
-                //nao contem parametros vamos verificar que nada foi passado á função
-                else
-                {
-                    if(expr.getNumChildren() > 1)
-                    {
-                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " has no parameters", null));
-                    }
-                }
-            }
-        }
-        else if(table.getImports().contains(type.getName()))
+        var imports = table.getImports();
+        var extended = table.getSuper();
+        if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(expr.getJmmChild(0).get("value")))
         {
             return null; // Assume the method is declared by the import
         }
+        Type type = TypeUtils.getExprType(expr.getChild(0), table);
+        if(imports.contains(type.getName()))
+        {
+            return null; // Assume the method is declared by the import
+        }
+        else if(table.getClassName().equals(type.getName()) && !extended.isEmpty())
+        {
+            return null;
+        }
+        var optionalParams = table.getParametersTry(expr.get("value"));
+
+        // verify if the method is declared
+        if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
+        {
+            if(!table.getMethods().contains(expr.get("value")))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
+            }
+            // check if the parameters are correct
+            if(optionalParams.isPresent()) {
+                var params = optionalParams.get();
+
+
+                //vargs must be the last parameter of the function
+                for (int i = 0; i < params.size(); i++) {
+                    //can be var args or a list
+                    if (params.get(i).getType().isArray()) {
+                        if (expr.getJmmChild(i + 1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i + 1).getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
+                            for (int j = i + 1; j < expr.getNumChildren(); j++) {
+                                if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j), table).getName())) {
+                                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                }
+                            }
+                        } else {
+                            var m = visit(expr.getJmmChild(i + 1), table);
+                        }
+                    } else {
+                        if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
+                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                        }
+                    }
+                }
+            }
+        }
+
+
+
         return null;
     }
 
@@ -427,6 +420,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
                 }
+                else
+                {
+                    return null;
+                }
             }
         }
         else if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
@@ -440,6 +437,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement " + returnExprTypes.get(i).getName() + " with " + returnType.getName(), null));
                 }
+                else
+                {
+                    return null;
+                }
             }
         }
         else if(childExpr.getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
@@ -447,11 +448,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(returnType.isArray())
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
-
             }
             Type type = TypeUtils.getExprType(childExpr.getChild(0),table);
             if(!type.getName().equals(returnType.getName())) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+            else
+            {
+                return null;
             }
         }
         else if(childExpr.getKind().equals(Kind.VAR_REF.toString()))
@@ -461,6 +465,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
+            else
+            {
+                return null;
+            }
         }
         else if(childExpr.getKind().equals(Kind.ARRAY_LENGTH_EXPR.toString()))
         {
@@ -468,6 +476,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(!type.equals(returnType.getName()))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+            else
+            {
+                return null;
             }
         }
         else if(table.getMethods().contains(childExpr.get("value")))
@@ -490,7 +502,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
         }
-
         return null;
     }
 

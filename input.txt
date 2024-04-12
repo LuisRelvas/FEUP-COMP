@@ -1,12 +1,14 @@
-class Varargs {
+class ArrayAccessOnInt {
 
-    public int foo() {
-        int a;
-        a = this.varargs(10, 20, 30);
-        return a;
+    public static void main(String[] args) {
+
     }
 
-    public int varargs(int... a) {
-        return a[0];
+    public int foo() {
+        int[] a;
+        int b;
+        a[1] = 10 * 2;
+
+        return a[10];
     }
 }

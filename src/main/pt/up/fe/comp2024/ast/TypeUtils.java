@@ -121,15 +121,19 @@ public class TypeUtils {
     private static Type getAssignType(JmmNode assign, SymbolTable table)
     {
         var left = assign.get("value");
-        var locals = table.getLocalVariables(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
         var fields = table.getFields();
-        var params = table.getParameters(currentMethod);
+        var optionalParams = table.getParametersTry(currentMethod);
         var imports = table.getImports();
-        for(Symbol s : locals)
+        if(optionalLocals.isPresent())
         {
-            if (s.getName().equals(left))
+            var locals = optionalLocals.get();
+            for(Symbol s : locals)
             {
-                return s.getType();
+                if (s.getName().equals(left))
+                {
+                    return s.getType();
+                }
             }
         }
         for(Symbol s : fields)
@@ -139,11 +143,12 @@ public class TypeUtils {
                 return s.getType();
             }
         }
-        for (Symbol s : params)
-        {
-            if (s.getName().equals(left))
-            {
-                return s.getType();
+        if(optionalParams.isPresent()) {
+            var params = optionalParams.get();
+            for (Symbol s : params) {
+                if (s.getName().equals(left)) {
+                    return s.getType();
+                }
             }
         }
         for (String s: imports)
@@ -177,13 +182,13 @@ public class TypeUtils {
             }
         }
         var definedAsDeclaration = getVarDeclType(varRefExpr,table);
-        var parameters = table.getParameters(currentMethod);
-
-        for(Symbol s: parameters)
-        {
-            if (s.getName().equals(varName))
-            {
-                return s.getType();
+        var optionalParameters = table.getParametersTry(currentMethod);
+        if(optionalParameters.isPresent()) {
+            var parameters = optionalParameters.get();
+            for (Symbol s : parameters) {
+                if (s.getName().equals(varName)) {
+                    return s.getType();
+                }
             }
         }
         if (definedAsDeclaration != null)
@@ -197,16 +202,17 @@ public class TypeUtils {
     }
 
     private static Type getVarDeclType(JmmNode varDecl, SymbolTable table) {
-        var locals = table.getLocalVariables(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
         var fields = table.getFields();
-        var params = table.getParameters(currentMethod);
+        var optionalParams = table.getParametersTry(currentMethod);
         var imports = table.getImports();
         var varName = varDecl.get("value");
-        for(Symbol s : locals)
-        {
-            if (s.getName().equals(varName))
-            {
-                return s.getType();
+        if(optionalLocals.isPresent()) {
+            var locals = optionalLocals.get();
+            for (Symbol s : locals) {
+                if (s.getName().equals(varName)) {
+                    return s.getType();
+                }
             }
         }
         for(Symbol s : fields)
@@ -216,11 +222,12 @@ public class TypeUtils {
                 return s.getType();
             }
         }
-        for (Symbol s : params)
-        {
-            if (s.getName().equals(varName))
-            {
-                return s.getType();
+        if(optionalParams.isPresent()) {
+            var params = optionalParams.get();
+            for (Symbol s : params) {
+                if (s.getName().equals(varName)) {
+                    return s.getType();
+                }
             }
         }
         for (String s: imports)
@@ -231,7 +238,6 @@ public class TypeUtils {
             }
         }
         return null;
-
     }
 
 
