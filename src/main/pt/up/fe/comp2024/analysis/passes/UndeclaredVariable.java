@@ -45,15 +45,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.PARAM, this::visitParam);
         addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
     }
-
-    private void visitArrayLengthExpr(JmmNode lengthExpr, SymbolTable table)
-    {
-        Type type = TypeUtils.getExprType(lengthExpr.getChild(0),table);
-        if(!type.isArray())
-        {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the array length expression", null));
-        }
-    }
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayCreationExpr.getChild(0),table);

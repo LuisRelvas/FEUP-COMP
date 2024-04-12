@@ -1,17 +1,6 @@
-import B;
-class ObjectAssignmentPassImports extends B{
-
-    public static void main(String[] args) {
-
-    }
-
-    public boolean foo() {
-        int a;
-        int c;
-        B b ;
-        b = new B();
-        a = b.call().test();
-        return false;
-
+class Test {
+    public int[] foo(int[] a, boolean[] b)
+    {
+        return [1,2,3,4,5];
     }
 }

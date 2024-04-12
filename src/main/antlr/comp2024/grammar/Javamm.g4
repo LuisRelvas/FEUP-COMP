@@ -109,8 +109,6 @@ expr
     | expr op= (MUL | DIV) expr #BinaryExpr //
     | expr op= (ADD | SUB) expr #BinaryExpr
     | expr op= ('<' | '>') expr #BinaryExpr //
-    | expr op= ('<='| '>=') expr #BinaryExpr //
-    | expr op= ('==' | '!=') expr #BinaryExpr //
     | expr op= '&&' expr #BinaryExpr //
     | value=INTEGER #IntegerLiteral //
     | value=BOOL #BooleanLiteral //
