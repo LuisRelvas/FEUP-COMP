@@ -451,13 +451,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
         }
-        else if(childExpr.getKind().equals(Kind.ARRAY_LENGTH_EXPR.toString()))
+
+        else if(!table.getMethods().contains(childExpr.get("value")) && childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
         {
-            String type = TypeUtils.getExprType(childExpr.getJmmChild(0),table).getName();
-            if(!type.equals(returnType.getName()))
-            {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
-            }
+            return null; // Assume the method is declared by the import
         }
         else
         {
