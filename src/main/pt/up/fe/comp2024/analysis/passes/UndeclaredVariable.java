@@ -192,35 +192,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitArrayAssignStmt(JmmNode arrayAssignStmt, SymbolTable table)
     {
-        Type typeArray = new Type("int",false);
-        String array = arrayAssignStmt.get("ID");
-        var optionalLocals = table.getLocalVariablesTry(currentMethod);
-        var optionalParams = table.getParametersTry(currentMethod);
-        var optionalFields = table.getFields();
-        if(optionalLocals.isPresent()) {
-            List<Symbol> locals = optionalLocals.get();
-            for (Symbol s : locals) {
-                if (s.getName().equals(array)) {
-                    typeArray = new Type(s.getType().getName(), false);
-                }
-            }
-        }
-        if(optionalParams.isPresent()) {
-            List<Symbol> params = optionalParams.get();
-            for (Symbol s : params) {
-                if (s.getName().equals(array)) {
-                    typeArray = new Type(s.getType().getName(), false);
-                }
-            }
-        }
-
-        for(Symbol s: table.getFields())
-        {
-            if(s.getName().equals(array))
-            {
-                typeArray = new Type(s.getType().getName(),false);
-            }
-        }
+        String array = arrayAssignStmt.get("value");
+        Type typeArray = TypeUtils.getExprType(arrayAssignStmt, table);
         // First Child of ArrayAssign must be the Index
         Type typeIndex = TypeUtils.getExprType(arrayAssignStmt.getChild(0), table);
         if(!typeIndex.getName().equals("int") || typeIndex.isArray())
@@ -230,7 +203,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         for(int i = 1; i < arrayAssignStmt.getNumChildren(); i++)
         {
             Type type = TypeUtils.getExprType(arrayAssignStmt.getChild(i), table);
-            if(!type.equals(typeArray))
+            if(!type.getName().equals(typeArray.getName()))
             {
                 addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
             }
@@ -341,9 +314,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
             }
         }
-
-
-
         return null;
     }
 

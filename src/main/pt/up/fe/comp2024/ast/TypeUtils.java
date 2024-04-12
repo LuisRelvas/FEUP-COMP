@@ -61,6 +61,7 @@ public class TypeUtils {
             case ARRAY_LENGTH_EXPR -> new Type(INT_TYPE_NAME, false);
             case UNARY_EXPR -> getExprType(expr.getChild(0),table);
             case PARENTHESIS_EXPR -> getExprType(expr.getChild(0),table);
+            case ARRAY_ASSIGN_STMT -> getAssignType(expr,table);
             default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
 
