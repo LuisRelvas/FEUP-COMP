@@ -4,8 +4,7 @@ class ArrayInit {
         int[] a;
         boolean[] b;
         a = [10, 20, 30];
-        b = [10,20];
-        return b[1] + b[2];
+        return 1 < 2;
     }
 
 }
