@@ -1,12 +1,16 @@
 class ArrayAccessOnInt {
 
+    public int this()
+    {
+        return 0;
+    }
     public static void main(String[] args) {
 
     }
 
     public int foo() {
         int[] a;
-        int b;
+        length alength;
         a[1] = 10 * 2;
 
         return a[10];
