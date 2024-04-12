@@ -159,7 +159,6 @@ public class TypeUtils {
 
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
 
-        // TODO: Simple implementation that needs to be expanded
         // Get the method name
         var kind = Kind.fromString(varRefExpr.getKind());
         var varName = varRefExpr.get("value");

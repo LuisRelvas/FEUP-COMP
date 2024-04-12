@@ -83,30 +83,31 @@ public class UndeclaredVariable extends AnalysisVisitor {
     }
 
     private Void visitParam(JmmNode param, SymbolTable table) {
-        var optionalParameters = table.getParametersTry(currentMethod);
-        if(optionalParameters.isPresent()) {
-            List<Symbol> symbols = table.getParameters(currentMethod);
-            List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
+        List<Symbol> symbols = table.getParameters(currentMethod);
+        List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
 
-            List<String> paramNames = param.getObjectAsList("paramName", String.class); // assuming paramName is a list of strings
-            //check duplicates
-            for (String paramName : paramNames) {
-                int frequency = Collections.frequency(symbolNames, paramName);
-                if (frequency > 1) {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Parameter " + paramName + " is duplicated", null));
-                }
+        List<String> paramNames = param.getObjectAsList("paramName",String.class); // assuming paramName is a list of strings
+        //check duplicates
+        for (String paramName : paramNames) {
+            int frequency = Collections.frequency(symbolNames, paramName);
+            if (frequency > 1) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Parameter " + paramName + " is duplicated", null));
             }
+        }
 
-            //check if varargs is the last parameter declared
-            for (var aux : param.getChildren()) {
-                if (aux.getKind().equals("VarArgsType")) {
-                    //must be the last one declared
-                    if (aux.getIndexOfSelf() != param.getNumChildren() - 1) {
-                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs must be the last parameter declared", null));
-                    }
+        //check if varargs is the last parameter declared
+        for(var aux : param.getChildren())
+        {
+            if(aux.getKind().equals("VarArgsType"))
+            {
+                //must be the last one declared
+                if(aux.getIndexOfSelf() != param.getNumChildren() - 1)
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs must be the last parameter declared", null));
                 }
             }
         }
+
         return null;
     }
 
@@ -290,16 +291,65 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitMethodCallExpr(JmmNode expr, SymbolTable table)
     {
-        if(table.getImports().contains(expr.get("value")))
+        //check the type of the Object that is calling the method
+        Type type = TypeUtils.getExprType(expr.getChild(0),table);
+        //se for da classe atual, se o metodo nao estiver definido entao este tem que extender outra classe
+        if(type.getName().equals(table.getClassName()))
         {
-            return null;
-        }
-        else if(table.getClassName().equals(TypeUtils.getExprType(expr.getJmmChild(0),table).getName()))
-        {
-            if(!table.getMethods().contains(expr.get("value")) && table.getSuper().isEmpty())
+            if(!table.getMethods().contains(expr.get("value")))
             {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
+                if(table.getSuper().isEmpty())
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
+                }
+                else
+                {
+                    return null;  // Assume the method is declared by the import
+                }
             }
+            //metodo esta declarado temos que verificar o seu type e argumentos que sao passados
+            else
+            {
+                var returnType = table.getReturnType(expr.get("value"));
+                var optionalParams = table.getParametersTry(expr.get("value"));
+                //o metodo contem parametros
+                if(optionalParams.isPresent())
+                {
+                    var params = optionalParams.get();
+                    for(int i = 1; i < expr.getNumChildren(); i++)
+                    {
+                        Type param = TypeUtils.getExprType(expr.getChild(i),table);
+                        if(params.get(i-1).getType().isArray())
+                        {
+                            int j;
+                            for(j = i; j < expr.getNumChildren(); j++)
+                            {
+                                if(!TypeUtils.getExprType(expr.getChild(j),table).getName().equals(params.get(i-1).getType().getName()))
+                                {
+                                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the method call " + expr.get("value"), null));
+                                }
+                            }
+                            i = j;
+                        }
+                        else if(!param.equals(params.get(i - 1).getType()))
+                        {
+                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the method call " + expr.get("value"), null));
+                        }
+                    }
+                }
+                //nao contem parametros vamos verificar que nada foi passado á função
+                else
+                {
+                    if(expr.getNumChildren() > 1)
+                    {
+                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " has no parameters", null));
+                    }
+                }
+            }
+        }
+        else if(table.getImports().contains(type.getName()))
+        {
+            return null; // Assume the method is declared by the import
         }
         return null;
     }
@@ -356,28 +406,91 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitReturnStmt(JmmNode expr, SymbolTable table)
     {
-        if(expr.getJmmChild(0).getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
+        JmmNode childExpr = expr.getChild(0);
+        var returnType = table.getReturnType(currentMethod);
+        if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()) && table.getMethods().contains(childExpr.get("value")))
         {
-            if(table.getImports().contains(TypeUtils.getExprType(expr.getJmmChild(0).getJmmChild(0),table).getName()))
+            // The first child of childExpr must be the class name
+            var k = TypeUtils.getExprType(childExpr.getChild(0),table);
+            //k must be a valid class name
+            if (table.getImports().contains(k.getName()))
             {
-                return null;
+                return null; // Assume the method is declared by the import
             }
-            else if(table.getClassName().equals(TypeUtils.getExprType(expr.getJmmChild(0).getJmmChild(0),table).getName()))
-            {
-                if(!table.getMethods().contains(expr.get("value")))
-                {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.getJmmChild(0).get("value") + " not declared", null));
-                }
-                else
-                {
-                    return null;
-                }
+            else if (!k.getName().equals(table.getClassName())) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Class not declared " + k.getName(), null));
             }
             else
             {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.getJmmChild(0).get("value") + " not declared", null));
+                var typeMethodCalled = table.getReturnType(childExpr.get("value"));
+                if(!typeMethodCalled.equals(returnType) && !table.getImports().contains(typeMethodCalled.getName()))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                }
             }
         }
+        else if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
+        {
+            JmmNode leftNode = childExpr.getChild(0);
+            JmmNode rightNode = childExpr.getChild(1);
+            var returnExprTypes = traverseAst(leftNode,rightNode,table);
+            for(int i = 0; i < returnExprTypes.size(); i++)
+            {
+                if(!returnType.equals(returnExprTypes.get(i)))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement " + returnExprTypes.get(i).getName() + " with " + returnType.getName(), null));
+                }
+            }
+        }
+        else if(childExpr.getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
+        {
+            if(returnType.isArray())
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+
+            }
+            Type type = TypeUtils.getExprType(childExpr.getChild(0),table);
+            if(!type.getName().equals(returnType.getName())) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        else if(childExpr.getKind().equals(Kind.VAR_REF.toString()))
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        else if(childExpr.getKind().equals(Kind.ARRAY_LENGTH_EXPR.toString()))
+        {
+            String type = TypeUtils.getExprType(childExpr.getJmmChild(0),table).getName();
+            if(!type.equals(returnType.getName()))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        else if(table.getMethods().contains(childExpr.get("value")))
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        else if(!table.getMethods().contains(childExpr.get("value")) && childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
+        {
+            return null; // Assume the method is declared by the import
+        }
+        else
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+
         return null;
     }
 
