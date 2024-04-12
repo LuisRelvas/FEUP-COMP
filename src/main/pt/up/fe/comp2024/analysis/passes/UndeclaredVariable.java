@@ -420,27 +420,16 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
                 }
-                else
-                {
-                    return null;
-                }
+
             }
         }
         else if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
         {
-            JmmNode leftNode = childExpr.getChild(0);
-            JmmNode rightNode = childExpr.getChild(1);
-            var returnExprTypes = traverseAst(leftNode,rightNode,table);
-            for(int i = 0; i < returnExprTypes.size(); i++)
+            Type leftNodeType = TypeUtils.getExprType(childExpr.getJmmChild(0),table);
+            Type rightNodeType = TypeUtils.getExprType(childExpr.getJmmChild(1),table);
+            if(!returnType.equals(leftNodeType) || !returnType.equals(rightNodeType))
             {
-                if(!returnType.equals(returnExprTypes.get(i)))
-                {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement " + returnExprTypes.get(i).getName() + " with " + returnType.getName(), null));
-                }
-                else
-                {
-                    return null;
-                }
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
         }
         else if(childExpr.getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
@@ -453,10 +442,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(!type.getName().equals(returnType.getName())) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
-            else
-            {
-                return null;
-            }
         }
         else if(childExpr.getKind().equals(Kind.VAR_REF.toString()))
         {
@@ -465,10 +450,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
-            else
-            {
-                return null;
-            }
         }
         else if(childExpr.getKind().equals(Kind.ARRAY_LENGTH_EXPR.toString()))
         {
@@ -476,10 +457,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(!type.equals(returnType.getName()))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
-            }
-            else
-            {
-                return null;
             }
         }
         else if(childExpr.hasAttribute("value")) {
@@ -492,10 +469,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 if(!type.equals(returnType))
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
-                }
-                else
-                {
-                    return null;
                 }
             }
             else
