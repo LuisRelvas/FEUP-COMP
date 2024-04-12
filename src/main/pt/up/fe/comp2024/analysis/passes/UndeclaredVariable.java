@@ -482,23 +482,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 return null;
             }
         }
-        else if(childExpr.hasAttribute("value")) {
-            if (!table.getMethods().contains(childExpr.get("value")) && childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString())) {
-                return null; // Assume the method is declared by the import
-            }
-            else if(table.getMethods().contains(childExpr.get("value")))
-            {
-                Type type = TypeUtils.getExprType(childExpr,table);
-                if(!type.equals(returnType))
-                {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
+
         else if(childExpr.getKind().equals(Kind.ARRAY_CREATION_EXPR.toString()))
         {
             return null;
@@ -515,14 +499,32 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             return null;
         }
-        else
-        {
-            Type type = TypeUtils.getExprType(childExpr,table);
-            if(!type.equals(returnType))
+        else if(childExpr.hasAttribute("value")) {
+            if (!table.getMethods().contains(childExpr.get("value")) && childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString())) {
+                return null; // Assume the method is declared by the import
+            }
+            else if(table.getMethods().contains(childExpr.get("value")))
             {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                Type type = TypeUtils.getExprType(childExpr,table);
+                if(!type.equals(returnType))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                Type type = TypeUtils.getExprType(childExpr,table);
+                if(!type.equals(returnType))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                }
             }
         }
+
         return null;
     }
 
