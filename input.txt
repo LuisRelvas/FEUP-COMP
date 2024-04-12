@@ -8,6 +8,10 @@ class ObjectAssignmentPassImports extends B{
     public boolean foo() {
         int a;
         int c;
-        return a && c;
+        B b ;
+        b = new B();
+        a = b.call().test();
+        return false;
+
     }
 }
