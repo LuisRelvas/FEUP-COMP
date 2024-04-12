@@ -1,18 +1,9 @@
-class ArrayAccessOnInt {
+class ArrayInit {
 
-    public int this()
-    {
-        return 0;
-    }
-    public static void main(String[] args) {
-
-    }
-
-    public int foo() {
+    public int[] foo() {
         int[] a;
-        length alength;
-        a[1] = 10 * 2;
-
-        return a[10];
+        a = [10, 20, 30];
+        return [10,20,30];
     }
+
 }
