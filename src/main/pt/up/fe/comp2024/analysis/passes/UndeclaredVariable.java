@@ -400,6 +400,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitReturnStmt(JmmNode expr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(expr.getJmmChild(0), table);
+        //check if the return type is the same as the method return type
+        if(!type.equals(table.getReturnType(currentMethod)))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, " is not an integer", null));
+
+        }
         return null;
     }
 
