@@ -459,6 +459,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
             }
         }
+        else
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
 
         return null;
     }
