@@ -1,6 +1,23 @@
 class Test {
-    public int[] foo(int[] a, boolean[] b)
+    int a;
+    public static void main(String[] args)
     {
-        return [1,2,3,4,5];
+        int a;
+        int c;
+        c = a.length;
+        a = c.length;
+    }
+    public int[] foo(int[] a, int b)
+    {
+        int athis;
+        int alength;
+        int[] a;
+        int c;
+        b = a.length;
+        c = a.length;
+        a = new int[a.length];
+        a = [a.length,b.length];
+
+        return [1];
     }
 }
