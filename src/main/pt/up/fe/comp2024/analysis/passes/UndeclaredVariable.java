@@ -349,25 +349,44 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitAssignStmt(JmmNode assign, SymbolTable table) {
         String varAssigned = assign.get("value");
-        // Check if there is a BinaryExpr
-        JmmNode expr = assign.getChild(0);
-        var extended = table.getSuper();
-        var imports = table.getImports();
-        Type typeExpr = TypeUtils.getExprType(expr, table);
-        Type typeAssign = TypeUtils.getExprType(assign, table);
-        if (imports.isEmpty() && !typeExpr.equals(typeAssign)) {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
-        } else if (!typeExpr.equals(typeAssign) && (!imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName()))) {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of var " + varAssigned, null));
-        } else if (imports.contains(typeExpr.getName()) && !imports.contains(typeAssign.getName())) {
-            if (!extended.contains(typeExpr.getName())) {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of " + varAssigned + " because it isn't extended.", null));
+        var lhsType = TypeUtils.getExprType(assign,table);
+        var rhsType = TypeUtils.getExprType(assign.getJmmChild(0),table);
+        if(!lhsType.equals(rhsType))
+        {
+            if(table.getImports().contains(lhsType.getName()) && table.getImports().contains(rhsType.getName()))
+            {
+                return null;
             }
-        } else if (!imports.contains(typeExpr.getName()) && imports.contains(typeAssign.getName())) {
-            if (!extended.contains(typeAssign.getName())) {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of " + varAssigned + " because it isn't extended.", null));
+            //if they are not equal or it is invalid or the object extends the other
+            else if(table.getImports().contains(lhsType.getName()))
+            {
+                if(table.getSuper().equals(lhsType.getName()) && rhsType.getName().equals(table.getClassName()))
+                {
+                   return null;
+                }
+                else
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+                }
             }
-        } else if (isStatic) {
+            else if(table.getImports().contains(rhsType.getName()))
+            {
+                if(table.getSuper().equals(rhsType.getName()) && lhsType.getName().equals(table.getClassName()))
+                {
+                    return null;
+                }
+                else
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+                }
+            }
+            else
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+            }
+
+        }
+        if (isStatic) {
             //check if the value that is being assigned is a static field as we dont have static types we only need to check if the variable that it is accessing is in the fields, otherwise it is in the params or in the locals
             List<Symbol> fields = table.getFields();
             List<String> fieldNames = fields.stream().map(Symbol::getName).toList();
@@ -385,11 +404,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         JmmNode index = expr.getChild(1);
         Type typeArray = TypeUtils.getExprType(array,table);
         Type typeIndex = TypeUtils.getExprType(index,table);
-
+        //isArray must be set to True
         if(!typeArray.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + array.get("value") + " is not an array", null));
         }
+        //index must be an integer
         if(!typeIndex.getName().equals("int"))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0 ,"Variable" + index.get("value") + " is not an integer", null));
