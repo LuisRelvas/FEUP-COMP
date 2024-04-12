@@ -1,15 +1,13 @@
-class ObjectAssignmentPassImports {
+import B;
+class ObjectAssignmentPassImports extends B{
 
     public static void main(String[] args) {
 
     }
 
-    public int foo() {
+    public boolean foo() {
         int a;
-        int[] b;
-        a = 0;
-        b[1] = a;
-
-        return a;
+        int c;
+        return a && c;
     }
 }
