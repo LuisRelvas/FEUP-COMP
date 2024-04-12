@@ -83,27 +83,27 @@ public class UndeclaredVariable extends AnalysisVisitor {
     }
 
     private Void visitParam(JmmNode param, SymbolTable table) {
-        List<Symbol> symbols = table.getParameters(currentMethod);
-        List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
+        var optionalParameters = table.getParametersTry(currentMethod);
+        if(optionalParameters.isPresent()) {
+            List<Symbol> symbols = table.getParameters(currentMethod);
+            List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
 
-        List<String> paramNames = param.getObjectAsList("paramName",String.class); // assuming paramName is a list of strings
-        //check duplicates
-        for (String paramName : paramNames) {
-            int frequency = Collections.frequency(symbolNames, paramName);
-            if (frequency > 1) {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Parameter " + paramName + " is duplicated", null));
+            List<String> paramNames = param.getObjectAsList("paramName", String.class); // assuming paramName is a list of strings
+            //check duplicates
+            for (String paramName : paramNames) {
+                int frequency = Collections.frequency(symbolNames, paramName);
+                if (frequency > 1) {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Parameter " + paramName + " is duplicated", null));
+                }
             }
-        }
 
-        //check if varargs is the last parameter declared
-        for(var aux : param.getChildren())
-        {
-            if(aux.getKind().equals("VarArgsType"))
-            {
-                //must be the last one declared
-                if(aux.getIndexOfSelf() != param.getNumChildren() - 1)
-                {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs must be the last parameter declared", null));
+            //check if varargs is the last parameter declared
+            for (var aux : param.getChildren()) {
+                if (aux.getKind().equals("VarArgsType")) {
+                    //must be the last one declared
+                    if (aux.getIndexOfSelf() != param.getNumChildren() - 1) {
+                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs must be the last parameter declared", null));
+                    }
                 }
             }
         }
@@ -293,7 +293,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     {
         var imports = table.getImports();
         var extended = table.getSuper();
-        if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(expr.getJmmChild(0).get("value")))
+        if(!table.getMethods().contains(expr.get("value")) && (!imports.isEmpty() || !extended.isEmpty()) && imports.contains(expr.getJmmChild(0).get("value")))
         {
             return null; // Assume the method is declared by the import
         }
@@ -318,8 +318,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
             // check if the parameters are correct
             if(optionalParams.isPresent()) {
                 var params = optionalParams.get();
-
-
                     //vargs must be the last parameter of the function
                     for (int i = 0; i < params.size(); i++) {
                         //can be var args or a list
@@ -341,8 +339,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     }
                 }
             }
-
-
 
         return null;
     }

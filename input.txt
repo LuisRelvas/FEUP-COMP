@@ -1,17 +1,18 @@
-import A;
+class CallToMethodAssumedInExtends {
 
-class CallToMethodAssumedInExtends extends A {
-
+    public int foo()
+    {
+        return 0;
+    }
     public static void main(String[] args) {
 
     }
 
-    public int foo() {
+    public int foo2() {
         CallToMethodAssumedInExtends a;
         a = new CallToMethodAssumedInExtends();
 
-        // Assume bar() is in A
-        a.bar();
+        a.foo();
 
         return 0;
     }
