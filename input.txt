@@ -1,23 +1,34 @@
 class Test {
-    int a;
     public static void main(String[] args)
     {
-        int a;
         int c;
-        c = a.length;
-        a = c.length;
     }
-    public int[] foo(int[] a, int b)
+    public int foo()
+    {
+        return 0;
+    }
+    public int lengtha(int[] a, int b)
     {
         int athis;
-        int alength;
+        boolean length1;
         int[] a;
         int c;
+        Test t;
+        t = new Test();
+        length1 = false;
         b = a.length;
         c = a.length;
         a = new int[a.length];
-        a = [a.length,b.length];
+        c = this._length();
+        c = t._length();
+        c = a.length + this._length() + t._length();
+        a = [a.length];
 
-        return [1];
+        return a.length;
+    }
+
+    public int _length()
+    {
+        return 10;
     }
 }

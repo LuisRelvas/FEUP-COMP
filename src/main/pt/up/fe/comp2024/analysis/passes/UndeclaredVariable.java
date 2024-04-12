@@ -44,6 +44,17 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
         addVisit(Kind.PARAM, this::visitParam);
         addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
+        addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
+    }
+
+    private Void visitArrayLengthExpr(JmmNode arrayLengthExpr, SymbolTable table)
+    {
+        Type type = TypeUtils.getExprType(arrayLengthExpr.getChild(0),table);
+        if(!type.isArray())
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.getJmmChild(0).get("value") + " is not an array", null));
+        }
+        return null;
     }
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
     {
