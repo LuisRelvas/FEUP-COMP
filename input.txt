@@ -1,34 +1,18 @@
-class Test {
-    public static void main(String[] args)
-    {
-        int c;
+import io;
+
+class A {
+
+	int a;
+
+    public static void main(String[] args){
+        int a;
+        a = 10;
+        io.print(10);
     }
+
     public int foo()
     {
-        return 0;
-    }
-    public int lengtha(int[] a, int b)
-    {
-        int athis;
-        boolean length1;
-        int[] a;
-        int c;
-        Test t;
-        t = new Test();
-        length1 = false;
-        b = a.length;
-        c = a.length;
-        a = new int[a.length];
-        c = this._length();
-        c = t._length();
-        c = a.length + this._length() + t._length();
-        a = [a.length];
-
-        return a.length;
-    }
-
-    public int _length()
-    {
-        return 10;
+        a =10;
+        return a;
     }
 }

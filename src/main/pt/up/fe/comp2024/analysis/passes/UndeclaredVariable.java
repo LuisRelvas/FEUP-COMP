@@ -370,6 +370,31 @@ public class UndeclaredVariable extends AnalysisVisitor {
             //check if the value that is being assigned is a static field as we dont have static types we only need to check if the variable that it is accessing is in the fields, otherwise it is in the params or in the locals
             List<Symbol> fields = table.getFields();
             List<String> fieldNames = fields.stream().map(Symbol::getName).toList();
+            var optionalLocals = table.getLocalVariablesTry(currentMethod);
+            var optionalParams = table.getParametersTry(currentMethod);
+            //check in the locals
+            if(optionalLocals.isPresent())
+            {
+                var locals = optionalLocals.get();
+                for(Symbol s: locals)
+                {
+                    if(s.getName().equals(varAssigned))
+                    {
+                        return null; //it is in the locals
+                    }
+                }
+            }
+            if(optionalParams.isPresent())
+            {
+                var params = optionalParams.get();
+                for(Symbol s: params)
+                {
+                    if(s.getName().equals(varAssigned))
+                    {
+                        return null; //it is in the params
+                    }
+                }
+            }
             if (fieldNames.contains(varAssigned)) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non static field in a static method", null));
             }

@@ -209,6 +209,18 @@ public class TypeUtils {
                 }
             }
         }
+        if(!currentMethod.equals("main"))
+        {
+            //look in the fields
+            var fields = table.getFields();
+            for(Symbol s : fields)
+            {
+                if(s.getName().equals(varName))
+                {
+                    return s.getType();
+                }
+            }
+        }
         if (definedAsDeclaration != null)
         {
             return definedAsDeclaration;
@@ -233,13 +245,6 @@ public class TypeUtils {
                 }
             }
         }
-        for(Symbol s : fields)
-        {
-            if (s.getName().equals(varName))
-            {
-                return s.getType();
-            }
-        }
         if(optionalParams.isPresent()) {
             var params = optionalParams.get();
             for (Symbol s : params) {
@@ -248,6 +253,14 @@ public class TypeUtils {
                 }
             }
         }
+        for(Symbol s : fields)
+        {
+            if (s.getName().equals(varName))
+            {
+                return s.getType();
+            }
+        }
+
         for (String s: imports)
         {
             if (s.equals(varName))
