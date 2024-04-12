@@ -1,12 +1,18 @@
-class Varargs {
+import A;
 
-    public int foo() {
-        int a;
-        a = this.varargs(10, 20, 30);
-        return a;
+class CallToMethodAssumedInExtends extends A {
+
+    public static void main(String[] args) {
+
     }
 
-    public int varargs(int... a) {
-        return a[0];
+    public int foo() {
+        CallToMethodAssumedInExtends a;
+        a = new CallToMethodAssumedInExtends();
+
+        // Assume bar() is in A
+        a.bar();
+
+        return 0;
     }
 }
