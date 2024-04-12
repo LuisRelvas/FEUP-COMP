@@ -1,11 +1,11 @@
 class ArrayInit {
 
-    public int foo() {
+    public boolean foo() {
         int[] a;
         boolean[] b;
         a = [10, 20, 30];
-        b = [true,true];
-        return a[1] + a[3] + b[1];
+        b = [10,20];
+        return b[1] + b[2];
     }
 
 }
