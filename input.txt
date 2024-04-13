@@ -5,10 +5,13 @@ class A extends B{
     public int foo()
     {
         A a;
-        B b;
+        int c;
+        int f;
         a = new A();
-        b = new B();
-        return a.bar().foo();
+        c = a.bar();
+        f = a.bar().call();
+
+        return c;
     }
 
 }
