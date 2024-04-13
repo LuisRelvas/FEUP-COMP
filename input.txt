@@ -1,5 +1,10 @@
 class length
 {
+public int foo()
+{
+    int[] a;
+    return a.exp;
 
+}
 
 }

@@ -50,6 +50,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitArrayLengthExpr(JmmNode arrayLengthExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayLengthExpr.getChild(0),table);
+        if(!arrayLengthExpr.get("value").equals("length"))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.get("value") + " is not an array", null));
+        }
         if(!type.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.getJmmChild(0).get("value") + " is not an array", null));

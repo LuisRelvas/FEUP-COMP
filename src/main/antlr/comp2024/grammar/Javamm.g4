@@ -34,7 +34,8 @@ BOOL : ('true' | 'false');
 ELLIPSIS : '...';
 
 INTEGER : '0' | [1-9][0-9]* ;
-ID : [$a-zA-Z_][$a-zA-Z_0-9]* ;
+ID :  [$a-zA-Z_][$a-zA-Z_0-9]*
+;
 
 WS : [ \t\n\r\f]+ -> skip ;
 
@@ -103,7 +104,7 @@ expr
     | expr LRECT expr RRECT #ArrayAccessExpr //
     | value=ID LPAREN (expr ( ',' expr )*)? RPAREN #MethodCallExpr //
     | expr '.' value=ID LPAREN (expr ( ',' expr )*)? RPAREN #MethodCallExpr //
-    | expr '.' 'make' #ArrayLengthExpr //
+    | expr '.' value=ID #ArrayLengthExpr //
     | value='this' #ThisExpr //
     | value= NOT expr #UnaryExpr //
     | expr op= (MUL | DIV) expr #BinaryExpr //
