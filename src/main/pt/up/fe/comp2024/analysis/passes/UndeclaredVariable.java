@@ -34,13 +34,13 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
         addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
-        addVisit(Kind.ARRAY_ASSIGN_STMT, this::visitArrayAssignStmt);
+        //addVisit(Kind.ARRAY_ASSIGN_STMT, this::visitArrayAssignStmt);
         addVisit(Kind.ASSIGN_STMT, this::visitAssignStmt);
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
         addVisit(Kind.WHILE_STMT, this::visitWhileStmt);
         addVisit(Kind.THIS_EXPR, this::visitThisExpr);
-        addVisit(Kind.VAR_DECL, this::visitVarDecl);
+        // addVisit(Kind.VAR_DECL, this::visitVarDecl);
         addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
         // addVisit(Kind.PARAM, this::visitParam);
         // addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
@@ -132,6 +132,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     {
         // in the fields and in the locals we cannot have varargs defined
         //fields
+        /*
         if(varDecl.getParent().getKind().equals(Kind.CLASS_DECL.toString())){
             List<Symbol> symbols = table.getFields();
             List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
@@ -163,6 +164,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             }
         }
 
+         */
 
         return null;
     }
@@ -206,7 +208,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-
+    /*
     private Void visitArrayAssignStmt(JmmNode arrayAssignStmt, SymbolTable table)
     {
         String array = arrayAssignStmt.get("value");
@@ -227,6 +229,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+    */
+
 
     private Void visitBinaryExpr(JmmNode expr, SymbolTable table)
     {
@@ -427,11 +431,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
         JmmNode index = expr.getChild(1);
         Type typeArray = TypeUtils.getExprType(array,table);
         Type typeIndex = TypeUtils.getExprType(index,table);
+
+
         //isArray must be set to True
         if(!typeArray.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + array.get("value") + " is not an array", null));
         }
+
         //index must be an integer
         if(!typeIndex.getName().equals("int"))
         {
@@ -439,6 +446,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+
+
 
     private Void visitReturnStmt(JmmNode expr, SymbolTable table)
     {
