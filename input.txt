@@ -1,5 +1,12 @@
 import lengtha;
 class Lengthb extends lengtha
 {
-int Length;
+int[] Length;
+public int getLength()
+{
+int[] a;
+int b;
+b = a.length;
+return Length.length + b;
+}
 }
