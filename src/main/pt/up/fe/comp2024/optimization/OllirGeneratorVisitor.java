@@ -91,16 +91,75 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         var utilsType = TypeUtils.getExprType(node,table);
         var ollirType = OptUtils.toOllirType(utilsType);
         var rhs = exprVisitor.visit(node.getChild(0));
+        //check where it is defined
+        var optionalFields = table.getFields();
+        var optionalParams = table.getParametersTry(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
+        var inFields = false;
+        var inParams = false;
+        var inLocals = false;
+        for(Symbol s : optionalFields)
+        {
+            if(s.getName().equals(lhs))
+            {
+                ollirType = OptUtils.toOllirType(s.getType());
+                inFields = true;
+            }
+        }
+        if(optionalParams.isPresent())
+        {
+            for(Symbol s: optionalParams.get())
+            {
+                if(s.getName().equals(lhs))
+                {
+                    ollirType = OptUtils.toOllirType(s.getType());
+                    inParams = true;
+                }
+            }
+        }
+        if(optionalLocals.isPresent())
+        {
+            for(Symbol s: optionalLocals.get())
+            {
+                if(s.getName().equals(lhs))
+                {
+                    ollirType = OptUtils.toOllirType(s.getType());
+                    inLocals = true;
+                }
+            }
+        }
+        if(inLocals || inParams)
+        {
+            String code = "";
 
-        String code = "";
+            StringBuilder computation = new StringBuilder();
 
-        StringBuilder computation = new StringBuilder();
+            computation.append(rhs.getComputation());
+            computation.append(lhs).append(ollirType).append(SPACE).append(ASSIGN);
+            computation.append(SPACE).append(ollirType).append(SPACE).append(rhs.getCode()).append(END_STMT);
+            code = computation.toString();
+            return code.toString();
+        }
+        else if(inFields)
+        {
+            String code = "";
+            StringBuilder computation = new StringBuilder();
+            computation.append(rhs.getComputation());
+            computation.append("putfield");
+            computation.append(SPACE);
+            computation.append("(");
+            computation.append("this");
+            computation.append(",");
+            computation.append(lhs).append(ollirType);
+            computation.append(",");
+            computation.append(rhs.getCode());
+            computation.append(")");
+            computation.append(".V").append(END_STMT);
+            code = computation.toString();
+            return code.toString();
+        }
 
-        computation.append(rhs.getComputation());
-        computation.append(lhs).append(ollirType).append(SPACE).append(ASSIGN);
-        computation.append(SPACE).append(ollirType).append(SPACE).append(rhs.getCode()).append(END_STMT);
-        code = computation.toString();
-        return code.toString();
+        return "";
     }
 
 
@@ -187,6 +246,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
 
         //vamos dar set do current method que estamos a explorar
         TypeUtils.setCurrentMethod(node.get("methodName"));
+        currentMethod = node.get("methodName");
         var afterParam = 0;
 
         StringBuilder code = new StringBuilder(".method ");

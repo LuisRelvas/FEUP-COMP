@@ -6,10 +6,15 @@ import java.util.HashMap;
 class A{
     int b;
     int a;
-    boolean f;
+    int f;
     public int foo()
     {
-        f = false;
+        f = 10 * 2;
+        return 0;
+    }
+
+    public int k()
+    {
         return 0;
     }
 
