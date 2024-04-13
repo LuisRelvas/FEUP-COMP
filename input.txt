@@ -1,17 +1,23 @@
-import B;
+import len;
 
-class A extends B{
-
-    public int foo()
-    {
-        A a;
+class A {
+    int[] p;
+    public static void main(String[] args) {
+        int a;
+        int[] b;
         int c;
-        int f;
-        a = new A();
-        c = a.bar();
-        f = a.bar().call();
-
-        return c;
+        c = b.length;
+        a = 10;
     }
 
+    public int foo(int[] a, boolean[] b) {
+        String length;
+        int c;
+        int k;
+        int f;
+        f = (p.length);
+        c = (a.length);
+        k = b.length;
+        return (k + c);
+    }
 }

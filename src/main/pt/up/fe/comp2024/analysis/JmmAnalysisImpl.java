@@ -29,7 +29,6 @@ public class JmmAnalysisImpl implements JmmAnalysis {
         SymbolTable table = JmmSymbolTableBuilder.build(rootNode);
 
         List<Report> reports = new ArrayList<>();
-
         // Visit all nodes in the AST
         for (var analysisPass : analysisPasses) {
             try {

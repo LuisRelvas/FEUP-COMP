@@ -64,10 +64,8 @@ public class TypeUtils {
             case ARRAY_ASSIGN_STMT -> getAssignType(expr,table);
             default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
-
         return type;
     }
-
 
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {

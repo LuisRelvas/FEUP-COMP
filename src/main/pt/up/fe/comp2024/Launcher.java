@@ -27,7 +27,6 @@ public class Launcher {
             throw new RuntimeException("Option '-i' expects a path to an existing input file, got '" + args[0] + "'.");
         }
         String code = SpecsIo.read(inputFile);
-
         // Parsing stage
         JmmParserImpl parser = new JmmParserImpl();
         JmmParserResult parserResult = parser.parse(code, config);
