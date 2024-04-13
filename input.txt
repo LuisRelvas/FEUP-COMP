@@ -1,13 +1,15 @@
 import ioPlus;
-class A extends ioPlus
+class A
 {
     int a;
     public int foo()
     {
-        ioPlus a;
+        A a ;
+        ioPlus x;
         int b;
-        a = new ioPlus();
-        b = a.call();
+        x = new ioPlus();
+        a = new A();
+        b = ioPlus.readInt();
         return b;
     }
 

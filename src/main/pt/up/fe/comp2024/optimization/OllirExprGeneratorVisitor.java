@@ -247,28 +247,30 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
                 var rhs = visit(node.getJmmChild(i));
                 computation.append(rhs.getComputation());
-                if(node.getParent().getKind().equals(EXPR_STMT.toString()))
-                {
-                }
-                else if(!node.getParent().getKind().equals(ASSIGN_STMT.toString()))
-                {
-                    var temp = OptUtils.getTemp();// get a new temp
-                    ollirType = ".V";
-                    code = temp + ollirType;
-                    computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
-                }
-                else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
-                {
-                    var temp = OptUtils.getTemp();
-                    ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
-                    code = temp + ollirType;
-                    computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
-                }
+
+
                 params.append(rhs.getCode());
                 if(i != node.getNumChildren() - 1)
                 {
                     params.append(",");
                 }
+            }
+            if(node.getParent().getKind().equals(EXPR_STMT.toString()))
+            {
+            }
+            else if(!node.getParent().getKind().equals(ASSIGN_STMT.toString()))
+            {
+                var temp = OptUtils.getTemp();// get a new temp
+                ollirType = ".V";
+                code = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
+            }
+            else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
+            {
+                var temp = OptUtils.getTemp();
+                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
+                code = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
             computation.append(typeFunction).append("(").append(node.getJmmChild(0).get("value")).append(",").append("\"").append(node.get("value")).append("\"");
             if(!params.isEmpty())
