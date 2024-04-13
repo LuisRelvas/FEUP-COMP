@@ -217,7 +217,8 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         }
         else if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) && !table.getMethods().contains(node.get("value")))
         {
-            ollirType = ".InvokeStatic";
+            returnType = TypeUtils.getExprType(node,table);
+            ollirType = OptUtils.toOllirType(returnType);
             typeFunction = "invokevirtual";
         }
         else
@@ -248,16 +249,26 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         else {
             for(int i = 1; i < node.getNumChildren();i++)
             {
-                if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
+
+                var rhs = visit(node.getJmmChild(i));
+                computation.append(rhs.getComputation());
+                if(node.getParent().getKind().equals(EXPR_STMT.toString()))
+                {
+                }
+                else if(!node.getParent().getKind().equals(ASSIGN_STMT.toString()))
                 {
                     var temp = OptUtils.getTemp();// get a new temp
+                    ollirType = ".V";
+                    code = temp + ollirType;
+                    computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
+                }
+                else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
+                {
+                    var temp = OptUtils.getTemp();
                     ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
                     code = temp + ollirType;
                     computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
-
                 }
-                var rhs = visit(node.getJmmChild(i));
-                computation.append(rhs.getComputation());
                 params.append(rhs.getCode());
                 if(i != node.getNumChildren() - 1)
                 {

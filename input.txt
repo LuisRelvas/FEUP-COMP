@@ -1,11 +1,25 @@
 import ioPlus;
-class InvokeStatic extends ioPlus{
 
-        public int func() {
-        int f;
-        int j;
-                j = ioPlus.printResult(1);
-                return 1;
+// class
+class TestNestedCallsImport extends ioPlus {
 
-        }
+    public int test() {
+
+
+        int a;
+        int b;
+        int c;
+        int d;
+        int e;
+
+
+        a = this.printResult(ioPlus.printResult(1));
+        b = ioPlus.printResult(this.printResult(2));
+        c = a * b;
+        d = this.printResult(ioPlus.printResult(3));
+        e = ioPlus.printResult(this.printResult(4));
+
+        // returns
+        return a + b + c + d + e;
+    }
 }
