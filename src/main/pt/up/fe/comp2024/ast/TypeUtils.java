@@ -149,9 +149,9 @@ public class TypeUtils {
     {
         var left = assign.get("value");
         var optionalLocals = table.getLocalVariablesTry(currentMethod);
-        var fields = table.getFields();
-        var optionalParams = table.getParametersTry(currentMethod);
-        var imports = table.getImports();
+        // var fields = table.getFields();
+        // var optionalParams = table.getParametersTry(currentMethod);
+        // var imports = table.getImports();
         if(optionalLocals.isPresent())
         {
             var locals = optionalLocals.get();
@@ -163,6 +163,7 @@ public class TypeUtils {
                 }
             }
         }
+        /*
         for(Symbol s : fields)
         {
             if (s.getName().equals(left))
@@ -170,6 +171,9 @@ public class TypeUtils {
                 return s.getType();
             }
         }
+
+         */
+        /*
         if(optionalParams.isPresent()) {
             var params = optionalParams.get();
             for (Symbol s : params) {
@@ -178,6 +182,8 @@ public class TypeUtils {
                 }
             }
         }
+
+         /*
         for (String s: imports)
         {
             if (s.equals(left))
@@ -185,6 +191,8 @@ public class TypeUtils {
                 return new Type(left, false);
             }
         }
+
+         */
         return null;
     }
 
@@ -220,6 +228,7 @@ public class TypeUtils {
                 }
             }
         }
+        /*
         if(!currentMethod.equals("main"))
         {
             //look in the fields
@@ -232,10 +241,13 @@ public class TypeUtils {
                 }
             }
         }
+        */
+
         if (definedAsDeclaration != null)
         {
             return definedAsDeclaration;
         }
+
         else
         {
             return new Type(varName, true);
