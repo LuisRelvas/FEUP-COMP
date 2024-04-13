@@ -234,7 +234,7 @@ public class TypeUtils {
         }
         else
         {
-            return null;
+            return new Type(varName, false);
         }
     }
 
