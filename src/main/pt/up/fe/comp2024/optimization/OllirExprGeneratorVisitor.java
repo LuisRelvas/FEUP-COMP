@@ -43,9 +43,21 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         addVisit(THIS_EXPR, this::visitThisExpr);
         addVisit(PARENTHESIS_EXPR, this::visitParenthesisExpr);
         addVisit(BOOLEAN_LITERAL, this::visitBoolean);
+        addVisit(UNARY_EXPR,this::visitUnaryExpr);
         setDefaultVisit(this::defaultVisit);
     }
-
+    private OllirExprResult visitUnaryExpr(JmmNode unaryNode, Void unused)
+    {
+        StringBuilder computation = new StringBuilder();
+        var expr = visit(unaryNode.getJmmChild(0));
+        computation.append(expr.getComputation());
+        String code = "";
+        String temp = OptUtils.getTemp();
+        String ollirType = OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table));
+        code = temp + ollirType;
+        computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(unaryNode.get("value")).append(OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table))).append(SPACE).append(expr.getCode()).append(END_STMT);
+        return new OllirExprResult(code,computation);
+    }
     private OllirExprResult visitBoolean(JmmNode booleanNode, Void unused)
     {
         String code = "";

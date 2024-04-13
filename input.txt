@@ -1,16 +1,21 @@
 import ioPlus;
-class A
-{
-    int a;
-    public int foo()
-    {
-        A a ;
-        ioPlus x;
-        int b;
-        x = new ioPlus();
-        a = new A();
-        b = ioPlus.readInt();
-        return b;
+class ConditionArgsFuncCall {
+
+    public int func(boolean a, boolean b, boolean c, boolean d){
+        return 1;
     }
 
+	public static void main(String[] args) {
+        int a;
+        int b;
+        boolean i;
+        boolean j;
+        ConditionArgsFuncCall d;
+        d = new ConditionArgsFuncCall();
+        a = 10;
+        b = 5;
+        i = true;
+        j = false;
+		a = d.func(a < b, i && j , a < b && i, !i);
+	}
 }
