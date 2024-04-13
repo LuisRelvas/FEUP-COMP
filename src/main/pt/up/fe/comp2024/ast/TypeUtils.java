@@ -14,6 +14,8 @@ public class TypeUtils {
     private static final String INT_TYPE_NAME = "int";
 
     private static String currentMethod;
+
+    private static Boolean isStatic;
     private static final String BOOLEAN_TYPE_NAME = "boolean";
 
     private static final String STRING_TYPE_NAME = "String";
@@ -24,6 +26,10 @@ public class TypeUtils {
 
     public static void setCurrentMethod(String methodName) {
         currentMethod = methodName;
+    }
+
+    public static void setStatic(Boolean isSta) {
+        isStatic = isSta;
     }
 
     /**
@@ -55,16 +61,24 @@ public class TypeUtils {
             case ARRAY_LENGTH_EXPR -> new Type(INT_TYPE_NAME, false);
             case UNARY_EXPR -> getExprType(expr.getChild(0),table);
             case PARENTHESIS_EXPR -> getExprType(expr.getChild(0),table);
+            case ARRAY_ASSIGN_STMT -> getAssignType(expr,table);
             default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
-
         return type;
     }
 
-
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
-        var returnType = table.getReturnType(methodCallExpr.get("value"));
+        var returnType = new Type("int", false);
+        if(table.getMethods().contains(methodCallExpr.get("value")))
+        {
+            returnType = table.getReturnType(methodCallExpr.get("value"));
+        }
+        //if we dont know the method, we assume it is a method from the imports and give the correct type
+        else if(!table.getImports().isEmpty() && !table.getSuper().isEmpty() )
+        {
+            returnType = getExprType(methodCallExpr.getChild(0),table);
+        }
         return returnType;
     }
     private static Type getArrayAccessExprType(JmmNode arrayAccessExpr, SymbolTable table)
@@ -80,6 +94,22 @@ public class TypeUtils {
         return new Type(typeArray.getName(), false);
     }
     private static Type getArrayExprType(JmmNode arrayExpr, SymbolTable table) {
+        //check if the array has parent
+        if(!arrayExpr.getParent().hasAttribute("value"))
+        {
+            //check the type of the elements inside the array
+            var type = getExprType(arrayExpr.getChildren().get(0),table);
+            for(int i = 1; i < arrayExpr.getNumChildren(); i++)
+            {
+                var typeChild = getExprType(arrayExpr.getChildren().get(i),table);
+                if(!type.getName().equals(typeChild.getName()))
+                {
+                    throw new RuntimeException("Array type is not the same as the parent type");
+                }
+            }
+            return new Type(type.getName(), true);
+        }
+        else {
         var typeParent  = getAssignType(arrayExpr.getParent(),table);
         for(int i = 0; i < arrayExpr.getNumChildren(); i++)
         {
@@ -89,7 +119,8 @@ public class TypeUtils {
                 throw new RuntimeException("Array type is not the same as the parent type");
             }
         }
-        return new Type(typeParent.getName(), true);
+            return new Type(typeParent.getName(), true);
+        }
     }
 
     private static Type getBinExprType(JmmNode binaryExpr) {
@@ -106,15 +137,19 @@ public class TypeUtils {
     private static Type getAssignType(JmmNode assign, SymbolTable table)
     {
         var left = assign.get("value");
-        var locals = table.getLocalVariables(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
         var fields = table.getFields();
-        var params = table.getParameters(currentMethod);
+        var optionalParams = table.getParametersTry(currentMethod);
         var imports = table.getImports();
-        for(Symbol s : locals)
+        if(optionalLocals.isPresent())
         {
-            if (s.getName().equals(left))
+            var locals = optionalLocals.get();
+            for(Symbol s : locals)
             {
-                return s.getType();
+                if (s.getName().equals(left))
+                {
+                    return s.getType();
+                }
             }
         }
         for(Symbol s : fields)
@@ -124,11 +159,12 @@ public class TypeUtils {
                 return s.getType();
             }
         }
-        for (Symbol s : params)
-        {
-            if (s.getName().equals(left))
-            {
-                return s.getType();
+        if(optionalParams.isPresent()) {
+            var params = optionalParams.get();
+            for (Symbol s : params) {
+                if (s.getName().equals(left)) {
+                    return s.getType();
+                }
             }
         }
         for (String s: imports)
@@ -144,7 +180,6 @@ public class TypeUtils {
 
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
 
-        // TODO: Simple implementation that needs to be expanded
         // Get the method name
         var kind = Kind.fromString(varRefExpr.getKind());
         var varName = varRefExpr.get("value");
@@ -163,13 +198,25 @@ public class TypeUtils {
             }
         }
         var definedAsDeclaration = getVarDeclType(varRefExpr,table);
-        var parameters = table.getParameters(currentMethod);
-
-        for(Symbol s: parameters)
+        var optionalParameters = table.getParametersTry(currentMethod);
+        if(optionalParameters.isPresent()) {
+            var parameters = optionalParameters.get();
+            for (Symbol s : parameters) {
+                if (s.getName().equals(varName)) {
+                    return s.getType();
+                }
+            }
+        }
+        if(!currentMethod.equals("main"))
         {
-            if (s.getName().equals(varName))
+            //look in the fields
+            var fields = table.getFields();
+            for(Symbol s : fields)
             {
-                return s.getType();
+                if(s.getName().equals(varName))
+                {
+                    return s.getType();
+                }
             }
         }
         if (definedAsDeclaration != null)
@@ -183,16 +230,25 @@ public class TypeUtils {
     }
 
     private static Type getVarDeclType(JmmNode varDecl, SymbolTable table) {
-        var locals = table.getLocalVariables(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
         var fields = table.getFields();
-        var params = table.getParameters(currentMethod);
+        var optionalParams = table.getParametersTry(currentMethod);
         var imports = table.getImports();
         var varName = varDecl.get("value");
-        for(Symbol s : locals)
-        {
-            if (s.getName().equals(varName))
-            {
-                return s.getType();
+        if(optionalLocals.isPresent()) {
+            var locals = optionalLocals.get();
+            for (Symbol s : locals) {
+                if (s.getName().equals(varName)) {
+                    return s.getType();
+                }
+            }
+        }
+        if(optionalParams.isPresent()) {
+            var params = optionalParams.get();
+            for (Symbol s : params) {
+                if (s.getName().equals(varName)) {
+                    return s.getType();
+                }
             }
         }
         for(Symbol s : fields)
@@ -202,13 +258,7 @@ public class TypeUtils {
                 return s.getType();
             }
         }
-        for (Symbol s : params)
-        {
-            if (s.getName().equals(varName))
-            {
-                return s.getType();
-            }
-        }
+
         for (String s: imports)
         {
             if (s.equals(varName))
@@ -217,7 +267,6 @@ public class TypeUtils {
             }
         }
         return null;
-
     }
 
 

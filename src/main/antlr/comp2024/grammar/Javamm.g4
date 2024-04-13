@@ -73,7 +73,7 @@ methodDecl locals[boolean isPublic=false, boolean isStatic = false]
 
 type
     : type LRECT RRECT #ArrayType
-    | type ELLIPSIS #ArrayType
+    | type ELLIPSIS #VarArgsType
     | value=INT     #IntType
     | value=BOOLEAN #BooleanType
     | value=ID      #ClassType
@@ -92,7 +92,7 @@ stmt
     | 'while' LPAREN expr RPAREN stmt #WhileStmt //
     | expr SEMI #ExprStmt //
     | value=ID EQUALS expr SEMI #AssignStmt //
-    | value+=ID LRECT expr RRECT EQUALS expr SEMI #ArrayAssignStmt //
+    | value=ID LRECT expr RRECT EQUALS expr SEMI #ArrayAssignStmt //
     ;
 
 expr
@@ -109,8 +109,6 @@ expr
     | expr op= (MUL | DIV) expr #BinaryExpr //
     | expr op= (ADD | SUB) expr #BinaryExpr
     | expr op= ('<' | '>') expr #BinaryExpr //
-    | expr op= ('<='| '>=') expr #BinaryExpr //
-    | expr op= ('==' | '!=') expr #BinaryExpr //
     | expr op= '&&' expr #BinaryExpr //
     | value=INTEGER #IntegerLiteral //
     | value=BOOL #BooleanLiteral //

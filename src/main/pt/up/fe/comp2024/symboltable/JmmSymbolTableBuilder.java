@@ -140,6 +140,7 @@ public class JmmSymbolTableBuilder {
                 List<String> paramNameString = param.getObjectAsList("paramName",String.class);
                 List<JmmNode> typeNodes = param.getChildren();
                 for (int i = 0; i < paramNameString.size(); i++) {
+                    boolean isArray = false;
                     String paramName = paramNameString.get(i);
                     if(typeNodes.get(i).hasAttribute("value"))
                     {
@@ -149,7 +150,14 @@ public class JmmSymbolTableBuilder {
                     {
                         paramType = typeNodes.get(i).getChild(0).get("value");
                     }
-                    boolean isArray = typeNodes.get(i).getKind().equals("ArrayType");
+                    else if(typeNodes.get(i).getKind().equals("VarArgsType"))
+                    {
+                        paramType = typeNodes.get(i).getChild(0).get("value");
+                    }
+                    if(typeNodes.get(i).getKind().equals("ArrayType") || typeNodes.get(i).getKind().equals("VarArgsType"))
+                    {
+                        isArray = true;
+                    }
                     params.add(new Symbol(new Type(paramType, isArray), paramName));
                 }
             }

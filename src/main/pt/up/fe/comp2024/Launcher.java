@@ -27,7 +27,6 @@ public class Launcher {
             throw new RuntimeException("Option '-i' expects a path to an existing input file, got '" + args[0] + "'.");
         }
         String code = SpecsIo.read(inputFile);
-
         // Parsing stage
         JmmParserImpl parser = new JmmParserImpl();
         JmmParserResult parserResult = parser.parse(code, config);
@@ -40,7 +39,7 @@ public class Launcher {
         JmmAnalysisImpl sema = new JmmAnalysisImpl();
         JmmSemanticsResult semanticsResult = sema.semanticAnalysis(parserResult);
         TestUtils.noErrors(semanticsResult.getReports());
-
+        /*
 
         // Optimization stage
         JmmOptimizationImpl ollirGen = new JmmOptimizationImpl();
@@ -57,6 +56,8 @@ public class Launcher {
 
         // Print Jasmin code
         // System.out.println(jasminResult.getJasminCode());
+        */
+
     }
 
 }

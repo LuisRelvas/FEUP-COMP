@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JmmAnalysisImpl implements JmmAnalysis {
-
-
     private final List<AnalysisPass> analysisPasses;
 
     public JmmAnalysisImpl() {
@@ -31,7 +29,6 @@ public class JmmAnalysisImpl implements JmmAnalysis {
         SymbolTable table = JmmSymbolTableBuilder.build(rootNode);
 
         List<Report> reports = new ArrayList<>();
-
         // Visit all nodes in the AST
         for (var analysisPass : analysisPasses) {
             try {
