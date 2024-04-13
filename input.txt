@@ -9,7 +9,7 @@ class A{
     int f;
     public int foo()
     {
-        f = 10 * 2;
+        f = 10 * 2 * b;
         return 0;
     }
 

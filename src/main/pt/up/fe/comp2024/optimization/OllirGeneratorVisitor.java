@@ -247,6 +247,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         //vamos dar set do current method que estamos a explorar
         TypeUtils.setCurrentMethod(node.get("methodName"));
         currentMethod = node.get("methodName");
+        exprVisitor.setCurrentMethod(node.get("methodName"));
         var afterParam = 0;
 
         StringBuilder code = new StringBuilder(".method ");

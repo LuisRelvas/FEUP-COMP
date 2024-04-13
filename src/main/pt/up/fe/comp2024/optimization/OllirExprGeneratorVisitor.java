@@ -1,6 +1,7 @@
 package pt.up.fe.comp2024.optimization;
 
 import org.specs.comp.ollir.Ollir;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -27,8 +28,8 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         this.table = table;
     }
 
-    public void setCurrentMethod(String currentMethod) {
-        this.currentMethod = currentMethod;
+    public void setCurrentMethod(String current) {
+        currentMethod = current;
     }
 
     @Override
@@ -141,11 +142,56 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
     private OllirExprResult visitVarRef(JmmNode node, Void unused) {
         StringBuilder computation = new StringBuilder();
-        var id = node.get("value");
-        Type type = TypeUtils.getExprType(node, table);
-        String ollirType = OptUtils.toOllirType(type);
-        String code = id + ollirType;
-        return new OllirExprResult(code,computation);
+        var fields = table.getFields();
+        var optionalParams = table.getParametersTry(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
+        var inFields = false;
+        var inParams = false;
+        var inLocals = false;
+        for(Symbol s : fields)
+        {
+            if(s.getName().equals(node.get("value"))) {
+                inFields = true;
+            }
+        }
+        if(optionalParams.isPresent())
+        {
+            for(Symbol s : optionalParams.get())
+            {
+                if(s.getName().equals(node.get("value")))
+                {
+                    inParams = true;
+                }
+            }
+        }
+        if(optionalLocals.isPresent())
+        {
+            for(Symbol s : optionalLocals.get())
+            {
+                if(s.getName().equals(node.get("value")))
+                {
+                    inLocals = true;
+                }
+            }
+        }
+        if(inLocals || inParams)
+        {
+            var id = node.get("value");
+            Type type = TypeUtils.getExprType(node, table);
+            String ollirType = OptUtils.toOllirType(type);
+            String code = id + ollirType;
+            return new OllirExprResult(code,computation);
+        }
+        else if(inFields)
+        {
+            var temp = OptUtils.getTemp();
+            Type type = TypeUtils.getExprType(node, table);
+            String ollirType = OptUtils.toOllirType(type);
+            String code = temp + ollirType;
+            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append("getfield").append(SPACE).append("(").append("this").append(",").append(node.get("value")).append(ollirType).append(")").append(ollirType).append(END_STMT);
+            return new OllirExprResult(code,computation);
+        }
+        return new OllirExprResult("");
     }
     private OllirExprResult visitMethodInvocation(JmmNode node, Void unused) {
         String code = "";
