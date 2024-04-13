@@ -218,7 +218,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         else if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) && !table.getMethods().contains(node.get("value")))
         {
             ollirType = ".InvokeStatic";
-            typeFunction = "invokestatic";
+            typeFunction = "invokevirtual";
         }
         else
         {
