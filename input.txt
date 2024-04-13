@@ -1,16 +1,17 @@
-import ioPlus;
-class InvokeStatic {
-        public int foo(int x)
-        {
-            return x+ 1;
-        }
-        public int func() {
-           int c;
-           int k ;
-           k = ioPlus.printResult(1);
-           c = this.foo(1) + k;
-                ioPlus.printResult(1);
-                return 1;
+import GetterAndSetter;
+import io;
+class PrintOtherClassFromParam {
+	public int print(GetterAndSetter b){
+		return 1;
+	}
 
-        }
+	public static void main(String[] args){
+		GetterAndSetter b;
+		PrintOtherClassFromParam c;
+		int dummy;
+		b = new GetterAndSetter();
+		dummy = b.setA(10);
+		c = new PrintOtherClassFromParam();
+		c.print(b);
+	}
 }
