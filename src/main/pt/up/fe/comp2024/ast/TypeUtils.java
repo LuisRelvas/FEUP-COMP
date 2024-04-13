@@ -67,6 +67,7 @@ public class TypeUtils {
         return type;
     }
 
+
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
         var returnType = new Type("int", false);
@@ -89,7 +90,8 @@ public class TypeUtils {
         var typeIndex = getExprType(index,table);
         if(!typeIndex.getName().equals(INT_TYPE_NAME) || typeIndex.isArray())
         {
-            throw new RuntimeException("Index type is not an integer");
+            //throw new RuntimeException("Index type is not an integer");
+            return new Type("int", false);
         }
         return new Type(typeArray.getName(), false);
     }
@@ -104,7 +106,8 @@ public class TypeUtils {
                 var typeChild = getExprType(arrayExpr.getChildren().get(i),table);
                 if(!type.getName().equals(typeChild.getName()))
                 {
-                    throw new RuntimeException("Array type is not the same as the parent type");
+                    // throw new RuntimeException("Array elements are not of the same type");
+                    return new Type("int", false);
                 }
             }
             return new Type(type.getName(), true);
@@ -118,7 +121,8 @@ public class TypeUtils {
             var type = getExprType(arrayExpr.getChildren().get(i),table);
             if(!type.getName().equals(typeParent.getName()))
             {
-                throw new RuntimeException("Array type is not the same as the parent type");
+                // throw new RuntimeException("Array elements are not of the same type");
+                return new Type("int", false);
             }
         }
             return new Type(typeParent.getName(), true);
