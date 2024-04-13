@@ -333,9 +333,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                                 }
                             }
-                        } else {
+                        }/* else {
                             var m = visit(expr.getJmmChild(i + 1), table);
                         }
+                        */
                     }
 
                     else {
@@ -344,6 +345,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                         }
                     }
+
 
 
                 }
