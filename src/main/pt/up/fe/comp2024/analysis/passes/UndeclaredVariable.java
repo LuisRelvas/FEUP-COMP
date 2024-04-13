@@ -344,7 +344,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             //if they are not equal or it is invalid or the object extends the other
             else if(table.getImports().contains(lhsType.getName()))
             {
-                if(table.getSuper().equals(lhsType.getName()) && rhsType.getName().equals(table.getClassName()))
+                if(table.getSuper().equals(lhsType.getName()))
                 {
                     return null;
                 }
@@ -355,7 +355,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             }
             else if(table.getImports().contains(rhsType.getName()))
             {
-                if(table.getSuper().equals(rhsType.getName()) && lhsType.getName().equals(table.getClassName()))
+                if(table.getSuper().equals(rhsType.getName()))
                 {
                     return null;
                 }

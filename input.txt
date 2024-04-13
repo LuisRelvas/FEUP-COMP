@@ -2,8 +2,9 @@ import ioPlus;
 class InvokeStatic extends ioPlus{
 
         public int func() {
-                int f;
-                f = this.bar();
+        int f;
+        int j;
+                j = ioPlus.printResult(1);
                 return 1;
 
         }
