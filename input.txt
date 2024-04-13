@@ -1,17 +1,10 @@
-import GetterAndSetter;
-import io;
-class PrintOtherClassFromParam {
-	public int print(GetterAndSetter b){
-		return 1;
-	}
+import ioPlus;
+class InvokeStatic extends ioPlus{
 
-	public static void main(String[] args){
-		GetterAndSetter b;
-		PrintOtherClassFromParam c;
-		int dummy;
-		b = new GetterAndSetter();
-		dummy = b.setA(10);
-		c = new PrintOtherClassFromParam();
-		c.print(b);
-	}
+        public int func() {
+                int f;
+                f = this.bar();
+                return 1;
+
+        }
 }
