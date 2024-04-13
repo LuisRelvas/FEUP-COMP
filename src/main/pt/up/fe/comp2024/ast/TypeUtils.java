@@ -72,6 +72,8 @@ public class TypeUtils {
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
         var returnType = new Type("int", false);
+        if(methodCallExpr.hasAttribute("value"))
+        {
         if(table.getMethods().contains(methodCallExpr.get("value")))
         {
             returnType = table.getReturnType(methodCallExpr.get("value"));
@@ -80,6 +82,7 @@ public class TypeUtils {
         else if(!table.getImports().isEmpty() && !table.getSuper().isEmpty() )
         {
             returnType = getExprType(methodCallExpr.getChild(0),table);
+        }
         }
         return returnType;
     }
