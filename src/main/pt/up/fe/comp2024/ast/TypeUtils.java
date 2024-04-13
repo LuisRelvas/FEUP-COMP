@@ -79,7 +79,7 @@ public class TypeUtils {
         //if we dont know the method, we assume it is a method from the imports and give the correct type
         else if(!table.getImports().isEmpty() && !table.getSuper().isEmpty() )
         {
-            returnType = getExprType(methodCallExpr.getParent(),table);
+            returnType = getExprType(methodCallExpr.getChild(0),table);
         }
         return returnType;
     }

@@ -1,18 +1,14 @@
-import io;
+import B;
 
-class A {
-
-	int a;
-
-    public static void main(String[] args){
-        int a;
-        a = 10;
-        io.print(10);
-    }
+class A extends B{
 
     public int foo()
     {
-        a =10;
-        return a;
+        A a;
+        B b;
+        a = new A();
+        b = new B();
+        return a.bar();
     }
+
 }
