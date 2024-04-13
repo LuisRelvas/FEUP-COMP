@@ -239,6 +239,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitBinaryExpr(JmmNode expr, SymbolTable table)
     {
+
         Type type = TypeUtils.getExprType(expr, table);
         JmmNode leftNode = expr.getChildren().get(0);
         JmmNode rightNode = expr.getChildren().get(1);
