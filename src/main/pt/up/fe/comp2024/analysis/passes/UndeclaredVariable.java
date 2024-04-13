@@ -424,20 +424,100 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
     private Void visitReturnStmt(JmmNode expr, SymbolTable table)
     {
-        Type type = TypeUtils.getExprType(expr.getJmmChild(0), table);
-        if(!table.getImports().isEmpty()) {
-            //check if the return type is the class imported
-            if(!table.getSuper().isEmpty())
+        Type typeMethod = table.getReturnType(currentMethod);
+        JmmNode childExpr = expr.getChild(0);
+        var returnType = table.getReturnType(currentMethod);
+        if(childExpr.getKind().equals(Kind.METHOD_CALL_EXPR.toString()))
+        {
+            // The first child of childExpr must be the class name
+            var k = TypeUtils.getExprType(childExpr.getChild(0),table);
+            //k must be a valid class name
+            if (table.getImports().contains(k.getName()))
             {
-                return null;
+                return null; // Assume the method is declared by the import
+            }
+            else if (!k.getName().equals(table.getClassName())) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Class not declared " + k.getName(), null));
+            }
+            else
+            {
+                var typeMethodCalled = table.getReturnType(childExpr.get("value"));
+                if(!typeMethodCalled.equals(returnType) && !table.getImports().contains(typeMethodCalled.getName()))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+                }
             }
         }
-        //check if the return type is the same as the method return type
-        if(!type.equals(table.getReturnType(currentMethod)))
+        if(childExpr.getKind().equals(Kind.BINARY_EXPR.toString()))
         {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, " is not an integer", null));
+            JmmNode leftNode = childExpr.getChild(0);
+            JmmNode rightNode = childExpr.getChild(1);
+            var returnExprTypes = traverseAst(leftNode,rightNode,table);
+            for(int i = 0; i < returnExprTypes.size(); i++)
+            {
+                if(!returnType.equals(returnExprTypes.get(i)))
+                {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement " + returnExprTypes.get(i).getName() + " with " + returnType.getName(), null));
+                }
+            }
+        }
+        if(childExpr.getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
+        {
+            if(returnType.isArray())
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
 
+            }
+            Type type = TypeUtils.getExprType(childExpr.getChild(0),table);
+            if(!type.getName().equals(returnType.getName())) {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
+        }
+        if(childExpr.getKind().equals(Kind.VAR_REF.toString()))
+        {
+            Type type = TypeUtils.getExprType(childExpr,table);
+            if(!type.equals(returnType))
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the return statement", null));
+            }
         }
         return null;
+    }
+    private List<Type> traverseAst(JmmNode leftNode, JmmNode rightNode, SymbolTable table) {
+        List<Type> typesfinal = new ArrayList<>();
+
+        if (leftNode.getKind().equals(Kind.BINARY_EXPR.toString())) {
+            typesfinal.addAll(traverseAst(leftNode.getChild(0), leftNode.getChild(1), table));
+        }
+        else if (leftNode.getKind().equals(Kind.VAR_REF.toString())) {
+            Type typeLeft = TypeUtils.getExprType(leftNode, table);
+            typesfinal.add(typeLeft);
+        }
+        else if (leftNode.getKind().equals(Kind.INTEGER_LITERAL.toString())) {
+            Type typeLeft = new Type("int", false);
+            typesfinal.add(typeLeft);
+        }
+        else if(leftNode.getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
+            Type typeLeft = new Type("boolean", false);
+            typesfinal.add(typeLeft);
+        }
+
+        if (rightNode.getKind().equals(Kind.BINARY_EXPR.toString())) {
+            typesfinal.addAll(traverseAst(rightNode.getChild(0), rightNode.getChild(1), table));
+        }
+        else if (rightNode.getKind().equals(Kind.VAR_REF.toString())) {
+            Type typeRight = TypeUtils.getExprType(rightNode, table);
+            typesfinal.add(typeRight);
+        }
+        else if (rightNode.getKind().equals(Kind.INTEGER_LITERAL.toString())) {
+            Type typeRight = new Type("int", false);
+            typesfinal.add(typeRight);
+        }
+        else if(rightNode.getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
+            Type typeRight = new Type("boolean", false);
+            typesfinal.add(typeRight);
+        }
+
+        return typesfinal;
     }
 }

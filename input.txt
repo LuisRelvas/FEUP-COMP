@@ -8,7 +8,7 @@ class A extends B{
         B b;
         a = new A();
         b = new B();
-        return a.bar();
+        return a.bar().foo();
     }
 
 }
