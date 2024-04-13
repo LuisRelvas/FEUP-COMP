@@ -114,7 +114,7 @@ public class TypeUtils {
                     return new Type("int", false);
                 }
             }
-            return new Type(type.getName(), true);
+            return new Type("int", true);
         }
 
         else {
@@ -129,7 +129,8 @@ public class TypeUtils {
                 return new Type("int", false);
             }
         }
-            return new Type(typeParent.getName(), true);
+            return new Type("int", true);
+            // return new Type(typeParent.getName(), true);
         }
     }
 
@@ -140,8 +141,8 @@ public class TypeUtils {
         return switch (operator) {
             case "+", "*", "-", "/" -> new Type(INT_TYPE_NAME, false);
             case "<", ">", "<=", ">=", "==", "!=", "&&", "||" -> new Type(BOOLEAN_TYPE_NAME, false);
-            default ->
-                    throw new RuntimeException("Unknown operator '" + operator + "' of expression '" + binaryExpr + "'");
+            default -> new Type(INT_TYPE_NAME, false);
+                    // throw new RuntimeException("Unknown operator '" + operator + "' of expression '" + binaryExpr + "'");
         };
     }
 
