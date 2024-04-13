@@ -1,11 +1,13 @@
-import lengtha;
-class Lengthb extends lengtha
+class Length
 {
 int[] Length;
-public int getLength()
+public int Length()
 {
 int[] a;
 int b;
+Length l;
+l = new Length();
+b = l.length();
 b = a.length;
 return Length.length + b;
 }

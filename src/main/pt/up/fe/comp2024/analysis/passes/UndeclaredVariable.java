@@ -39,9 +39,9 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
         addVisit(Kind.WHILE_STMT, this::visitWhileStmt);
-        addVisit(Kind.THIS_EXPR, this::visitThisExpr);
+        // addVisit(Kind.THIS_EXPR, this::visitThisExpr);
         // addVisit(Kind.VAR_DECL, this::visitVarDecl);
-        addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
+        // addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
         // addVisit(Kind.PARAM, this::visitParam);
         // addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
         // addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
@@ -72,7 +72,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         return null;
     }
     */
-
+    /*
     private Void visitImportDecl(JmmNode importDecl, SymbolTable table)
     {
         var imports = table.getImports();
@@ -96,6 +96,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+
+     */
     /*
     private Void visitParam(JmmNode param, SymbolTable table) {
         List<Symbol> symbols = table.getParameters(currentMethod);
@@ -168,6 +170,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
         return null;
     }
+    /*
     private Void visitThisExpr(JmmNode thisExpr, SymbolTable table)
     {
         //check if the call to the this expr is in a static method if so raise an report
@@ -177,6 +180,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+
+     */
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         isStatic = NodeUtils.getBooleanAttribute(method, "isStatic", "false");
@@ -202,7 +207,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitWhileStmt(JmmNode whileExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(whileExpr.getChild(0),table);
-        if(!type.getName().equals("boolean") || type.isArray())
+        if(!type.getName().equals("boolean"))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the while statement", null));
         }
@@ -252,7 +257,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         Type leftType = TypeUtils.getExprType(leftNode, table);
         Type rightType = TypeUtils.getExprType(rightNode, table);
         // Permitimos as operações binarias entre dois elementos com o mesmo tipo exceto para arrays
-        if(!leftType.equals(rightType) || (leftType.isArray()) || (rightType.isArray()) )
+        if(!leftType.equals(rightType))
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
         }
@@ -381,7 +386,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
                 else
                 {
-                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+                    return null;
+                    // addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
                 }
             }
             else if(!table.getSuper().isEmpty())
@@ -432,9 +438,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     }
                 }
             }
+            /*
             if (fieldNames.contains(varAssigned)) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non static field in a static method", null));
             }
+
+             */
         }
         return null;
 
@@ -454,6 +463,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + array.get("value") + " is not an array", null));
         }
+
 
         //index must be an integer
         if(!typeIndex.getName().equals("int"))
@@ -475,6 +485,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 return null;
             }
         }
+
         //check if the return type is the same as the method return type
         if(!type.equals(table.getReturnType(currentMethod)))
         {
