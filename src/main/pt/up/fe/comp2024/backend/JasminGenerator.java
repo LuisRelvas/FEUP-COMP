@@ -443,8 +443,8 @@ public class JasminGenerator {
                 code.append("imul").append(NL);
                 break;
             case DIV :
-                code.append(generators.apply(binaryOp.getRightOperand()));
                 code.append(generators.apply(binaryOp.getLeftOperand()));
+                code.append(generators.apply(binaryOp.getRightOperand()));
                 code.append("idiv").append(NL);
                 break;
             default:
