@@ -88,7 +88,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 refactoredImports.add(s);
             }
         }
-        var frequency = Collections.frequency(imports,importDecl.get("ID"));
+        var frequency = Collections.frequency(refactoredImports,importDecl.get("ID"));
         if(frequency > 1)
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + importDecl.get("ID") + " is duplicated", null));
@@ -293,12 +293,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             return null;
         }
-
+        var optionalParams = table.getParametersTry(expr.get("value"));
 
         // verify if the method is declared
         if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
         {
-            var optionalParams = table.getParametersTry(expr.get("value"));
             if(!table.getMethods().contains(expr.get("value")))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
@@ -345,7 +344,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             //if they are not equal or it is invalid or the object extends the other
             else if(table.getImports().contains(lhsType.getName()))
             {
-                if(table.getSuper().equals(lhsType.getName()))
+                if(table.getSuper().equals(lhsType.getName()) && rhsType.getName().equals(table.getClassName()))
                 {
                     return null;
                 }
@@ -356,7 +355,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             }
             else if(table.getImports().contains(rhsType.getName()))
             {
-                if(table.getSuper().equals(rhsType.getName()))
+                if(table.getSuper().equals(rhsType.getName()) && lhsType.getName().equals(table.getClassName()))
                 {
                     return null;
                 }

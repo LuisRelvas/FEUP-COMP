@@ -212,7 +212,7 @@ public class TypeUtils {
             }
         }
         var definedAsDeclaration = getVarDeclType(varRefExpr,table);
-        if(definedAsDeclaration != null)
+        if (definedAsDeclaration != null)
         {
             return definedAsDeclaration;
         }
@@ -237,6 +237,7 @@ public class TypeUtils {
                 }
             }
         }
+
         return null;
     }
 
