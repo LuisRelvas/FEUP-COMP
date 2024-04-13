@@ -92,9 +92,19 @@ public class JasminGenerator {
         StringBuilder putCode = new StringBuilder();
         putCode.append("bipush ");
         putCode.append(getIntFromLiteral(putFieldInstruction.getValue())+NL);
-        //TODO : verificar com outros typos a ver se realmente é necessário o switch /A
+        //TODO : verificar com outros typos a ver se realmente é necessário o switch, de momento sem switch /A
+        putCode.append("putfield ");
+        putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
+        putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
+        putCode.append("aload_0"+NL);
+        /*
         switch (putFieldInstruction.getValue().getType().toString()) {
             case "INT32":
+                putCode.append("putfield ");
+                putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
+                putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
+                putCode.append("aload_0"+NL);
+            case "Boolean":
                 putCode.append("putfield ");
                 putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
                 putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
@@ -103,6 +113,7 @@ public class JasminGenerator {
             default:
                 break;
         }
+        */
         return putCode.toString();
     }
 
@@ -136,7 +147,13 @@ public class JasminGenerator {
                     for(int i = 2; i < args.size(); i++){
                         Operand op = (Operand) args.get(i);
                         var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
-                        answer.append("iload "+reg+NL);
+                        System.out.println(args.get(i).getType());
+                        if(args.get(i).getType().toString().equals("INT32") || args.get(i).getType().toString().equals("BOOLEAN")){
+                            answer.append("iload "+reg+NL);
+                        }
+                        else{
+                            answer.append("aload "+reg+NL);
+                        }
                     }
                 }
 
@@ -170,45 +187,41 @@ public class JasminGenerator {
                 int indx2 = caller.indexOf(")");
                 String callerName = caller.substring(indx1 + 1, indx2);
                 answerAux.append(callerName);
-                switch (callInstruction.getMethodName().getType().toString()) {
-                    case "STRING":
-                        int ind1 = callInstruction.getMethodName().toString().indexOf('"');
-                        String argAux = callInstruction.getMethodName().toString().substring(ind1 + 1);
-                        int ind2 = argAux.indexOf('"');
-                        String arg = argAux.substring(0, ind2);
-                        answerAux.append('/' + arg);
-
-                        answerAux.append("(");
-                        var args = callInstruction.getOperands();
-                        StringBuilder loads = new StringBuilder();
-                        if(args.size() >2){
-                            for(int i = 2; i < args.size(); i++){
-                                answerAux.append(ollirToJasminType(args.get(i).getType().toString()));
-                                var operand = (Operand) args.get(i);
-                                var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
-                                var type = currentMethod.getVarTable().get(operand.getName()).getVarType();
-                                switch(type.toString()){
-                                    case "INT32" :
-                                        loads.append("iload "+reg+NL);
-                                        break;
-                                    case "BOOLEAN" :
-                                        loads.append("iload "+reg+NL);
-                                        break;
-                                    default:
-                                        loads.append("aload "+reg+NL);
-                                        break;
-                                }
-
+                if (callInstruction.getMethodName().getType().toString().equals("STRING")) {
+                    int ind1 = callInstruction.getMethodName().toString().indexOf('"');
+                    String argAux = callInstruction.getMethodName().toString().substring(ind1 + 1);
+                    int ind2 = argAux.indexOf('"');
+                    String arg = argAux.substring(0, ind2);
+                    answerAux.append('/').append(arg);
+                    answerAux.append("(");
+                    var args = callInstruction.getOperands();
+                    StringBuilder loads = new StringBuilder();
+                    if (args.size() > 2) {
+                        for (int i = 2; i < args.size(); i++) {
+                            answerAux.append(ollirToJasminType(args.get(i).getType().toString()));
+                            var operand = (Operand) args.get(i);
+                            var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
+                            var type = currentMethod.getVarTable().get(operand.getName()).getVarType();
+                            switch (type.toString()) {
+                                case "INT32":
+                                    loads.append("iload " + reg + NL);
+                                    break;
+                                case "BOOLEAN":
+                                    loads.append("iload " + reg + NL);
+                                    break;
+                                default:
+                                    loads.append("aload " + reg + NL);
+                                    break;
                             }
+
                         }
-                        answerAux.append(")" + ollirToJasminType(callInstruction.getReturnType().toString()) + NL);
-                        answer.append(loads);
-                        answer.append(answerAux);
-                        break;
-                    default:
-                        answer.append("/<init>()V" + NL);
-                        answer.append("pop"+NL);
-                        break;
+                    }
+                    answerAux.append(")" + ollirToJasminType(callInstruction.getReturnType().toString()) + NL);
+                    answer.append(loads);
+                    answer.append(answerAux);
+                } else {
+                    answer.append("/<init>()V" + NL);
+                    answer.append("pop" + NL);
                 }
             }
         }
@@ -232,18 +245,16 @@ public class JasminGenerator {
 
     private String generateClassUnit(ClassUnit classUnit) {
         var code = new StringBuilder();
-        // generate class name
-        var imports = classUnit.getImports();
+
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
         String superClass = classUnit.getSuperClass();
 
-        // TODO: Hardcoded to Object, needs to be expanded
-        if (superClass != null){
+        // TODO: poderá dar problemas
+        if (superClass == null || superClass.equals("Object")){
             superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
         }else{
-            superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
         }
 
@@ -277,9 +288,6 @@ public class JasminGenerator {
 
         // generate code for all other methods
         for (var method : ollirResult.getOllirClass().getMethods()) {
-            // Ignore constructor, since there is always one constructor
-            // that receives no arguments, and has been already added
-            // previously
 
             if (method.isConstructMethod()) {
                 continue;
@@ -407,7 +415,6 @@ public class JasminGenerator {
         switch(type.toString()){
             case "INT32" :
                 return "iload "+reg+NL;
-
             case "BOOLEAN" :
                 return "iload "+reg+NL;
             default:
@@ -426,8 +433,8 @@ public class JasminGenerator {
                 code.append("iadd").append(NL);
                 break;
             case SUB :
-                code.append(generators.apply(binaryOp.getRightOperand()));
                 code.append(generators.apply(binaryOp.getLeftOperand()));
+                code.append(generators.apply(binaryOp.getRightOperand()));
                 code.append("isub").append(NL);
                 break;
             case MUL :
