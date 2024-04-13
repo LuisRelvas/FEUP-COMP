@@ -75,7 +75,7 @@ public class TypeUtils {
             returnType = table.getReturnType(methodCallExpr.get("value"));
         }
         //if we dont know the method, we assume it is a method from the imports and give the correct type
-        else if(!table.getImports().isEmpty() && !table.getSuper().isEmpty() )
+        else if(table.getImports().contains(getExprType(methodCallExpr.getJmmChild(0),table).getName()))
         {
             returnType = getExprType(methodCallExpr.getChild(0),table);
         }

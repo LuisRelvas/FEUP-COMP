@@ -1,3 +1,4 @@
+
 package pt.up.fe.comp2024.analysis.passes;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
@@ -31,6 +32,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     public void buildVisitor() {
         addVisit(Kind.METHOD_DECL, this::visitMethodDecl);
         addVisit(Kind.BINARY_EXPR, this::visitBinaryExpr);
+
         addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
         addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
@@ -45,6 +47,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.PARAM, this::visitParam);
         addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
         addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
+
+
     }
 
     private Void visitArrayLengthExpr(JmmNode arrayLengthExpr, SymbolTable table)
@@ -172,6 +176,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+
+
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         isStatic = NodeUtils.getBooleanAttribute(method, "isStatic", "false");
@@ -225,6 +231,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         return null;
     }
 
+
+
     private Void visitBinaryExpr(JmmNode expr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(expr, table);
@@ -252,6 +260,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+
+
 
     private Void visitIfStmt(JmmNode ifStmt, SymbolTable table)
     {
@@ -448,11 +458,18 @@ public class UndeclaredVariable extends AnalysisVisitor {
             }
         }
         //check if the return type is the same as the method return type
+        if(table.getImports().contains(type.getName()))
+        {
+            return null;
+        }
         if(!type.equals(table.getReturnType(currentMethod)))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, " is not an integer", null));
 
         }
+
         return null;
     }
+
+
 }

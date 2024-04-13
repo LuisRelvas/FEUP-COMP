@@ -1,21 +1,18 @@
-import ioPlus;
-class ConditionArgsFuncCall {
+import A;
 
-    public int func(boolean a, boolean b, boolean c, boolean d){
-        return 1;
+class AssumeArguments {
+
+    public static void main(String[] args) {
+
     }
 
-	public static void main(String[] args) {
-        int a;
-        int b;
-        boolean i;
-        boolean j;
-        ConditionArgsFuncCall d;
-        d = new ConditionArgsFuncCall();
-        a = 10;
-        b = 5;
-        i = true;
-        j = false;
-		a = d.func(a < b, i && j , a < b && i, !i);
-	}
+    public int bar() {
+        A a;
+        boolean b;
+
+        a = new A();
+        b = true;
+
+        return a.foo(b);
+    }
 }
