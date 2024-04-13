@@ -185,29 +185,20 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         isStatic = NodeUtils.getBooleanAttribute(method, "isStatic", "false");
-        if(currentMethod.equals("main") && isStatic.equals(false))
-        {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Main method not declared static.",null));
-        }
-        if(!currentMethod.equals("main") && isStatic.equals(true))
-        {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " declared static.",null));
-        }
         TypeUtils.setCurrentMethod(currentMethod);
         TypeUtils.setStatic(NodeUtils.getBooleanAttribute(method, "isStatic", "false"));
         //check if there are any duplicated methods
-        var frequency = Collections.frequency(table.getMethods(),currentMethod);
-        if(frequency > 1)
-        {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " is duplicated", null));
-        }
         return null;
     }
 
     private Void visitWhileStmt(JmmNode whileExpr, SymbolTable table)
     {
-        Type type = TypeUtils.getExprType(whileExpr.getChild(0),table);
-        if(!type.getName().equals("boolean"))
+        Type type = TypeUtils.getExprType(whileExpr.getJmmChild(0),table);
+        if(type.getName().equals("boolean"))
+        {
+            return null;
+        }
+        else
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the while statement", null));
         }
