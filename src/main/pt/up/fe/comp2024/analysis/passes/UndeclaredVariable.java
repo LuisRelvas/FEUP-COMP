@@ -31,7 +31,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     public void buildVisitor() {
         addVisit(Kind.METHOD_DECL, this::visitMethodDecl);
         addVisit(Kind.BINARY_EXPR, this::visitBinaryExpr);
-        addVisit(Kind.VAR_REF, this::visitVarRef);
+        // addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
         addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
         //addVisit(Kind.ARRAY_ASSIGN_STMT, this::visitArrayAssignStmt);
@@ -274,6 +274,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+    /*
     private Void visitVarRef(JmmNode expr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(expr,table);
@@ -282,6 +283,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + expr.get("value") + " not declared", null));}
         return null;
     }
+
+     */
 
     private Void visitMethodCallExpr(JmmNode expr, SymbolTable table)
     {
@@ -339,7 +342,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
     }
 
     private Void visitAssignStmt(JmmNode assign, SymbolTable table) {
-        String varAssigned = assign.get("value");
+        String varAssigned = "";
+        if(assign.hasAttribute("value"))
+        {
+            varAssigned = assign.get("value");
+        }
         var lhsType = TypeUtils.getExprType(assign,table);
         var rhsType = TypeUtils.getExprType(assign.getJmmChild(0),table);
         if(!lhsType.equals(rhsType))
@@ -376,10 +383,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 //check if the object is the same as the class defined
                 if(rhsType.getName().equals(table.getClassName()))
                 {
+                    if(assign.hasAttribute("value")){
                     if(!table.getMethods().contains(assign.getJmmChild(0).get("value")))
                     {
                         return null;
                     }
+                }
                 }
             }
             else
@@ -424,6 +433,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         return null;
 
     }
+
 
     private Void visitArrayAccessExpr(JmmNode expr, SymbolTable table)
     {

@@ -109,7 +109,9 @@ public class TypeUtils {
             }
             return new Type(type.getName(), true);
         }
+
         else {
+
         var typeParent  = getAssignType(arrayExpr.getParent(),table);
         for(int i = 0; i < arrayExpr.getNumChildren(); i++)
         {
@@ -122,6 +124,7 @@ public class TypeUtils {
             return new Type(typeParent.getName(), true);
         }
     }
+
 
     private static Type getBinExprType(JmmNode binaryExpr) {
         String operator = binaryExpr.get("op");
@@ -176,6 +179,8 @@ public class TypeUtils {
         }
         return null;
     }
+
+
 
 
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
