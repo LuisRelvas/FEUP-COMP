@@ -1,21 +1,16 @@
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+import ioPlus;
+class InvokeStatic {
+        public int foo(int x)
+        {
+            return x+ 1;
+        }
+        public int func() {
+           int c;
+           int k ;
+           k = ioPlus.printResult(1);
+           c = this.foo(1) + k;
+                ioPlus.printResult(1);
+                return 1;
 
-class A{
-    int b;
-    int a;
-    int f;
-    public int foo()
-    {
-        f = 10 * 2 * b;
-        return 0;
-    }
-
-    public int k()
-    {
-        return 0;
-    }
-
+        }
 }
