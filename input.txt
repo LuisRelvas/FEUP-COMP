@@ -1,22 +1,5 @@
-import len;
-
-class A {
-    int[] p;
-    public static void main(String[] args) {
-        int a;
-        int[] b;
-        int c;
-        c = b.length;
-        a = 10;
-    }
-
-    public int foo(int[] a, boolean[] b) {
-        int c;
-        int k;
-        int f;
-        f = (p.length);
-        c = (a.length);
-        k = b.length;
-        return (k + c);
-    }
+import lengtha;
+class Lengthb extends lengtha
+{
+int Length;
 }

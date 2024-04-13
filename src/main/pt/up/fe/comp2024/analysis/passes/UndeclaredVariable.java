@@ -42,11 +42,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.THIS_EXPR, this::visitThisExpr);
         addVisit(Kind.VAR_DECL, this::visitVarDecl);
         addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
-        addVisit(Kind.PARAM, this::visitParam);
-        addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
-        addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
+        // addVisit(Kind.PARAM, this::visitParam);
+        // addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
+        // addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
     }
-
+    /*
     private Void visitArrayLengthExpr(JmmNode arrayLengthExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayLengthExpr.getChild(0),table);
@@ -56,6 +56,9 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+    */
+
+    /*
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayCreationExpr.getChild(0),table);
@@ -68,6 +71,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+    */
+
     private Void visitImportDecl(JmmNode importDecl, SymbolTable table)
     {
         var imports = table.getImports();
@@ -91,7 +96,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-
+    /*
     private Void visitParam(JmmNode param, SymbolTable table) {
         List<Symbol> symbols = table.getParameters(currentMethod);
         List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
@@ -120,6 +125,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
         return null;
     }
+    */
+
 
     private Void visitVarDecl(JmmNode varDecl, SymbolTable table)
     {
