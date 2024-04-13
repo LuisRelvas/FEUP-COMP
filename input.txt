@@ -1,8 +1,10 @@
-class length
+import java.util.list;
+import java;
+class A extends java
 {
 public int foo()
 {
-    return [1,2,3,4,5].length;
+    return 0;
 
 }
 
