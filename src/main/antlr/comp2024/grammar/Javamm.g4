@@ -103,7 +103,7 @@ expr
     | expr LRECT expr RRECT #ArrayAccessExpr //
     | value=ID LPAREN (expr ( ',' expr )*)? RPAREN #MethodCallExpr //
     | expr '.' value=ID LPAREN (expr ( ',' expr )*)? RPAREN #MethodCallExpr //
-    | expr '.' 'length' #ArrayLengthExpr //
+    | expr '.' 'make' #ArrayLengthExpr //
     | value='this' #ThisExpr //
     | value= NOT expr #UnaryExpr //
     | expr op= (MUL | DIV) expr #BinaryExpr //

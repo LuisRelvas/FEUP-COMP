@@ -1,14 +1,5 @@
-class Length
+class length
 {
-int[] Length;
-public int Length()
-{
-boolean Length;
-int a;
-while(Length)
-{
-a = a + 1;
-}
-return 0;
-}
+
+
 }

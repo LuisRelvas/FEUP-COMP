@@ -31,22 +31,22 @@ public class UndeclaredVariable extends AnalysisVisitor {
     public void buildVisitor() {
         addVisit(Kind.METHOD_DECL, this::visitMethodDecl);
         addVisit(Kind.BINARY_EXPR, this::visitBinaryExpr);
-        // addVisit(Kind.VAR_REF, this::visitVarRef);
+        addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
         addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
-        //addVisit(Kind.ARRAY_ASSIGN_STMT, this::visitArrayAssignStmt);
+        addVisit(Kind.ARRAY_ASSIGN_STMT, this::visitArrayAssignStmt);
         addVisit(Kind.ASSIGN_STMT, this::visitAssignStmt);
         addVisit(Kind.IF_STMT, this::visitIfStmt);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
         addVisit(Kind.WHILE_STMT, this::visitWhileStmt);
-        // addVisit(Kind.THIS_EXPR, this::visitThisExpr);
-        // addVisit(Kind.VAR_DECL, this::visitVarDecl);
-        // addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
-        // addVisit(Kind.PARAM, this::visitParam);
-        // addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
-        // addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
+        addVisit(Kind.THIS_EXPR, this::visitThisExpr);
+        addVisit(Kind.VAR_DECL, this::visitVarDecl);
+        addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
+        addVisit(Kind.PARAM, this::visitParam);
+        addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
+        addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
     }
-    /*
+
     private Void visitArrayLengthExpr(JmmNode arrayLengthExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayLengthExpr.getChild(0),table);
@@ -56,9 +56,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-    */
-
-    /*
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayCreationExpr.getChild(0),table);
@@ -71,8 +68,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-    */
-    /*
     private Void visitImportDecl(JmmNode importDecl, SymbolTable table)
     {
         var imports = table.getImports();
@@ -97,8 +92,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
         return null;
     }
 
-     */
-    /*
     private Void visitParam(JmmNode param, SymbolTable table) {
         List<Symbol> symbols = table.getParameters(currentMethod);
         List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
@@ -127,14 +120,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
         return null;
     }
-    */
-
 
     private Void visitVarDecl(JmmNode varDecl, SymbolTable table)
     {
         // in the fields and in the locals we cannot have varargs defined
         //fields
-        /*
         if(varDecl.getParent().getKind().equals(Kind.CLASS_DECL.toString())){
             List<Symbol> symbols = table.getFields();
             List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
@@ -166,11 +156,9 @@ public class UndeclaredVariable extends AnalysisVisitor {
             }
         }
 
-         */
 
         return null;
     }
-    /*
     private Void visitThisExpr(JmmNode thisExpr, SymbolTable table)
     {
         //check if the call to the this expr is in a static method if so raise an report
@@ -180,31 +168,38 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-
-     */
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         isStatic = NodeUtils.getBooleanAttribute(method, "isStatic", "false");
+        if(currentMethod.equals("main") && isStatic.equals(false))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Main method not declared static.",null));
+        }
+        if(!currentMethod.equals("main") && isStatic.equals(true))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " declared static.",null));
+        }
         TypeUtils.setCurrentMethod(currentMethod);
         TypeUtils.setStatic(NodeUtils.getBooleanAttribute(method, "isStatic", "false"));
         //check if there are any duplicated methods
+        var frequency = Collections.frequency(table.getMethods(),currentMethod);
+        if(frequency > 1)
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " is duplicated", null));
+        }
         return null;
     }
 
     private Void visitWhileStmt(JmmNode whileExpr, SymbolTable table)
     {
-        Type type = TypeUtils.getExprType(whileExpr.getJmmChild(0),table);
-        if(type.getName().equals("boolean"))
-        {
-            return null;
-        }
-        else
+        Type type = TypeUtils.getExprType(whileExpr.getChild(0),table);
+        if(!type.getName().equals("boolean") || type.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the while statement", null));
         }
         return null;
     }
-    /*
+
     private Void visitArrayAssignStmt(JmmNode arrayAssignStmt, SymbolTable table)
     {
         String array = arrayAssignStmt.get("value");
@@ -225,18 +220,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-    */
-
 
     private Void visitBinaryExpr(JmmNode expr, SymbolTable table)
     {
-
         Type type = TypeUtils.getExprType(expr, table);
         JmmNode leftNode = expr.getChildren().get(0);
         JmmNode rightNode = expr.getChildren().get(1);
 
         // Check if leftNode or rightNode is a BinaryExpr
-        /*
         if (leftNode.getKind().equals("BinaryExpr")) {
             visitBinaryExpr(leftNode, table);
         }
@@ -244,12 +235,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
             visitBinaryExpr(rightNode, table);
         }
 
-         */
-
         Type leftType = TypeUtils.getExprType(leftNode, table);
         Type rightType = TypeUtils.getExprType(rightNode, table);
         // Permitimos as operações binarias entre dois elementos com o mesmo tipo exceto para arrays
-        if(!leftType.equals(rightType))
+        if(!leftType.equals(rightType) || (leftType.isArray()) || (rightType.isArray()) )
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
         }
@@ -274,7 +263,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-    /*
     private Void visitVarRef(JmmNode expr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(expr,table);
@@ -283,8 +271,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + expr.get("value") + " not declared", null));}
         return null;
     }
-
-     */
 
     private Void visitMethodCallExpr(JmmNode expr, SymbolTable table)
     {
@@ -315,6 +301,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
             // check if the parameters are correct
             if(optionalParams.isPresent()) {
                 var params = optionalParams.get();
+
+
                 //vargs must be the last parameter of the function
                 for (int i = 0; i < params.size(); i++) {
                     //can be var args or a list
@@ -325,21 +313,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                                 }
                             }
-                        }/* else {
+                        } else {
                             var m = visit(expr.getJmmChild(i + 1), table);
                         }
-                        */
-                    }
-
-                    else {
-
+                    } else {
                         if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
                             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                         }
                     }
-
-
-
                 }
             }
         }
@@ -347,11 +328,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     }
 
     private Void visitAssignStmt(JmmNode assign, SymbolTable table) {
-        String varAssigned = "";
-        if(assign.hasAttribute("value"))
-        {
-            varAssigned = assign.get("value");
-        }
+        String varAssigned = assign.get("value");
         var lhsType = TypeUtils.getExprType(assign,table);
         var rhsType = TypeUtils.getExprType(assign.getJmmChild(0),table);
         if(!lhsType.equals(rhsType))
@@ -380,8 +357,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
                 else
                 {
-                    return null;
-                    // addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
                 }
             }
             else if(!table.getSuper().isEmpty())
@@ -389,12 +365,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 //check if the object is the same as the class defined
                 if(rhsType.getName().equals(table.getClassName()))
                 {
-                    if(assign.hasAttribute("value")){
                     if(!table.getMethods().contains(assign.getJmmChild(0).get("value")))
                     {
                         return null;
                     }
-                }
                 }
             }
             else
@@ -432,17 +406,13 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     }
                 }
             }
-            /*
             if (fieldNames.contains(varAssigned)) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non static field in a static method", null));
             }
-
-             */
         }
         return null;
 
     }
-
 
     private Void visitArrayAccessExpr(JmmNode expr, SymbolTable table)
     {
@@ -450,15 +420,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
         JmmNode index = expr.getChild(1);
         Type typeArray = TypeUtils.getExprType(array,table);
         Type typeIndex = TypeUtils.getExprType(index,table);
-
-
         //isArray must be set to True
         if(!typeArray.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + array.get("value") + " is not an array", null));
         }
-
-
         //index must be an integer
         if(!typeIndex.getName().equals("int"))
         {
@@ -466,8 +432,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-
-
 
     private Void visitReturnStmt(JmmNode expr, SymbolTable table)
     {
@@ -479,7 +443,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 return null;
             }
         }
-
         //check if the return type is the same as the method return type
         if(!type.equals(table.getReturnType(currentMethod)))
         {

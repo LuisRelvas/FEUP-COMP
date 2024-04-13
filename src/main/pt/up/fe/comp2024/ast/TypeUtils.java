@@ -55,25 +55,21 @@ public class TypeUtils {
             case NEW_OBJECT_EXPR -> new Type(expr.get("value"), false);
             case METHOD_CALL_EXPR -> getMethodCallExprType(expr,table);
             case ARRAY_CREATION_EXPR -> getArrayExprType(expr,table);
-            case ARRAY_ACCESS_EXPR -> new Type("int", false);
+            case ARRAY_ACCESS_EXPR -> getArrayAccessExprType(expr,table);
             case THIS_EXPR -> new Type(table.getClassName(), false);
             case NEW_ARRAY_EXPR -> new Type(getExprType(expr.getChild(0),table).getName(),true);
-            // case ARRAY_LENGTH_EXPR -> new Type(INT_TYPE_NAME, false);
-            // case UNARY_EXPR -> getExprType(expr.getChild(0),table);
+            case ARRAY_LENGTH_EXPR -> new Type(INT_TYPE_NAME, false);
+            case UNARY_EXPR -> getExprType(expr.getChild(0),table);
             case PARENTHESIS_EXPR -> getExprType(expr.getChild(0),table);
-            case ARRAY_ASSIGN_STMT -> new Type("int", true);
-            default -> new Type("int", false);
-            // default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
+            case ARRAY_ASSIGN_STMT -> getAssignType(expr,table);
+            default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
         return type;
     }
 
-
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
         var returnType = new Type("int", false);
-        if(methodCallExpr.hasAttribute("value"))
-        {
         if(table.getMethods().contains(methodCallExpr.get("value")))
         {
             returnType = table.getReturnType(methodCallExpr.get("value"));
@@ -82,7 +78,6 @@ public class TypeUtils {
         else if(!table.getImports().isEmpty() && !table.getSuper().isEmpty() )
         {
             returnType = getExprType(methodCallExpr.getChild(0),table);
-        }
         }
         return returnType;
     }
@@ -94,8 +89,7 @@ public class TypeUtils {
         var typeIndex = getExprType(index,table);
         if(!typeIndex.getName().equals(INT_TYPE_NAME) || typeIndex.isArray())
         {
-            //throw new RuntimeException("Index type is not an integer");
-            return new Type("int", false);
+            throw new RuntimeException("Index type is not an integer");
         }
         return new Type(typeArray.getName(), false);
     }
@@ -110,30 +104,24 @@ public class TypeUtils {
                 var typeChild = getExprType(arrayExpr.getChildren().get(i),table);
                 if(!type.getName().equals(typeChild.getName()))
                 {
-                    // throw new RuntimeException("Array elements are not of the same type");
-                    return new Type("int", false);
+                    throw new RuntimeException("Array type is not the same as the parent type");
                 }
             }
-            return new Type("int", true);
+            return new Type(type.getName(), true);
         }
-
         else {
-
-        var typeParent  = getAssignType(arrayExpr.getParent(),table);
-        for(int i = 0; i < arrayExpr.getNumChildren(); i++)
-        {
-            var type = getExprType(arrayExpr.getChildren().get(i),table);
-            if(!type.getName().equals(typeParent.getName()))
+            var typeParent  = getAssignType(arrayExpr.getParent(),table);
+            for(int i = 0; i < arrayExpr.getNumChildren(); i++)
             {
-                // throw new RuntimeException("Array elements are not of the same type");
-                return new Type("int", false);
+                var type = getExprType(arrayExpr.getChildren().get(i),table);
+                if(!type.getName().equals(typeParent.getName()))
+                {
+                    throw new RuntimeException("Array type is not the same as the parent type");
+                }
             }
-        }
-            return new Type("int", true);
-            // return new Type(typeParent.getName(), true);
+            return new Type(typeParent.getName(), true);
         }
     }
-
 
     private static Type getBinExprType(JmmNode binaryExpr) {
         String operator = binaryExpr.get("op");
@@ -141,8 +129,8 @@ public class TypeUtils {
         return switch (operator) {
             case "+", "*", "-", "/" -> new Type(INT_TYPE_NAME, false);
             case "<", ">", "<=", ">=", "==", "!=", "&&", "||" -> new Type(BOOLEAN_TYPE_NAME, false);
-            default -> new Type(INT_TYPE_NAME, false);
-                    // throw new RuntimeException("Unknown operator '" + operator + "' of expression '" + binaryExpr + "'");
+            default ->
+                    throw new RuntimeException("Unknown operator '" + operator + "' of expression '" + binaryExpr + "'");
         };
     }
 
@@ -150,9 +138,9 @@ public class TypeUtils {
     {
         var left = assign.get("value");
         var optionalLocals = table.getLocalVariablesTry(currentMethod);
-        // var fields = table.getFields();
-        // var optionalParams = table.getParametersTry(currentMethod);
-        // var imports = table.getImports();
+        var fields = table.getFields();
+        var optionalParams = table.getParametersTry(currentMethod);
+        var imports = table.getImports();
         if(optionalLocals.isPresent())
         {
             var locals = optionalLocals.get();
@@ -164,7 +152,6 @@ public class TypeUtils {
                 }
             }
         }
-        /*
         for(Symbol s : fields)
         {
             if (s.getName().equals(left))
@@ -172,9 +159,6 @@ public class TypeUtils {
                 return s.getType();
             }
         }
-
-         */
-        /*
         if(optionalParams.isPresent()) {
             var params = optionalParams.get();
             for (Symbol s : params) {
@@ -183,8 +167,6 @@ public class TypeUtils {
                 }
             }
         }
-
-         /*
         for (String s: imports)
         {
             if (s.equals(left))
@@ -192,12 +174,8 @@ public class TypeUtils {
                 return new Type(left, false);
             }
         }
-
-         */
         return null;
     }
-
-
 
 
     private static Type getVarExprType(JmmNode varRefExpr, SymbolTable table) {
@@ -229,7 +207,6 @@ public class TypeUtils {
                 }
             }
         }
-        /*
         if(!currentMethod.equals("main"))
         {
             //look in the fields
@@ -242,16 +219,13 @@ public class TypeUtils {
                 }
             }
         }
-        */
-
         if (definedAsDeclaration != null)
         {
             return definedAsDeclaration;
         }
-
         else
         {
-            return new Type(varName, true);
+            return null;
         }
     }
 
