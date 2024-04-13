@@ -95,7 +95,7 @@ public class TypeUtils {
     }
     private static Type getArrayExprType(JmmNode arrayExpr, SymbolTable table) {
         //check if the array has parent
-        if(arrayExpr.getParent().hasAttribute("value"))
+        if(!arrayExpr.getParent().hasAttribute("value"))
         {
             //check the type of the elements inside the array
             var type = getExprType(arrayExpr.getChildren().get(0),table);
@@ -110,6 +110,20 @@ public class TypeUtils {
             return new Type(type.getName(), true);
         }
         else {
+            if(arrayExpr.getParent().get("value").equals("length"))
+            {
+                //check the types of the children
+                Type type = getExprType(arrayExpr.getChildren().get(0),table);
+                for(int i = 1; i < arrayExpr.getNumChildren(); i++)
+                {
+                    var typeChild = getExprType(arrayExpr.getChildren().get(i),table);
+                    if(!type.getName().equals(typeChild.getName()))
+                    {
+                        throw new RuntimeException("Array type is not the same as the parent type");
+                    }
+                }
+                return new Type(type.getName(), true);
+            }
             var typeParent  = getAssignType(arrayExpr.getParent(),table);
             for(int i = 0; i < arrayExpr.getNumChildren(); i++)
             {
