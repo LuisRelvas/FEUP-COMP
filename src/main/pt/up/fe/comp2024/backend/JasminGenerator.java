@@ -433,8 +433,8 @@ public class JasminGenerator {
                 code.append("iadd").append(NL);
                 break;
             case SUB :
-                code.append(generators.apply(binaryOp.getRightOperand()));
                 code.append(generators.apply(binaryOp.getLeftOperand()));
+                code.append(generators.apply(binaryOp.getRightOperand()));
                 code.append("isub").append(NL);
                 break;
             case MUL :
