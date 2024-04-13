@@ -203,28 +203,22 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         var ollirType = "";
         var lhs = visit(node.getJmmChild(0));
         computation.append(lhs.getComputation());
-        if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) && table.getMethods().contains(node.get("value")))
+        if(!node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()))
         {
-            returnType = table.getReturnType(node.get("value"));
-            ollirType = OptUtils.toOllirType(returnType);
-            typeFunction = "invokevirtual";
-        }
-        else if(table.getMethods().contains(node.get("value")))
-        {
-            returnType = table.getReturnType(node.get("value"));
-            ollirType = OptUtils.toOllirType(returnType);
-            typeFunction = "invokevirtual";
-        }
-        else if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) && !table.getMethods().contains(node.get("value")))
-        {
-            returnType = TypeUtils.getExprType(node,table);
-            ollirType = OptUtils.toOllirType(returnType);
-            typeFunction = "invokevirtual";
+            if(table.getImports().contains(node.getJmmChild(0).get("value")))
+            {
+                typeFunction  ="invokestatic";
+            }
+            else
+            {
+                typeFunction = "invokevirtual";
+            }
         }
         else
         {
-            typeFunction = "invokestatic";
+            typeFunction = "invokevirtual";
         }
+
         if(typeFunction.equals("invokevirtual")) {
             for (int i = 1; i < node.getNumChildren(); i++) {
                 var rhs = visit(node.getJmmChild(i));
@@ -238,6 +232,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
                 hasArgs = true;
             }
             var temp = OptUtils.getTemp();
+            ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
             code = temp + ollirType;
             computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
             if(!params.isEmpty())

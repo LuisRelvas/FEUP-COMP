@@ -1,25 +1,14 @@
 import ioPlus;
-
-// class
-class TestNestedCallsImport extends ioPlus {
-
-    public int test() {
-
-
-        int a;
+class A extends ioPlus
+{
+    int a;
+    public int foo()
+    {
+        ioPlus a;
         int b;
-        int c;
-        int d;
-        int e;
-
-
-        a = this.printResult(ioPlus.printResult(1));
-        b = ioPlus.printResult(this.printResult(2));
-        c = a * b;
-        d = this.printResult(ioPlus.printResult(3));
-        e = ioPlus.printResult(this.printResult(4));
-
-        // returns
-        return a + b + c + d + e;
+        a = new ioPlus();
+        b = a.call();
+        return b;
     }
+
 }

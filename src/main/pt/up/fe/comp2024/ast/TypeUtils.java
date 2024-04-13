@@ -212,6 +212,10 @@ public class TypeUtils {
             }
         }
         var definedAsDeclaration = getVarDeclType(varRefExpr,table);
+        if(definedAsDeclaration != null)
+        {
+            return definedAsDeclaration;
+        }
         var optionalParameters = table.getParametersTry(currentMethod);
         if(optionalParameters.isPresent()) {
             var parameters = optionalParameters.get();
@@ -233,14 +237,7 @@ public class TypeUtils {
                 }
             }
         }
-        if (definedAsDeclaration != null)
-        {
-            return definedAsDeclaration;
-        }
-        else
-        {
-            return null;
-        }
+        return null;
     }
 
     private static Type getVarDeclType(JmmNode varDecl, SymbolTable table) {

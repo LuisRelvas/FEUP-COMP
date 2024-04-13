@@ -88,7 +88,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 refactoredImports.add(s);
             }
         }
-        var frequency = Collections.frequency(refactoredImports,importDecl.get("ID"));
+        var frequency = Collections.frequency(imports,importDecl.get("ID"));
         if(frequency > 1)
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + importDecl.get("ID") + " is duplicated", null));
@@ -293,11 +293,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             return null;
         }
-        var optionalParams = table.getParametersTry(expr.get("value"));
+
 
         // verify if the method is declared
         if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
         {
+            var optionalParams = table.getParametersTry(expr.get("value"));
             if(!table.getMethods().contains(expr.get("value")))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
