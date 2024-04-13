@@ -239,12 +239,15 @@ public class UndeclaredVariable extends AnalysisVisitor {
         JmmNode rightNode = expr.getChildren().get(1);
 
         // Check if leftNode or rightNode is a BinaryExpr
+        /*
         if (leftNode.getKind().equals("BinaryExpr")) {
             visitBinaryExpr(leftNode, table);
         }
         if (rightNode.getKind().equals("BinaryExpr")) {
             visitBinaryExpr(rightNode, table);
         }
+
+         */
 
         Type leftType = TypeUtils.getExprType(leftNode, table);
         Type rightType = TypeUtils.getExprType(rightNode, table);
@@ -315,8 +318,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
             // check if the parameters are correct
             if(optionalParams.isPresent()) {
                 var params = optionalParams.get();
-
-
                 //vargs must be the last parameter of the function
                 for (int i = 0; i < params.size(); i++) {
                     //can be var args or a list
@@ -330,11 +331,16 @@ public class UndeclaredVariable extends AnalysisVisitor {
                         } else {
                             var m = visit(expr.getJmmChild(i + 1), table);
                         }
-                    } else {
+                    }
+
+                    else {
+
                         if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
                             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                         }
                     }
+
+
                 }
             }
         }
