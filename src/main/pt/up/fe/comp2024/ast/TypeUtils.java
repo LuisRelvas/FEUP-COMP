@@ -95,7 +95,7 @@ public class TypeUtils {
     }
     private static Type getArrayExprType(JmmNode arrayExpr, SymbolTable table) {
         //check if the array has parent
-        if(!arrayExpr.getParent().hasAttribute("value"))
+        if(arrayExpr.getParent().hasAttribute("value"))
         {
             //check the type of the elements inside the array
             var type = getExprType(arrayExpr.getChildren().get(0),table);
