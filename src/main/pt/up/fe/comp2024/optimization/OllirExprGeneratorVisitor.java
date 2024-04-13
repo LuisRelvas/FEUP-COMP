@@ -127,7 +127,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         Type resType = TypeUtils.getExprType(node, table);
         String resOllirType = OptUtils.toOllirType(resType);
         var temp = OptUtils.getTemp();
-        System.out.println(temp); 
+        System.out.println(temp);
         String code = temp + resOllirType;
         computation.append(code).append(SPACE)
                 .append(ASSIGN).append(resOllirType).append(SPACE)
@@ -209,10 +209,16 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             ollirType = OptUtils.toOllirType(returnType);
             typeFunction = "invokevirtual";
         }
-        else if (node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) && !table.getSuper().isEmpty() && !table.getMethods().contains(node.get("value")))
+        else if(table.getMethods().contains(node.get("value")))
+        {
+            returnType = table.getReturnType(node.get("value"));
+            ollirType = OptUtils.toOllirType(returnType);
+            typeFunction = "invokevirtual";
+        }
+        else if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) && !table.getMethods().contains(node.get("value")))
         {
             ollirType = ".InvokeStatic";
-            typeFunction = "invokevirtual";
+            typeFunction = "invokestatic";
         }
         else
         {
@@ -269,6 +275,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         }
         return new OllirExprResult(code,computation);
     }
+
 
 
     /**
