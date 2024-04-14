@@ -80,11 +80,13 @@ public class UndeclaredVariable extends AnalysisVisitor {
     {
         var imports = table.getImports();
         var refactoredImports = new ArrayList<String>();
+        var wholePathImports = new ArrayList<String>();
         //check if the import is complex if so only consider the last part of the import
         for(var s : imports)
         {
             if(s.contains("."))
             {
+                var whole = wholePathImports.add(s);
                 var aux = s.split("\\.");
                 refactoredImports.add(aux[aux.length - 1]);
             }
@@ -92,10 +94,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 refactoredImports.add(s);
             }
         }
-        var frequency = Collections.frequency(refactoredImports,importDecl.get("ID"));
-        if(frequency > 1)
+        //check in th wholePathImports list if the import is duplicated
+        for(var s : wholePathImports)
         {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + importDecl.get("ID") + " is duplicated", null));
+            int frequency = Collections.frequency(wholePathImports,s);
+            if(frequency > 1)
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + s + " is duplicated", null));
+            }
         }
         return null;
     }
@@ -303,11 +309,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             return null;
         }
-        var optionalParams = table.getParametersTry(expr.get("value"));
 
         // verify if the method is declared
         if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
         {
+            var optionalParams = table.getParametersTry(expr.get("value"));
+
             if(!table.getMethods().contains(expr.get("value")))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));

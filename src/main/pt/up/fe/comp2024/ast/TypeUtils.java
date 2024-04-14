@@ -69,7 +69,7 @@ public class TypeUtils {
 
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
-        var returnType = new Type("int", false);
+        var returnType = new Type("Undefined", false);
         if(table.getMethods().contains(methodCallExpr.get("value")))
         {
             returnType = table.getReturnType(methodCallExpr.get("value"));
