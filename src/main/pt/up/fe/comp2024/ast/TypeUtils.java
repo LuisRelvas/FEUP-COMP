@@ -40,7 +40,6 @@ public class TypeUtils {
      * @return
      */
     public static Type getExprType(JmmNode expr, SymbolTable table) {
-        // TODO: Simple implementation that needs to be expanded
 
 
         var kind = Kind.fromString(expr.getKind());
@@ -70,6 +69,8 @@ public class TypeUtils {
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
         var returnType = new Type("Undefined", false);
+        var aux = getExprType(methodCallExpr.getChild(0),table).getName();
+
         if(table.getMethods().contains(methodCallExpr.get("value")))
         {
             returnType = table.getReturnType(methodCallExpr.get("value"));

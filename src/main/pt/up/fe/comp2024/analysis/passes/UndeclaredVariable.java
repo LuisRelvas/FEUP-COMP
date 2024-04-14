@@ -94,16 +94,16 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 refactoredImports.add(s);
             }
         }
-        //check in th wholePathImports list if the import is duplicated
-        for(var s : wholePathImports)
+        //check in the refactoredImports list if the import is duplicated
+        for(var s : refactoredImports)
         {
-            int frequency = Collections.frequency(wholePathImports,s);
+            int frequency = Collections.frequency(refactoredImports,s);
             if(frequency > 1)
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + s + " is duplicated", null));
             }
         }
-        return null;
+       return null;
     }
 
     private Void visitParam(JmmNode param, SymbolTable table) {
@@ -354,14 +354,15 @@ public class UndeclaredVariable extends AnalysisVisitor {
         var rhsType = TypeUtils.getExprType(assign.getJmmChild(0),table);
         if(!lhsType.equals(rhsType))
         {
+            //if two classes are imported we assume that it is correct the assignment
             if(table.getImports().contains(lhsType.getName()) && table.getImports().contains(rhsType.getName()))
             {
                 return null;
             }
-            //if they are not equal or it is invalid or the object extends the other
-            else if(table.getImports().contains(lhsType.getName()))
+            //check the class that is imported and the class defined
+            else if(table.getImports().contains(lhsType.getName()) && table.getClassName().equals(rhsType.getName()))
             {
-                if(table.getSuper().equals(lhsType.getName()) && rhsType.getName().equals(table.getClassName()))
+                if(table.getSuper().equals(lhsType.getName()))
                 {
                     return null;
                 }
@@ -370,26 +371,15 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
                 }
             }
-            else if(table.getImports().contains(rhsType.getName()))
+            else if(table.getImports().contains(rhsType.getName()) && table.getClassName().equals(lhsType.getName()))
             {
-                if(table.getSuper().equals(rhsType.getName()) && lhsType.getName().equals(table.getClassName()))
+                if(table.getSuper().equals(rhsType.getName()))
                 {
                     return null;
                 }
                 else
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
-                }
-            }
-            else if(!table.getSuper().isEmpty())
-            {
-                //check if the object is the same as the class defined
-                if(rhsType.getName().equals(table.getClassName()))
-                {
-                    if(!table.getMethods().contains(assign.getJmmChild(0).get("value")))
-                    {
-                        return null;
-                    }
                 }
             }
             else
