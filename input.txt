@@ -1,13 +1,15 @@
 import B ;
 
-class A
+class A extends B
 {
     public int foo()
     {
         B b;
+        A a;
         int f;
+        a = new A();
         b = new B();
-        f = b.bar();
+        f = a.bar();
         return f;
 
     }

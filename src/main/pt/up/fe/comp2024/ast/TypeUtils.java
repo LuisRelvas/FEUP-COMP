@@ -80,6 +80,10 @@ public class TypeUtils {
         {
             returnType = getExprType(methodCallExpr.getChild(0),table);
         }
+        else if(!table.getSuper().isEmpty() && getExprType(methodCallExpr.getJmmChild(0),table).getName().equals(table.getClassName()))
+        {
+            returnType = getExprType(methodCallExpr.getChild(0),table);
+        }
         return returnType;
     }
     private static Type getArrayAccessExprType(JmmNode arrayAccessExpr, SymbolTable table)
