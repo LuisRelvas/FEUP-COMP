@@ -157,7 +157,7 @@ public class JasminGenerator {
                     }
                 }
 
-                //getFunction
+
                 int ind1 = callInstruction.getMethodName().toString().indexOf('"');
                 String argAux = callInstruction.getMethodName().toString().substring(ind1 + 1);
                 int ind2 = argAux.indexOf('"');
@@ -167,10 +167,8 @@ public class JasminGenerator {
                 String argAux2 = callInstruction.getCaller().toString().substring(ind1 + 1);
                 ind2 = argAux2.indexOf('.');
                 String functionClass = argAux2.substring(0, ind2);
-
                 answer.append("invokestatic ");
                 answer.append(functionClass+"/"+function+"(");
-
                 if(args.size() >2){
                     for(int i = 2; i < args.size(); i++){
                         answer.append(ollirToJasminType(args.get(i).getType().toString()));
@@ -202,18 +200,12 @@ public class JasminGenerator {
                             var operand = (Operand) args.get(i);
                             var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
                             var type = currentMethod.getVarTable().get(operand.getName()).getVarType();
-                            switch (type.toString()) {
-                                case "INT32":
-                                    loads.append("iload " + reg + NL);
-                                    break;
-                                case "BOOLEAN":
-                                    loads.append("iload " + reg + NL);
-                                    break;
-                                default:
-                                    loads.append("aload " + reg + NL);
-                                    break;
+                            if (type.toString().equals("INT32") ||type.toString().equals("BOOLEAN")){
+                                loads.append("iload " + reg + NL);
                             }
-
+                            else{
+                                loads.append("aload " + reg + NL);
+                            }
                         }
                     }
                     answerAux.append(")" + ollirToJasminType(callInstruction.getReturnType().toString()) + NL);
