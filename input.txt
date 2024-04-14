@@ -1,21 +1,15 @@
-import B;
+import B ;
 
-class ObjectAssignmentFail {
-
-    public static void main(String[] args) {
-
-    }
-
-    public ObjectAssignmentFail foo() {
-        ObjectAssignmentFail a;
+class A
+{
+    public int foo()
+    {
         B b;
-
-        a = new ObjectAssignmentFail();
+        int f;
         b = new B();
+        f = b.bar();
+        return f;
 
-        // ObjectAssignmentFail does not extend B
-        b = a;
-
-        return a;
     }
+
 }

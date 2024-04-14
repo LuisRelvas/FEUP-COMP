@@ -382,7 +382,14 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
                 }
             }
-            else
+            else if(table.getImports().contains(lhsType.getName()) && !rhsType.getName().equals(table.getClassName()))
+            {
+                return null;
+            }
+            else if(table.getImports().contains(rhsType.getName()) && !lhsType.getName().equals(table.getClassName()))
+            {
+                return null;
+            }
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
             }
