@@ -1,5 +1,14 @@
-import lengtha;
-class Lengthb extends lengtha
+import java.util.io;
+
+class A
 {
-int Length;
+    public int foo()
+    {
+        io a;
+        a = new io();
+        return 0;
+
+    }
+
+
 }

@@ -1,3 +1,4 @@
+
 package pt.up.fe.comp2024.analysis.passes;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
@@ -31,6 +32,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     public void buildVisitor() {
         addVisit(Kind.METHOD_DECL, this::visitMethodDecl);
         addVisit(Kind.BINARY_EXPR, this::visitBinaryExpr);
+
         addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.RETURN_STMT, this::visitReturnStmt);
         addVisit(Kind.ARRAY_ACCESS_EXPR, this::visitArrayAccessExpr);
@@ -42,23 +44,26 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.THIS_EXPR, this::visitThisExpr);
         addVisit(Kind.VAR_DECL, this::visitVarDecl);
         addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
-        // addVisit(Kind.PARAM, this::visitParam);
-        // addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
-        // addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
+        addVisit(Kind.PARAM, this::visitParam);
+        addVisit(Kind.ARRAY_CREATION_EXPR, this::visitArrayCreationExpr);
+        addVisit(Kind.ARRAY_LENGTH_EXPR, this::visitArrayLengthExpr);
+
+
     }
-    /*
+
     private Void visitArrayLengthExpr(JmmNode arrayLengthExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayLengthExpr.getChild(0),table);
+        if(!arrayLengthExpr.get("value").equals("length"))
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.get("value") + " is not an array", null));
+        }
         if(!type.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.getJmmChild(0).get("value") + " is not an array", null));
         }
         return null;
     }
-    */
-
-    /*
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(arrayCreationExpr.getChild(0),table);
@@ -71,17 +76,17 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
-    */
-
     private Void visitImportDecl(JmmNode importDecl, SymbolTable table)
     {
         var imports = table.getImports();
         var refactoredImports = new ArrayList<String>();
+        var wholePathImports = new ArrayList<String>();
         //check if the import is complex if so only consider the last part of the import
         for(var s : imports)
         {
             if(s.contains("."))
             {
+                var whole = wholePathImports.add(s);
                 var aux = s.split("\\.");
                 refactoredImports.add(aux[aux.length - 1]);
             }
@@ -89,14 +94,18 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 refactoredImports.add(s);
             }
         }
-        var frequency = Collections.frequency(refactoredImports,importDecl.get("ID"));
-        if(frequency > 1)
+        //check in the refactoredImports list if the import is duplicated
+        for(var s : refactoredImports)
         {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + importDecl.get("ID") + " is duplicated", null));
+            int frequency = Collections.frequency(refactoredImports,s);
+            if(frequency > 1)
+            {
+                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + s + " is duplicated", null));
+            }
         }
-        return null;
+       return null;
     }
-    /*
+
     private Void visitParam(JmmNode param, SymbolTable table) {
         List<Symbol> symbols = table.getParameters(currentMethod);
         List<String> symbolNames = symbols.stream().map(Symbol::getName).toList();
@@ -125,8 +134,6 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
         return null;
     }
-    */
-
 
     private Void visitVarDecl(JmmNode varDecl, SymbolTable table)
     {
@@ -175,6 +182,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         }
         return null;
     }
+
+
     private Void visitMethodDecl(JmmNode method, SymbolTable table) {
         currentMethod = method.get("methodName");
         isStatic = NodeUtils.getBooleanAttribute(method, "isStatic", "false");
@@ -228,6 +237,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         return null;
     }
 
+
+
     private Void visitBinaryExpr(JmmNode expr, SymbolTable table)
     {
         Type type = TypeUtils.getExprType(expr, table);
@@ -256,6 +267,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         return null;
     }
 
+
+
     private Void visitIfStmt(JmmNode ifStmt, SymbolTable table)
     {
         JmmNode condition = ifStmt.getChild(0);
@@ -282,6 +295,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitMethodCallExpr(JmmNode expr, SymbolTable table)
     {
         var imports = table.getImports();
+        var availableImports = "";
         var extended = table.getSuper();
         if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(expr.getJmmChild(0).get("value")))
         {
@@ -296,11 +310,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         {
             return null;
         }
-        var optionalParams = table.getParametersTry(expr.get("value"));
 
         // verify if the method is declared
         if(type.getName().equals(table.getClassName()) && (extended.isEmpty() || imports.isEmpty()))
         {
+            var optionalParams = table.getParametersTry(expr.get("value"));
+
             if(!table.getMethods().contains(expr.get("value")))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
@@ -340,14 +355,15 @@ public class UndeclaredVariable extends AnalysisVisitor {
         var rhsType = TypeUtils.getExprType(assign.getJmmChild(0),table);
         if(!lhsType.equals(rhsType))
         {
+            //if two classes are imported we assume that it is correct the assignment
             if(table.getImports().contains(lhsType.getName()) && table.getImports().contains(rhsType.getName()))
             {
                 return null;
             }
-            //if they are not equal or it is invalid or the object extends the other
-            else if(table.getImports().contains(lhsType.getName()))
+            //check the class that is imported and the class defined
+            else if(table.getImports().contains(lhsType.getName()) && table.getClassName().equals(rhsType.getName()))
             {
-                if(table.getSuper().equals(lhsType.getName()) && rhsType.getName().equals(table.getClassName()))
+                if(table.getSuper().equals(lhsType.getName()))
                 {
                     return null;
                 }
@@ -356,9 +372,9 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
                 }
             }
-            else if(table.getImports().contains(rhsType.getName()))
+            else if(table.getImports().contains(rhsType.getName()) && table.getClassName().equals(lhsType.getName()))
             {
-                if(table.getSuper().equals(rhsType.getName()) && lhsType.getName().equals(table.getClassName()))
+                if(table.getSuper().equals(rhsType.getName()))
                 {
                     return null;
                 }
@@ -367,16 +383,21 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
                 }
             }
-            else if(!table.getSuper().isEmpty())
+            else if(table.getImports().contains(lhsType.getName()) && !rhsType.getName().equals(table.getClassName()))
             {
-                //check if the object is the same as the class defined
-                if(rhsType.getName().equals(table.getClassName()))
-                {
-                    if(!table.getMethods().contains(assign.getJmmChild(0).get("value")))
-                    {
-                        return null;
-                    }
-                }
+                return null;
+            }
+            else if(table.getImports().contains(rhsType.getName()) && !lhsType.getName().equals(table.getClassName()))
+            {
+                return null;
+            }
+            else if(rhsType.getName().equals(table.getClassName()) && !table.getSuper().isEmpty())
+            {
+                return null;
+            }
+            else if(lhsType.getName().equals(table.getClassName()) && !table.getSuper().isEmpty())
+            {
+                return null;
             }
             else
             {
@@ -451,11 +472,18 @@ public class UndeclaredVariable extends AnalysisVisitor {
             }
         }
         //check if the return type is the same as the method return type
+        if(table.getImports().contains(type.getName()))
+        {
+            return null;
+        }
         if(!type.equals(table.getReturnType(currentMethod)))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, " is not an integer", null));
 
         }
+
         return null;
     }
+
+
 }

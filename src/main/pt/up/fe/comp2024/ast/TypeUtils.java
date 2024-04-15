@@ -40,7 +40,6 @@ public class TypeUtils {
      * @return
      */
     public static Type getExprType(JmmNode expr, SymbolTable table) {
-        // TODO: Simple implementation that needs to be expanded
 
 
         var kind = Kind.fromString(expr.getKind());
@@ -67,15 +66,27 @@ public class TypeUtils {
         return type;
     }
 
+
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
-        var returnType = new Type("int", false);
-        if(table.getMethods().contains(methodCallExpr.get("value")))
+        var returnType = new Type("Undefined", false);
+        var aux = getExprType(methodCallExpr.getChild(0),table).getName();
+
+        if(table.getMethods().contains(methodCallExpr.get("value")) && (methodCallExpr.getChild(0).getKind().equals(Kind.THIS_EXPR.toString()) || getExprType(methodCallExpr.getChild(0),table).getName().equals(table.getClassName())))
+        {
+            returnType = table.getReturnType(methodCallExpr.get("value"));
+        }
+        //if I have something in the extended and the calling is an Object from the extends and I have the method defined in my class I give precedence to my defined method
+        else if(table.getSuper().equals(getExprType(methodCallExpr.getChild(0),table).getName()) && table.getMethods().contains(methodCallExpr.get("value")))
         {
             returnType = table.getReturnType(methodCallExpr.get("value"));
         }
         //if we dont know the method, we assume it is a method from the imports and give the correct type
-        else if(!table.getImports().isEmpty() && !table.getSuper().isEmpty() )
+        else if(table.getImports().contains(getExprType(methodCallExpr.getJmmChild(0),table).getName()))
+        {
+            returnType = getExprType(methodCallExpr.getChild(0),table);
+        }
+        else if(!table.getSuper().isEmpty() && getExprType(methodCallExpr.getJmmChild(0),table).getName().equals(table.getClassName()))
         {
             returnType = getExprType(methodCallExpr.getChild(0),table);
         }
@@ -110,15 +121,29 @@ public class TypeUtils {
             return new Type(type.getName(), true);
         }
         else {
-        var typeParent  = getAssignType(arrayExpr.getParent(),table);
-        for(int i = 0; i < arrayExpr.getNumChildren(); i++)
-        {
-            var type = getExprType(arrayExpr.getChildren().get(i),table);
-            if(!type.getName().equals(typeParent.getName()))
+            if(arrayExpr.getParent().get("value").equals("length"))
             {
-                throw new RuntimeException("Array type is not the same as the parent type");
+                //check the types of the children
+                Type type = getExprType(arrayExpr.getChildren().get(0),table);
+                for(int i = 1; i < arrayExpr.getNumChildren(); i++)
+                {
+                    var typeChild = getExprType(arrayExpr.getChildren().get(i),table);
+                    if(!type.getName().equals(typeChild.getName()))
+                    {
+                        throw new RuntimeException("Array type is not the same as the parent type");
+                    }
+                }
+                return new Type(type.getName(), true);
             }
-        }
+            var typeParent  = getAssignType(arrayExpr.getParent(),table);
+            for(int i = 0; i < arrayExpr.getNumChildren(); i++)
+            {
+                var type = getExprType(arrayExpr.getChildren().get(i),table);
+                if(!type.getName().equals(typeParent.getName()))
+                {
+                    throw new RuntimeException("Array type is not the same as the parent type");
+                }
+            }
             return new Type(typeParent.getName(), true);
         }
     }
@@ -198,6 +223,10 @@ public class TypeUtils {
             }
         }
         var definedAsDeclaration = getVarDeclType(varRefExpr,table);
+        if (definedAsDeclaration != null)
+        {
+            return definedAsDeclaration;
+        }
         var optionalParameters = table.getParametersTry(currentMethod);
         if(optionalParameters.isPresent()) {
             var parameters = optionalParameters.get();
@@ -219,14 +248,8 @@ public class TypeUtils {
                 }
             }
         }
-        if (definedAsDeclaration != null)
-        {
-            return definedAsDeclaration;
-        }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
 
     private static Type getVarDeclType(JmmNode varDecl, SymbolTable table) {
