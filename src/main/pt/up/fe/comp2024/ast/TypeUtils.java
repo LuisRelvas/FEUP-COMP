@@ -71,7 +71,12 @@ public class TypeUtils {
         var returnType = new Type("Undefined", false);
         var aux = getExprType(methodCallExpr.getChild(0),table).getName();
 
-        if(table.getMethods().contains(methodCallExpr.get("value")))
+        if(table.getMethods().contains(methodCallExpr.get("value")) && (methodCallExpr.getChild(0).getKind().equals(Kind.THIS_EXPR.toString()) || getExprType(methodCallExpr.getChild(0),table).getName().equals(table.getClassName())))
+        {
+            returnType = table.getReturnType(methodCallExpr.get("value"));
+        }
+        //if I have something in the extended and the calling is an Object from the extends and I have the method defined in my class I give precedence to my defined method
+        else if(table.getSuper().equals(getExprType(methodCallExpr.getChild(0),table).getName()) && table.getMethods().contains(methodCallExpr.get("value")))
         {
             returnType = table.getReturnType(methodCallExpr.get("value"));
         }

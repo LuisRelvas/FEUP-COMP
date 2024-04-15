@@ -6,7 +6,6 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
-import pt.up.fe.comp2024.ast.Kind;
 import pt.up.fe.comp2024.ast.TypeUtils;
 
 import static com.sun.source.tree.Tree.Kind.METHOD;
@@ -133,8 +132,8 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
         StringBuilder computation = new StringBuilder();
 
-            computation.append(lhs.getComputation());
-            computation.append(rhs.getComputation());
+        computation.append(lhs.getComputation());
+        computation.append(rhs.getComputation());
 
         // code to compute self
         Type resType = TypeUtils.getExprType(node, table);
@@ -244,17 +243,10 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
                 hasArgs = true;
             }
-            if((node.getParent().getKind().equals(EXPR_STMT.toString()) && node.getParent().getParent().getKind().equals(ASSIGN_STMT.toString()))|| node.getParent().getKind().equals(ASSIGN_STMT.toString()) || node.getChild(0).getKind().equals(THIS_EXPR.toString())) {
-                var temp = OptUtils.getTemp();
-                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
-                code = temp + ollirType;
-                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
-            }
-            else
-            {
-                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
-                computation.append(code).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
-            }
+            var temp = OptUtils.getTemp();
+            ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
+            code = temp + ollirType;
+            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
             if(!params.isEmpty())
             {
                 computation.append(",").append(params);
