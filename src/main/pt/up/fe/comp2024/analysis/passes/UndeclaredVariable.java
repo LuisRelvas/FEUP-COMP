@@ -332,7 +332,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                             addReport(Report.newError(Stage.SEMANTIC,0,0,"Invalid number of parameters",null));
                             return null;
                         }
+
+
                         for (i = 0; i < params.size(); i++) {
+
                             //can be var args or a list
                             if (params.get(i).getType().isArray()) {
                                 if (expr.getJmmChild(i + 1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i + 1).getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
@@ -347,6 +350,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                     var m = visit(expr.getJmmChild(i + 1), table);
                                 }
                             } else {
+                                if(i >= expr.getNumChildren() -1)
+                                {
+                                    addReport(Report.newError(Stage.SEMANTIC,0,0,"Invalid number of parameters",null));
+                                    return null;
+                                }
                                 if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
                                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                                     return null;
