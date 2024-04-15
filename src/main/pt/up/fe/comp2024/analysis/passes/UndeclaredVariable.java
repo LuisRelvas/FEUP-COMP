@@ -340,6 +340,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                         hasArray = true;
                                         if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j), table).getName())) {
                                             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                            return null;
                                         }
                                     }
                                 } else {
@@ -348,6 +349,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                             } else {
                                 if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
                                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                    return null;
                                 }
                             }
                         }
@@ -355,6 +357,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     else if(expr.getNumChildren() > 1)
                     {
                         addReport(Report.newError(Stage.SEMANTIC,0,0, "The method signature has more parameters than the method decl!",null));
+                        return null;
                     }
 
 
@@ -362,6 +365,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 if(i != expr.getNumChildren()-1 && !hasArray)
                 {
                     addReport(Report.newError(Stage.SEMANTIC,0,0, "Invalid number of parameters",null));
+                    return null;
                 }
             }
         }

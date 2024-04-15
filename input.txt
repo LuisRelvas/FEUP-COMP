@@ -1,11 +1,11 @@
 class A
 {
-    public int foo(int a)
+    public int foo(int b, int[] a)
     {
 
         int a;
         int b;
-        this.foo();
+        this.foo([1,2,3,4]);
         return 0;
     }
 
