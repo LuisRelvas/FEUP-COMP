@@ -213,7 +213,7 @@ public class JasminGenerator {
                     answer.append(answerAux);
                 } else {
                     answer.append("/<init>()V" + NL);
-                    answer.append("pop" + NL);
+                    //answer.append("pop" + NL);
                 }
             }
         }
