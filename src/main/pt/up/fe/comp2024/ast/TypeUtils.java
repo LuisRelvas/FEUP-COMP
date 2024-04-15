@@ -61,7 +61,7 @@ public class TypeUtils {
             case UNARY_EXPR -> getExprType(expr.getChild(0),table);
             case PARENTHESIS_EXPR -> getExprType(expr.getChild(0),table);
             case ARRAY_ASSIGN_STMT -> getAssignType(expr,table);
-            default -> new Type("undefined",false);//throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
+            default -> throw new UnsupportedOperationException("Can't compute type for expression kind '" + kind + "'");
         };
         return type;
     }

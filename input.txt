@@ -1,22 +1,21 @@
-class A
-{
-    public static void main(String[] args)
-    {
-       A a;
-       int b;
-       a = new A();
-       b = a.call();
-       a.foo();
-    }
-    public int call()
-    {
-        return 0;
+import ioPlus;
+class Recursion {
+
+    public int fact(int n) {
+        int result;
+        if (n < 2)
+            result = 1;
+        else
+            result = n * this.fact(n - 1);
+
+        return result;
     }
 
-    public int foo(int[] b)
-    {
-        A a;
-        a = new A();
-        return 0;
-    }
+	public static void main(String[] args) {
+	    Recursion r;
+
+	    r = new Recursion();
+
+	    ioPlus.printResult(r.fact(5));
+	}
 }
