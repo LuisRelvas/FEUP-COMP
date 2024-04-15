@@ -12,6 +12,8 @@ import pt.up.fe.comp2024.ast.Kind;
 import pt.up.fe.comp2024.ast.NodeUtils;
 import pt.up.fe.comp2024.ast.TypeUtils;
 import pt.up.fe.specs.util.SpecsCheck;
+import pt.up.fe.comp.TestUtils;
+
 
 import java.util.ArrayList;
 import java.util.Collections;

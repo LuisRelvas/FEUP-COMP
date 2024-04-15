@@ -4,10 +4,9 @@ class A
     {
        A a;
        int b;
-        a = new A();
-        b = a.call()
-       a.foo(a.call() + 1, b, a.call() + 2;
-
+       a = new A();
+       b = a.call();
+       a.foo();
     }
     public int call()
     {
