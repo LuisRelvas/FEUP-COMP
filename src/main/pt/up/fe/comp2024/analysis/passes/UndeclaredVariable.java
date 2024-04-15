@@ -295,6 +295,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
     private Void visitMethodCallExpr(JmmNode expr, SymbolTable table)
     {
         var imports = table.getImports();
+        var availableImports = "";
         var extended = table.getSuper();
         if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(expr.getJmmChild(0).get("value")))
         {

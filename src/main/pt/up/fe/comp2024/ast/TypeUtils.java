@@ -66,6 +66,7 @@ public class TypeUtils {
         return type;
     }
 
+
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
         var returnType = new Type("Undefined", false);

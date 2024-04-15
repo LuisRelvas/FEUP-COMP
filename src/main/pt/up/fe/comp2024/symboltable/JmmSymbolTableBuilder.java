@@ -70,10 +70,9 @@ public class JmmSymbolTableBuilder {
                     String importString = "";
                     for(int j = 0; j < k.size(); j++)
                     {
-                        importString += k.get(j);
-                        if(j != k.size() - 1)
+                        if(j == k.size()-1)
                         {
-                            importString += ".";
+                            importString = k.get(j);
                         }
                     }
                     imports.add(importString);

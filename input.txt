@@ -1,23 +1,14 @@
-import io;
+import java.util.io;
 
-class CompileMethodInvocation {
-
-    public static void main(String[] args) {
-
-    }
-
-    public int call()
+class A
+{
+    public int foo()
     {
+        io a;
+        a = new io();
         return 0;
+
     }
 
-    public int foo() {
-        int a;
-        boolean b;
-        a = 1;
-        a = this.call();
-        b = io.call();
 
-        return 0;
-    }
 }
