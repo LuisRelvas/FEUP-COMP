@@ -215,16 +215,28 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         var ollirType = "";
         var lhs = visit(node.getJmmChild(0));
         computation.append(lhs.getComputation());
-        if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) || table.getMethods().contains(node.get("value")))
+        if(!node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()))
         {
-            returnType = table.getReturnType(node.get("value"));
-            ollirType = OptUtils.toOllirType(returnType);
-            typeFunction = "invokevirtual";
+            if(table.getImports().contains(node.getJmmChild(0).get("value")))
+            {
+                typeFunction  ="invokestatic";
+            }
+            else
+            {
+                returnType = table.getReturnType(node.get("value"));
+                ollirType = OptUtils.toOllirType(returnType);
+                typeFunction = "invokevirtual";
+            }
         }
         else
         {
-            typeFunction = "invokestatic";
+
+            returnType = table.getReturnType(node.get("value"));
+            ollirType = OptUtils.toOllirType(returnType);
+            typeFunction = "invokevirtual";
+
         }
+
         if(typeFunction.equals("invokevirtual")) {
             for (int i = 1; i < node.getNumChildren(); i++) {
                 var rhs = visit(node.getJmmChild(i));
