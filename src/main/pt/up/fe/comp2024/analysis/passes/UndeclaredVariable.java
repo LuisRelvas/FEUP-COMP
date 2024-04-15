@@ -57,10 +57,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(!arrayLengthExpr.get("value").equals("length"))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.get("value") + " is not an array", null));
+            return null;
         }
         if(!type.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + arrayLengthExpr.getJmmChild(0).get("value") + " is not an array", null));
+            return null;
         }
         return null;
     }
@@ -72,6 +74,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(!type.equals(TypeUtils.getExprType(arrayCreationExpr.getChild(i),table)))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the array creation expression", null));
+                return null;
             }
         }
         return null;
@@ -101,6 +104,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(frequency > 1)
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + s + " is duplicated", null));
+                return null;
             }
         }
        return null;
@@ -116,6 +120,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             int frequency = Collections.frequency(symbolNames, paramName);
             if (frequency > 1) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Parameter " + paramName + " is duplicated", null));
+                return null;
             }
         }
 
@@ -128,6 +133,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 if(aux.getIndexOfSelf() != param.getNumChildren() - 1)
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs must be the last parameter declared", null));
+                    return null;
                 }
             }
         }
@@ -146,6 +152,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(frequency > 1)
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Field " + varDecl.get("name") + " is duplicated", null));
+                return null;
             }
         }
         else
@@ -156,17 +163,20 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(frequency > 1)
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Local Variable " + varDecl.get("name") + " is duplicated", null));
+                return null;
             }
         }
         if(varDecl.getChild(0).getKind().equals("VarArgsType"))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Varargs cannot be defined in the fields", null));
+            return null;
         }
         if(varDecl.getChild(0).getKind().equals(Kind.CLASS_TYPE.toString()))
         {
             if(!table.getImports().contains(varDecl.getChild(0).get("value")) && !varDecl.getChild(0).get("value").equals(table.getClassName()))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Class " + varDecl.getChild(0).get("value") + " not declared", null));
+                return null;
             }
         }
 
@@ -179,6 +189,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(isStatic)
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot use this token in a static method", null));
+            return null;
         }
         return null;
     }
@@ -190,10 +201,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(currentMethod.equals("main") && isStatic.equals(false))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Main method not declared static.",null));
+            return null;
         }
         if(!currentMethod.equals("main") && isStatic.equals(true))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " declared static.",null));
+            return null;
         }
         TypeUtils.setCurrentMethod(currentMethod);
         TypeUtils.setStatic(NodeUtils.getBooleanAttribute(method, "isStatic", "false"));
@@ -202,6 +215,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(frequency > 1)
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + currentMethod + " is duplicated", null));
+            return null;
         }
         return null;
     }
@@ -212,6 +226,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(!type.getName().equals("boolean") || type.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the while statement", null));
+            return null;
         }
         return null;
     }
@@ -225,6 +240,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(!typeIndex.getName().equals("int") || typeIndex.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
+            return null;
         }
         for(int i = 1; i < arrayAssignStmt.getNumChildren(); i++)
         {
@@ -232,6 +248,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(!type.getName().equals(typeArray.getName()))
             {
                 addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
+                return null;
             }
         }
         return null;
@@ -259,10 +276,12 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(!leftType.equals(rightType) || (leftType.isArray()) || (rightType.isArray()) )
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
+            return null;
         }
         if(!leftType.equals(rightType))
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Binary Expression " + rightType.getName() + " with " + leftType.getName(), null));
+            return null;
         }
         return null;
     }
@@ -279,6 +298,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             if(!type.getName().equals("boolean"))
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the condition of the if statement", null));
+                return null;
             }
         }
         return null;
@@ -318,7 +338,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
             if (!table.getMethods().contains(expr.get("value"))) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Method " + expr.get("value") + " not declared", null));
-
+                return null;
             } else {
                 var optionalParams = table.getParametersTry(expr.get("value"));
 
@@ -380,6 +400,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         else
         {
             addReport(Report.newError(Stage.SEMANTIC,0,0, "import variable not declared",null));
+            return null;
         }
         return null;
     }
@@ -405,6 +426,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 else
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+                    return null;
                 }
             }
             else if(table.getImports().contains(rhsType.getName()) && table.getClassName().equals(lhsType.getName()))
@@ -416,6 +438,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 else
                 {
                     addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+                    return null;
                 }
             }
             else if(table.getImports().contains(lhsType.getName()) && !rhsType.getName().equals(table.getClassName()))
@@ -437,6 +460,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             else
             {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the assignment of the variable " + varAssigned, null));
+                return null;
             }
 
         }
@@ -471,6 +495,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
             }
             if (fieldNames.contains(varAssigned)) {
                 addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Cannot assign a value to a non static field in a static method", null));
+                return null;
             }
         }
         return null;
@@ -487,11 +512,13 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(!typeArray.isArray())
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Variable " + array.get("value") + " is not an array", null));
+            return null;
         }
         //index must be an integer
         if(!typeIndex.getName().equals("int"))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0 ,"Variable" + index.get("value") + " is not an integer", null));
+            return null;
         }
         return null;
     }
@@ -514,7 +541,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
         if(!type.equals(table.getReturnType(currentMethod)))
         {
             addReport(Report.newError(Stage.SEMANTIC, 0, 0, " is not an integer", null));
-
+            return null;
         }
 
         return null;

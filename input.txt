@@ -1,11 +1,15 @@
 class A
 {
-    public int foo(int b, int[] a, int k)
+    public int call()
+    {
+        return 0;
+    }
+    public int foo(int a)
     {
 
         int a;
         int b;
-        this.foo(10,[1,2,3,4]);
+        this.foo(this.call() + this.call());
         return 0;
     }
 
