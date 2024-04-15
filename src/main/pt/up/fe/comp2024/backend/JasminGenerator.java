@@ -97,23 +97,8 @@ public class JasminGenerator {
         putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
         putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
         putCode.append("aload_0"+NL);
-        /*
-        switch (putFieldInstruction.getValue().getType().toString()) {
-            case "INT32":
-                putCode.append("putfield ");
-                putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
-                putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
-                putCode.append("aload_0"+NL);
-            case "Boolean":
-                putCode.append("putfield ");
-                putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
-                putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
-                putCode.append("aload_0"+NL);
-                break;
-            default:
-                break;
-        }
-        */
+        System.out.println(putCode.toString());
+
         return putCode.toString();
     }
 
@@ -253,7 +238,7 @@ public class JasminGenerator {
         //fields
         StringBuilder fields = new StringBuilder();
         for (var field :classUnit.getFields()){
-            fields.append(".field ");
+            fields.append(".field private");
             fields.append(field.getFieldName()).append(SPACE);
             fields.append(ollirToJasminType(field.getFieldType().toString())).append(NL);
         }
