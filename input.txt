@@ -3,11 +3,7 @@ class A
 {
     public int foo(int a,int b)
     {
-        ioPlus io;
-        int f;
-        io = new ioPlus();
-        f = io.getInt();
-        this.foo(a,this.foo(a,this.foo(1,2)));
+        ioPlus.out().println();
         return 0;
     }
 
