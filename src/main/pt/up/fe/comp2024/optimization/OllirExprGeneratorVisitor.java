@@ -245,6 +245,10 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             }
             if(node.getParent().getKind().equals(EXPR_STMT.toString()))
             {
+                var temp = OptUtils.getTemp();
+                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node,table));
+                code  = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
 
             }
             else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
@@ -288,7 +292,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             else if(!node.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
                 var temp = OptUtils.getTemp();// get a new temp
-                ollirType = "";
+                ollirType = ".V";
                 code = temp + ollirType;
                 computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
