@@ -212,25 +212,19 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         StringBuilder params = new StringBuilder(); // to store the parameters
         boolean hasArgs = false;
         Type returnType = new Type("int", false);
-        var ollirType = ".V";
+        var ollirType = "";
         var lhs = visit(node.getJmmChild(0));
         computation.append(lhs.getComputation());
-        if(!node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()))
+        if(node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()) || table.getMethods().contains(node.get("value")))
         {
-            if(table.getImports().contains(node.getJmmChild(0).get("value")))
-            {
-                typeFunction  ="invokestatic";
-            }
-            else
-            {
-                typeFunction = "invokevirtual";
-            }
+            returnType = table.getReturnType(node.get("value"));
+            ollirType = OptUtils.toOllirType(returnType);
+            typeFunction = "invokevirtual";
         }
         else
         {
-            typeFunction = "invokevirtual";
+            typeFunction = "invokestatic";
         }
-
         if(typeFunction.equals("invokevirtual")) {
             for (int i = 1; i < node.getNumChildren(); i++) {
                 var rhs = visit(node.getJmmChild(i));
@@ -243,25 +237,9 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
                 hasArgs = true;
             }
-            if(node.getParent().getKind().equals(EXPR_STMT.toString()))
-            {
-                computation.append(code);
-            }
-            else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
-            {
-                var temp = OptUtils.getTemp();
-                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
-                code = temp + ollirType;
-                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
-            }
-            else
-            {
-                var temp = OptUtils.getTemp();
-                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
-                code = temp + ollirType;
-                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
-            }
-            computation.append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
+            var temp = OptUtils.getTemp();
+            code = temp + ollirType;
+            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
             if(!params.isEmpty())
             {
                 computation.append(",").append(params);
@@ -271,56 +249,25 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         else {
             for(int i = 1; i < node.getNumChildren();i++)
             {
-
                 var rhs = visit(node.getJmmChild(i));
                 computation.append(rhs.getComputation());
-
-
                 params.append(rhs.getCode());
                 if(i != node.getNumChildren() - 1)
                 {
                     params.append(",");
                 }
             }
-
-
-            if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
-            {
-                var temp = OptUtils.getTemp();
-                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
-                code = temp + ollirType;
-                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
-            }
-            else if(node.getParent().getKind().equals(EXPR_STMT.toString()))
-            {
-                computation.append(code);
-            }
-            else
-            {
-                var temp = OptUtils.getTemp();
-                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
-                code = temp + ollirType;
-                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
-            }
             computation.append(typeFunction).append("(").append(node.getJmmChild(0).get("value")).append(",").append("\"").append(node.get("value")).append("\"");
             if(!params.isEmpty())
             {
                 computation.append(",").append(params);
             }
-            computation.append(")").append(ollirType).append(END_STMT);
+            computation.append(")").append(".V").append(END_STMT);
 
 
         }
         return new OllirExprResult(code,computation);
     }
-
-
-
-
-
-
-
-
 
 
     /**
