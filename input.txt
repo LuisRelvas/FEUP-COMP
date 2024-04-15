@@ -6,12 +6,21 @@ class CompileMethodInvocation {
 
     }
 
+    public boolean call()
+    {
+        return true;
+    }
+
     public int foo() {
         int a;
 
-        a = 1;
+        boolean b;
 
-        io.println(a);
+        CompileMethodInvocation ant;
+
+        ant = new CompileMethodInvocation();
+
+        ant.call();
 
         return 0;
     }
