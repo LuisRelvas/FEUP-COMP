@@ -243,9 +243,13 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
                 hasArgs = true;
             }
+
+
             if(node.getParent().getKind().equals(EXPR_STMT.toString()))
             {
-
+                var temp = OptUtils.getTemp();
+                code = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
             }
             else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
