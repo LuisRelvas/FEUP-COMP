@@ -296,6 +296,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
     {
         var imports = table.getImports();
         var availableImports = "";
+        var hasArray = false;
+        int i = 0;
         var extended = table.getSuper();
         if(!table.getMethods().contains(expr.get("value")) && !imports.isEmpty() && !extended.isEmpty() && imports.contains(expr.getJmmChild(0).get("value")))
         {
@@ -324,17 +326,13 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 if (optionalParams.isPresent()) {
                     var params = optionalParams.get();
                     //vargs must be the last parameter of the function
-                    if(params.size() > expr.getNumChildren() -1  || params.size() < expr.getNumChildren() -1 )
-                    {
-                        addReport(Report.newError(Stage.SEMANTIC, 0,0, "The number of parameters is not correct",null));
-                        return null;
-                    }
                     if(!params.isEmpty()) {
-                        for (int i = 0; i < params.size(); i++) {
+                        for (i = 0; i < params.size(); i++) {
                             //can be var args or a list
                             if (params.get(i).getType().isArray()) {
                                 if (expr.getJmmChild(i + 1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i + 1).getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
                                     for (int j = i + 1; j < expr.getNumChildren(); j++) {
+                                        hasArray = true;
                                         if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j), table).getName())) {
                                             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                                         }
@@ -355,6 +353,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                     }
 
 
+                }
+                if(i != expr.getNumChildren()-1 && !hasArray)
+                {
+                    addReport(Report.newError(Stage.SEMANTIC,0,0, "Invalid number of parameters",null));
                 }
             }
         }
