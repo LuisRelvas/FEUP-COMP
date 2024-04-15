@@ -347,6 +347,10 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 }
             }
         }
+        else
+        {
+            addReport(Report.newError(Stage.SEMANTIC,0,0, "import variable not declared",null));
+        }
         return null;
     }
 
