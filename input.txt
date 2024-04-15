@@ -1,16 +1,11 @@
 import B ;
+import K;
 
-class A extends B
+class A
 {
     public int foo()
     {
-        B b;
-        A a;
-        int f;
-        a = new A();
-        b = new B();
-        f = a.bar();
-        return f;
+        return 0;
 
     }
 
