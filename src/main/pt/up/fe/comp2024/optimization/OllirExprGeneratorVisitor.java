@@ -1,6 +1,7 @@
 package pt.up.fe.comp2024.optimization;
 
 import org.specs.comp.ollir.Ollir;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -27,8 +28,8 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         this.table = table;
     }
 
-    public void setCurrentMethod(String currentMethod) {
-        this.currentMethod = currentMethod;
+    public void setCurrentMethod(String current) {
+        currentMethod = current;
     }
 
     @Override
@@ -45,7 +46,18 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         addVisit(UNARY_EXPR,this::visitUnaryExpr);
         setDefaultVisit(this::defaultVisit);
     }
-
+    private OllirExprResult visitUnaryExpr(JmmNode unaryNode, Void unused)
+    {
+        StringBuilder computation = new StringBuilder();
+        var expr = visit(unaryNode.getJmmChild(0));
+        computation.append(expr.getComputation());
+        String code = "";
+        String temp = OptUtils.getTemp();
+        String ollirType = OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table));
+        code = temp + ollirType;
+        computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(unaryNode.get("value")).append(OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table))).append(SPACE).append(expr.getCode()).append(END_STMT);
+        return new OllirExprResult(code,computation);
+    }
     private OllirExprResult visitBoolean(JmmNode booleanNode, Void unused)
     {
         String code = "";
@@ -62,20 +74,6 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         return new OllirExprResult(code);
 
     }
-
-    private OllirExprResult visitUnaryExpr(JmmNode unaryNode, Void unused)
-    {
-        StringBuilder computation = new StringBuilder();
-        var expr = visit(unaryNode.getJmmChild(0));
-        computation.append(expr.getComputation());
-        String code = "";
-        String temp = OptUtils.getTemp();
-        String ollirType = OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table));
-        code = temp + ollirType;
-        computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(unaryNode.get("value")).append(OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table))).append(SPACE).append(expr.getCode()).append(END_STMT);
-        return new OllirExprResult(code,computation);
-    }
-
     private OllirExprResult visitThisExpr(JmmNode thisNode, Void unused) {
         String code = "";
         StringBuilder computation = new StringBuilder();
@@ -207,7 +205,6 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         }
         return new OllirExprResult("");
     }
-
     private OllirExprResult visitMethodInvocation(JmmNode node, Void unused) {
         String code = "";
         StringBuilder computation = new StringBuilder();
@@ -271,6 +268,9 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         }
         return new OllirExprResult(code,computation);
     }
+
+
+
 
     /**
      * Default visitor. Visits every child node and return an empty result.
