@@ -1,10 +1,11 @@
 class A
 {
-    public int foo()
+    public int foo(int a)
     {
 
         int a;
-        this.foo(a);
+        int b;
+        this.foo();
         return 0;
     }
 

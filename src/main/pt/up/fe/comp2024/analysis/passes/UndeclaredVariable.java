@@ -324,6 +324,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 if (optionalParams.isPresent()) {
                     var params = optionalParams.get();
                     //vargs must be the last parameter of the function
+                    if(params.size() > expr.getNumChildren() -1  || params.size() < expr.getNumChildren() -1 )
+                    {
+                        addReport(Report.newError(Stage.SEMANTIC, 0,0, "The number of parameters is not correct",null));
+                        return null;
+                    }
                     if(!params.isEmpty()) {
                         for (int i = 0; i < params.size(); i++) {
                             //can be var args or a list
