@@ -5,7 +5,7 @@ class A
 
         int a;
         int b;
-        this.foo(a);
+        this.foo();
         return 0;
     }
 
