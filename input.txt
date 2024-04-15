@@ -1,15 +1,19 @@
 class A
 {
+    public static void main(String[] args)
+    {
+        int a;
+        boolean b;
+        int f;
+    }
     public int call()
     {
-        return 0;
-    }
-    public int foo(int a)
-    {
-
         int a;
-        int b;
-        this.foo(this.call() + this.call());
+        a = this.foo([],1,2,3,4);
+        return a;
+    }
+    public int foo(int[] b,int a,int f, int k, int extra)
+    {
         return 0;
     }
 

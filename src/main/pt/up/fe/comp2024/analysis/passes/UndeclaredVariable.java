@@ -367,6 +367,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                         }
                                     }
                                 } else {
+                                    if(i >= expr.getNumChildren() -1)
+                                    {
+                                        addReport(Report.newError(Stage.SEMANTIC,0,0,"Invalid number of parameters",null));
+                                        return null;
+                                    }
                                     var m = visit(expr.getJmmChild(i + 1), table);
                                 }
                             } else {
