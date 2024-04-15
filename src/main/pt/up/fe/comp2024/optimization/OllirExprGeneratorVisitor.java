@@ -212,7 +212,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         StringBuilder params = new StringBuilder(); // to store the parameters
         boolean hasArgs = false;
         Type returnType = new Type("int", false);
-        var ollirType = "";
+        var ollirType = ".V";
         var lhs = visit(node.getJmmChild(0));
         computation.append(lhs.getComputation());
         if(!node.getJmmChild(0).getKind().equals(THIS_EXPR.toString()))

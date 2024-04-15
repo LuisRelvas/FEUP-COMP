@@ -1,11 +1,18 @@
-import io.som;
-class Foo {
-   public int somet(){
-      som somvar;
-      int temp;
-      somvar = new som();
-      temp = somvar.func();
-      return  temp;
-}
+import io;
 
+class CompileMethodInvocation {
+
+    public static void main(String[] args) {
+
+    }
+
+    public int foo() {
+        int a;
+
+        a = 1;
+
+        io.println(a);
+
+        return 0;
+    }
 }
