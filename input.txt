@@ -1,12 +1,15 @@
-import ioPlus;
-class ConditionArgsFuncCall {
-    public int foo()
-    {
-        return 0;
+class CallToUndeclaredMethod {
+
+    public static void main(String[] args) {
+
     }
-    public int func(boolean a, boolean b, boolean c, int d){
-        int kapa;
-        ioPlus.getInt(this.func(a,b,c,this.foo() + this.foo()));
-        return 1;
+
+    public int foo() {
+        CallToUndeclaredMethod a;
+        a = new CallToUndeclaredMethod();
+
+        a.bar();
+
+        return 0;
     }
 }

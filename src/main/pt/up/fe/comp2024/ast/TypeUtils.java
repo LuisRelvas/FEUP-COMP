@@ -70,7 +70,6 @@ public class TypeUtils {
     private static Type getMethodCallExprType(JmmNode methodCallExpr, SymbolTable table)
     {
         var returnType = new Type("Undefined", false);
-        var aux = getExprType(methodCallExpr.getChild(0),table).getName();
 
         if(table.getMethods().contains(methodCallExpr.get("value")) && (methodCallExpr.getChild(0).getKind().equals(Kind.THIS_EXPR.toString()) || getExprType(methodCallExpr.getChild(0),table).getName().equals(table.getClassName())))
         {
@@ -100,7 +99,7 @@ public class TypeUtils {
         var typeIndex = getExprType(index,table);
         if(!typeIndex.getName().equals(INT_TYPE_NAME) || typeIndex.isArray())
         {
-            throw new RuntimeException("Index type is not an integer");
+            return new Type("invalid", false);
         }
         return new Type(typeArray.getName(), false);
     }
@@ -115,7 +114,7 @@ public class TypeUtils {
                 var typeChild = getExprType(arrayExpr.getChildren().get(i),table);
                 if(!type.getName().equals(typeChild.getName()))
                 {
-                    throw new RuntimeException("Array type is not the same as the parent type");
+                    return new Type("invalid", false);
                 }
             }
             return new Type(type.getName(), true);
@@ -130,7 +129,7 @@ public class TypeUtils {
                     var typeChild = getExprType(arrayExpr.getChildren().get(i),table);
                     if(!type.getName().equals(typeChild.getName()))
                     {
-                        throw new RuntimeException("Array type is not the same as the parent type");
+                        return new Type("invalid", false);
                     }
                 }
                 return new Type(type.getName(), true);
@@ -141,7 +140,7 @@ public class TypeUtils {
                 var type = getExprType(arrayExpr.getChildren().get(i),table);
                 if(!type.getName().equals(typeParent.getName()))
                 {
-                    throw new RuntimeException("Array type is not the same as the parent type");
+                    return new Type("invalid", false);
                 }
             }
             return new Type(typeParent.getName(), true);
@@ -154,8 +153,7 @@ public class TypeUtils {
         return switch (operator) {
             case "+", "*", "-", "/" -> new Type(INT_TYPE_NAME, false);
             case "<", ">", "<=", ">=", "==", "!=", "&&", "||" -> new Type(BOOLEAN_TYPE_NAME, false);
-            default ->
-                    throw new RuntimeException("Unknown operator '" + operator + "' of expression '" + binaryExpr + "'");
+            default -> new Type("invalid", false);
         };
     }
 
@@ -199,7 +197,7 @@ public class TypeUtils {
                 return new Type(left, false);
             }
         }
-        return null;
+        return new Type("invalid", false);
     }
 
 
@@ -249,7 +247,7 @@ public class TypeUtils {
             }
         }
 
-        return null;
+        return new Type("invalid",false);
     }
 
     private static Type getVarDeclType(JmmNode varDecl, SymbolTable table) {
@@ -289,7 +287,7 @@ public class TypeUtils {
                 return new Type(varName, false);
             }
         }
-        return null;
+        return new Type("invalid", false);
     }
 
 
