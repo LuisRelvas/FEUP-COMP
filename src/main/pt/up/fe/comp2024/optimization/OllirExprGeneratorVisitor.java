@@ -289,7 +289,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             {
                 computation.append(",").append(params);
             }
-            computation.append(")").append(".V").append(END_STMT);
+            computation.append(")").append(ollirType).append(END_STMT);
 
 
         }

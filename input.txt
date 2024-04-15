@@ -1,14 +1,11 @@
-import java.util.io;
-
-class A
-{
-    public int foo()
-    {
-        io a;
-        a = new io();
-        return 0;
-
-    }
-
+import io.som;
+class Foo {
+   public int somet(){
+      som somvar;
+      int temp;
+      somvar = new som();
+      temp = somvar.func();
+      return  temp;
+}
 
 }
