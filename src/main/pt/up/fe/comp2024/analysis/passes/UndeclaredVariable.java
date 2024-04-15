@@ -323,27 +323,33 @@ public class UndeclaredVariable extends AnalysisVisitor {
                 // check if the parameters are correct
                 if (optionalParams.isPresent()) {
                     var params = optionalParams.get();
-
-
                     //vargs must be the last parameter of the function
-                    for (int i = 0; i < params.size(); i++) {
-                        //can be var args or a list
-                        if (params.get(i).getType().isArray()) {
-                            if (expr.getJmmChild(i + 1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i + 1).getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
-                                for (int j = i + 1; j < expr.getNumChildren(); j++) {
-                                    if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j), table).getName())) {
-                                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                    if(!params.isEmpty()) {
+                        for (int i = 0; i < params.size(); i++) {
+                            //can be var args or a list
+                            if (params.get(i).getType().isArray()) {
+                                if (expr.getJmmChild(i + 1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i + 1).getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
+                                    for (int j = i + 1; j < expr.getNumChildren(); j++) {
+                                        if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j), table).getName())) {
+                                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                        }
                                     }
+                                } else {
+                                    var m = visit(expr.getJmmChild(i + 1), table);
                                 }
                             } else {
-                                var m = visit(expr.getJmmChild(i + 1), table);
-                            }
-                        } else {
-                            if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
-                                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                if (!params.get(i).getType().equals(TypeUtils.getExprType(expr.getChild(i + 1), table))) {
+                                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                }
                             }
                         }
                     }
+                    else if(expr.getNumChildren() > 1)
+                    {
+                        addReport(Report.newError(Stage.SEMANTIC,0,0, "The method signature has more parameters than the method decl!",null));
+                    }
+
+
                 }
             }
         }

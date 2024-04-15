@@ -2,7 +2,9 @@ class A
 {
     public int foo()
     {
-        ioPlus.get();
+
+        int a;
+        this.foo(a);
         return 0;
     }
 
