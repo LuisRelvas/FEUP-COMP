@@ -68,6 +68,11 @@ public class UndeclaredVariable extends AnalysisVisitor {
     }
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
     {
+        if(arrayCreationExpr.getNumChildren() == 0)
+        {
+            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Array creation expression must have at least one element", null));
+            return null;
+        }
         Type type = TypeUtils.getExprType(arrayCreationExpr.getChild(0),table);
         for(int i = 1; i < arrayCreationExpr.getNumChildren(); i++)
         {
@@ -372,6 +377,7 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                         addReport(Report.newError(Stage.SEMANTIC,0,0,"Invalid number of parameters",null));
                                         return null;
                                     }
+
                                     var m = visit(expr.getJmmChild(i + 1), table);
                                 }
                             } else {
