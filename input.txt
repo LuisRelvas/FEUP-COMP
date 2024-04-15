@@ -5,6 +5,7 @@ class Foo {
       int temp;
       somvar = new som();
       temp = somvar.func();
+temp = som.fun();
       return  temp;
 }
 

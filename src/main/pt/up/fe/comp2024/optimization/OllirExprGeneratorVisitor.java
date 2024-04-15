@@ -243,17 +243,25 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
                 hasArgs = true;
             }
-            var temp = OptUtils.getTemp();
-            if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
+            if(node.getParent().getKind().equals(EXPR_STMT.toString()))
             {
+
+            }
+            else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
+            {
+                var temp = OptUtils.getTemp();
                 ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
+                code = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
             else
             {
-            ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
+                var temp = OptUtils.getTemp();
+                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node, table));
+                code = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
-            code = temp + ollirType;
-            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
+            computation.append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
             if(!params.isEmpty())
             {
                 computation.append(",").append(params);
