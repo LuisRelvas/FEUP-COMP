@@ -41,7 +41,39 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         addVisit(NEW_OBJECT_EXPR, this::visitNewObjectExpr);
         addVisit(THIS_EXPR, this::visitThisExpr);
         addVisit(PARENTHESIS_EXPR, this::visitParenthesisExpr);
+        addVisit(BOOLEAN_LITERAL, this::visitBoolean);
+        addVisit(UNARY_EXPR,this::visitUnaryExpr);
         setDefaultVisit(this::defaultVisit);
+    }
+
+    private OllirExprResult visitBoolean(JmmNode booleanNode, Void unused)
+    {
+        String code = "";
+        StringBuilder computation = new StringBuilder();
+        String value = booleanNode.get("value");
+        if(value.equals("false"))
+        {
+            code = "0.bool";
+        }
+        else
+        {
+            code = "1.bool";
+        }
+        return new OllirExprResult(code);
+
+    }
+
+    private OllirExprResult visitUnaryExpr(JmmNode unaryNode, Void unused)
+    {
+        StringBuilder computation = new StringBuilder();
+        var expr = visit(unaryNode.getJmmChild(0));
+        computation.append(expr.getComputation());
+        String code = "";
+        String temp = OptUtils.getTemp();
+        String ollirType = OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table));
+        code = temp + ollirType;
+        computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(unaryNode.get("value")).append(OptUtils.toOllirType(TypeUtils.getExprType(unaryNode,table))).append(SPACE).append(expr.getCode()).append(END_STMT);
+        return new OllirExprResult(code,computation);
     }
 
     private OllirExprResult visitThisExpr(JmmNode thisNode, Void unused) {
@@ -124,12 +156,58 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
 
     private OllirExprResult visitVarRef(JmmNode node, Void unused) {
         StringBuilder computation = new StringBuilder();
-        var id = node.get("value");
-        Type type = TypeUtils.getExprType(node, table);
-        String ollirType = OptUtils.toOllirType(type);
-        String code = id + ollirType;
-        return new OllirExprResult(code,computation);
+        var fields = table.getFields();
+        var optionalParams = table.getParametersTry(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
+        var inFields = false;
+        var inParams = false;
+        var inLocals = false;
+        for(Symbol s : fields)
+        {
+            if(s.getName().equals(node.get("value"))) {
+                inFields = true;
+            }
+        }
+        if(optionalParams.isPresent())
+        {
+            for(Symbol s : optionalParams.get())
+            {
+                if(s.getName().equals(node.get("value")))
+                {
+                    inParams = true;
+                }
+            }
+        }
+        if(optionalLocals.isPresent())
+        {
+            for(Symbol s : optionalLocals.get())
+            {
+                if(s.getName().equals(node.get("value")))
+                {
+                    inLocals = true;
+                }
+            }
+        }
+        if(inLocals || inParams)
+        {
+            var id = node.get("value");
+            Type type = TypeUtils.getExprType(node, table);
+            String ollirType = OptUtils.toOllirType(type);
+            String code = id + ollirType;
+            return new OllirExprResult(code,computation);
+        }
+        else if(inFields)
+        {
+            var temp = OptUtils.getTemp();
+            Type type = TypeUtils.getExprType(node, table);
+            String ollirType = OptUtils.toOllirType(type);
+            String code = temp + ollirType;
+            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append("getfield").append(SPACE).append("(").append("this").append(",").append(node.get("value")).append(ollirType).append(")").append(ollirType).append(END_STMT);
+            return new OllirExprResult(code,computation);
+        }
+        return new OllirExprResult("");
     }
+
     private OllirExprResult visitMethodInvocation(JmmNode node, Void unused) {
         String code = "";
         StringBuilder computation = new StringBuilder();
