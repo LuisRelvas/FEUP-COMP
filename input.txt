@@ -1,21 +1,15 @@
 import ioPlus;
-class Recursion {
-
-    public int fact(int n) {
-        int result;
-        if (n < 2)
-            result = 1;
-        else
-            result = n * this.fact(n - 1);
-
-        return result;
+class A
+{
+    public int foo(int a,int b)
+    {
+        ioPlus io;
+        int f;
+        io = new ioPlus();
+        f = io.getInt();
+        this.foo(a,f);
+        return 0;
     }
 
-	public static void main(String[] args) {
-	    Recursion r;
 
-	    r = new Recursion();
-
-	    ioPlus.printResult(r.fact(5));
-	}
 }
