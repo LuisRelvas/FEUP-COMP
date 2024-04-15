@@ -245,7 +245,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
             }
             if(node.getParent().getKind().equals(EXPR_STMT.toString()))
             {
-                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node,table));
+
             }
             else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
@@ -310,6 +310,7 @@ public class OllirExprGeneratorVisitor extends PreorderJmmVisitor<Void, OllirExp
         }
         return new OllirExprResult(code,computation);
     }
+
 
 
 
