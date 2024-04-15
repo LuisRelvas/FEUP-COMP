@@ -1,11 +1,18 @@
-import ioPlus;
-class A
-{
-    public int foo(int a,int b)
-    {
-        ioPlus.out().println();
-        return 0;
+import io;
+
+class CompileMethodInvocation {
+
+    public static void main(String[] args) {
+
     }
 
+    public int foo() {
+        int a;
 
+        a = 1;
+
+        io.println(a);
+
+        return 0;
+    }
 }
