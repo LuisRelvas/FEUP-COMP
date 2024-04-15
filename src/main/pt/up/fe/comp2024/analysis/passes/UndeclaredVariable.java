@@ -363,9 +363,17 @@ public class UndeclaredVariable extends AnalysisVisitor {
 
                             //can be var args or a list
                             if (params.get(i).getType().isArray()) {
+                                //avoid the exception here
+                                if (i >= expr.getNumChildren() - 1) {
+                                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Invalid number of parameters", null));
+                                }
                                 if (expr.getJmmChild(i + 1).getKind().equals(Kind.INTEGER_LITERAL.toString()) || expr.getJmmChild(i + 1).getKind().equals(Kind.BOOLEAN_LITERAL.toString())) {
                                     for (int j = i + 1; j < expr.getNumChildren(); j++) {
                                         hasArray = true;
+                                        //avoid the exception here
+                                        if (j >= expr.getNumChildren()) {
+                                            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Invalid number of parameters", null));
+                                        }
                                         if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j), table).getName())) {
                                             addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                                             return null;

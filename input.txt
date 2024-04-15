@@ -2,19 +2,22 @@ class A
 {
     public static void main(String[] args)
     {
-        int a;
-        boolean b;
-        int f;
+       A a;
+       int b;
+        a = new A();
+        b = a.call()
+       a.foo(a.call() + 1, b, a.call() + 2;
+
     }
     public int call()
-    {
-        int a;
-        a = this.foo([],1,2,3,4);
-        return a;
-    }
-    public int foo(int[] b,int a,int f, int k, int extra)
     {
         return 0;
     }
 
+    public int foo(int[] b)
+    {
+        A a;
+        a = new A();
+        return 0;
+    }
 }
