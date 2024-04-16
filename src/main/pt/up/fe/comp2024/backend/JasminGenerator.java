@@ -145,33 +145,14 @@ public class JasminGenerator {
                 var args = callInstruction.getOperands();
                 if(args.size()>2){
                     for(int i = 2; i < args.size(); i++){
-                        Element arg = args.get(i);
-                        if (arg instanceof Operand) {
-                            Operand op = (Operand) arg;
-                            var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
-                            if(arg.getType().toString().equals("INT32") || arg.getType().toString().equals("BOOLEAN")){
-                                answer.append("iload "+reg+NL);
-                            }
-                            else{
-                                answer.append("aload "+reg+NL);
-                            }
+                        Operand op = (Operand) args.get(i);
+                        var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
+                        if(args.get(i).getType().toString().equals("INT32") || args.get(i).getType().toString().equals("BOOLEAN")){
+                            answer.append("iload "+reg+NL);
                         }
-                        else if(arg instanceof LiteralElement)
-                        {
-                            LiteralElement literal = (LiteralElement) arg;
-                            switch(literal.getType().toString()){
-                                case "INT32":
-                                    answer.append("bipush "+literal.toString()+NL);
-                                    break;
-                                case "BOOLEAN":
-                                    answer.append("bipush "+literal.toString()+NL);
-                                    break;
-                                case "STRING":
-                                    answer.append("ldc "+literal.toString()+NL);
-                                    break;
-                            }
+                        else{
+                            answer.append("aload "+reg+NL);
                         }
-
                     }
                 }
                 int ind1 = callInstruction.getMethodName().toString().indexOf('"');
