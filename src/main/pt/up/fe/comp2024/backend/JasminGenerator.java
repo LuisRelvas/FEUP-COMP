@@ -221,12 +221,12 @@ public class JasminGenerator {
 
     private String generateClassUnit(ClassUnit classUnit) {
         var code = new StringBuilder();
-        //java.qlq.fixe
+
         this.imports = classUnit.getImports();
+
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
         String superClass = classUnit.getSuperClass();
-
         if (superClass == null || superClass.equals("Object")){
             superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
@@ -237,7 +237,7 @@ public class JasminGenerator {
         //fields
         StringBuilder fields = new StringBuilder();
         for (var field : classUnit.getFields()){
-            fields.append(".field public");
+            fields.append(".field public ");
             fields.append(field.getFieldName()).append(SPACE);
             fields.append(ollirToJasminType(field.getFieldType().toString())).append(NL);
         }
