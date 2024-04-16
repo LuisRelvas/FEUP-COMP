@@ -152,7 +152,22 @@ public class JasminGenerator {
                 ind2 = argAux2.indexOf('.');
                 String functionClass = argAux2.substring(0, ind2);
                 answer.append("invokestatic ");
-                answer.append(functionClass+"/"+function+"(");
+                functionClass = functionClass+"/"+function;
+                for(var i : this.imports)
+                {
+                    if(i.contains("."))
+                    {
+                        var integer = i.lastIndexOf(".");
+                        var substring = i.substring(integer +1 ,i.length());
+                        if(substring.equals(function))
+                        {
+                            functionClass = i;
+                            functionClass = functionClass.replace(".", "/");
+                        }
+                    }
+                }
+
+                answer.append(functionClass+"(");
                 if(args.size() >2){
                     for(int i = 2; i < args.size(); i++){
                         answer.append(ollirToJasminType(args.get(i).getType().toString()));
