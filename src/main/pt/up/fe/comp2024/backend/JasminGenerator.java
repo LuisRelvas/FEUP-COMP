@@ -97,7 +97,7 @@ public class JasminGenerator {
         putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
         putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
         putCode.append("aload_0"+NL);
-        System.out.println(putCode.toString());
+
 
         return putCode.toString();
     }
@@ -132,7 +132,6 @@ public class JasminGenerator {
                     for(int i = 2; i < args.size(); i++){
                         Operand op = (Operand) args.get(i);
                         var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
-                        System.out.println(args.get(i).getType());
                         if(args.get(i).getType().toString().equals("INT32") || args.get(i).getType().toString().equals("BOOLEAN")){
                             answer.append("iload "+reg+NL);
                         }
@@ -389,13 +388,11 @@ public class JasminGenerator {
         // get register
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
         var type = currentMethod.getVarTable().get(operand.getName()).getVarType();
-        switch(type.toString()){
-            case "INT32" :
-                return "iload "+reg+NL;
-            case "BOOLEAN" :
-                return "iload "+reg+NL;
-            default:
-                return  "aload "+reg+NL;
+        if(type.toString().equals("INT32") || type.toString().equals("BOOLEAN")){
+            return "iload "+reg+NL;
+        }
+        else{
+            return "aload "+reg+NL;
         }
     }
 
