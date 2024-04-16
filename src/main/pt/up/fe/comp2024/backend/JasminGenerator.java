@@ -197,7 +197,7 @@ public class JasminGenerator {
                     answer.append(answerAux);
                 } else {
                     answer.append("/<init>()V" + NL);
-                    //answer.append("pop" + NL);
+                    answer.append("pop" + NL);
                 }
             }
         }
@@ -221,6 +221,7 @@ public class JasminGenerator {
 
     private String generateClassUnit(ClassUnit classUnit) {
         var code = new StringBuilder();
+        //java.qlq.fixe
         this.imports = classUnit.getImports();
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
@@ -246,8 +247,8 @@ public class JasminGenerator {
 
         //fields
         StringBuilder fields = new StringBuilder();
-        for (var field :classUnit.getFields()){
-            fields.append(".field private");
+        for (var field : classUnit.getFields()){
+            fields.append(".field public");
             fields.append(field.getFieldName()).append(SPACE);
             fields.append(ollirToJasminType(field.getFieldType().toString())).append(NL);
         }
