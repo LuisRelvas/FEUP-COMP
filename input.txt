@@ -1,24 +1,12 @@
-import A;
+import io;
 
-class T1NoReports {
+class A {
 
-    int z;
+	int a;
 
-    int param(int x) {
-        return x;
-    }
-
-    int local() {
-        int y;
-        y = 0;
-        return y;
-    }
-
-    int field() {
-        return z;
-    }
-
-    int importUse() {
-        return A.getInt();
+    public static void main(String[] args){
+        int a;
+        a = 10;
+        io.print(10);
     }
 }
