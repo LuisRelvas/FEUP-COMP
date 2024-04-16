@@ -175,19 +175,19 @@ public class TypeUtils {
                 }
             }
         }
-        for(Symbol s : fields)
-        {
-            if (s.getName().equals(left))
-            {
-                return s.getType();
-            }
-        }
         if(optionalParams.isPresent()) {
             var params = optionalParams.get();
             for (Symbol s : params) {
                 if (s.getName().equals(left)) {
                     return s.getType();
                 }
+            }
+        }
+        for(Symbol s : fields)
+        {
+            if (s.getName().equals(left))
+            {
+                return s.getType();
             }
         }
         for (String s: imports)
