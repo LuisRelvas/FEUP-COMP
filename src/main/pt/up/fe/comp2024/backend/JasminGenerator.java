@@ -183,6 +183,19 @@ public class JasminGenerator {
                 int indx1 = caller.indexOf("(");
                 int indx2 = caller.indexOf(")");
                 String callerName = caller.substring(indx1 + 1, indx2);
+                for(var i : this.imports)
+                {
+                    if(i.contains("."))
+                    {
+                        var integer = i.lastIndexOf(".");
+                        var substring = i.substring(integer +1 ,i.length());
+                        if(substring.equals(callerName))
+                        {
+                            callerName = i;
+                            callerName = callerName.replace(".", "/");
+                        }
+                    }
+                }
                 answerAux.append(callerName);
                 if (callInstruction.getMethodName().getType().toString().equals("STRING")) {
                     int ind1 = callInstruction.getMethodName().toString().indexOf('"');
