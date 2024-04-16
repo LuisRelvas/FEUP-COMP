@@ -236,6 +236,7 @@ public class JasminGenerator {
             if(substring.equals(superClass))
             {
                 superClass = i;
+                superClass = superClass.replace(".", "/");
             }
             }
         }
