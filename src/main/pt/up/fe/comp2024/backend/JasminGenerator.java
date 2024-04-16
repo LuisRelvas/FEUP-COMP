@@ -225,7 +225,18 @@ public class JasminGenerator {
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
         String superClass = classUnit.getSuperClass();
-
+        for(var i : imports)
+        {
+            if(i.contains("."))
+            {
+            var integer = i.lastIndexOf(".");
+            var substring = i.substring(integer +1 ,i.length());
+            if(substring.equals(superClass))
+            {
+                superClass = i;
+            }
+            }
+        }
         if (superClass == null || superClass.equals("Object")){
             superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
