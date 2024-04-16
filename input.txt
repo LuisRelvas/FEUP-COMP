@@ -1,17 +1,4 @@
-import B;
-
-class A{
-    public int call(int a)
-    {
-        return 0;
-
-    }
-    public int foo()
-    {
-        int f;
-        A a;
-        a = new A();
-        a.call((new A()).foo());
-        return 0;
-    }
+import java.util.list;
+import java.util.arrayList;
+class A extends arrayList {
 }
