@@ -27,6 +27,8 @@ public class JasminGenerator {
 
     private final OllirResult ollirResult;
 
+    List<String> imports;
+
     List<Report> reports;
 
     String code;
@@ -97,7 +99,7 @@ public class JasminGenerator {
         putCode.append(getFunctionObjectName(putFieldInstruction.getOperands().get(0).toString()) + "/");
         putCode.append(putFieldInstruction.getField().getName() + SPACE + ollirToJasminType(putFieldInstruction.getField().getType().toString())+NL);
         putCode.append("aload_0"+NL);
-        System.out.println(putCode.toString());
+
 
         return putCode.toString();
     }
@@ -128,11 +130,10 @@ public class JasminGenerator {
             if(callInstruction.getInvocationType().toString().equals("invokestatic")){
 
                 var args = callInstruction.getOperands();
-                if(args.size() >2){
+                if(args.size()>2){
                     for(int i = 2; i < args.size(); i++){
                         Operand op = (Operand) args.get(i);
                         var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
-                        System.out.println(args.get(i).getType());
                         if(args.get(i).getType().toString().equals("INT32") || args.get(i).getType().toString().equals("BOOLEAN")){
                             answer.append("iload "+reg+NL);
                         }
@@ -141,8 +142,6 @@ public class JasminGenerator {
                         }
                     }
                 }
-
-
                 int ind1 = callInstruction.getMethodName().toString().indexOf('"');
                 String argAux = callInstruction.getMethodName().toString().substring(ind1 + 1);
                 int ind2 = argAux.indexOf('"');
@@ -222,12 +221,11 @@ public class JasminGenerator {
 
     private String generateClassUnit(ClassUnit classUnit) {
         var code = new StringBuilder();
-
+        this.imports = classUnit.getImports();
         var className = ollirResult.getOllirClass().getClassName();
         code.append(".class ").append(className).append(NL);
         String superClass = classUnit.getSuperClass();
 
-        // TODO: poderá dar problemas
         if (superClass == null || superClass.equals("Object")){
             superClass = "java/lang/Object";
             code.append(".super "+ superClass).append(NL).append(NL);
@@ -277,14 +275,16 @@ public class JasminGenerator {
     }
 
     private String ollirToJasminType(String ollirType){
+
         String answer = switch (ollirType){
             // TODO : outros return types /A
             case "INT32" -> "I";
             case "BOOLEAN" -> "Z";
             case "VOID" -> "V";
             case "STRING[]" -> "[Ljava/lang/String;"; //TODO : de momento está brute force, arrays são apenas tratados no cp3 /A
-            default -> ollirType;
+            default -> "A";
         };
+
         return answer;
     }
 
@@ -292,7 +292,6 @@ public class JasminGenerator {
 
         // set method
         currentMethod = method;
-
         var code = new StringBuilder();
         String isStatic = "";
         if (method.isStaticMethod()){
@@ -389,13 +388,11 @@ public class JasminGenerator {
         // get register
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
         var type = currentMethod.getVarTable().get(operand.getName()).getVarType();
-        switch(type.toString()){
-            case "INT32" :
-                return "iload "+reg+NL;
-            case "BOOLEAN" :
-                return "iload "+reg+NL;
-            default:
-                return  "aload "+reg+NL;
+        if(type.toString().equals("INT32") || type.toString().equals("BOOLEAN")){
+            return "iload "+reg+NL;
+        }
+        else{
+            return "aload "+reg+NL;
         }
     }
 
