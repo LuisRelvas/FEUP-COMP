@@ -1,12 +1,27 @@
-class A
-{
-    public int foo(int a)
-    {
+import io;
 
-        int a;
-        int b;
-        this.foo();
-        return 0;
+class CompileMethodInvocation {
+
+    public static void main(String[] args) {
+
     }
 
+    public boolean call()
+    {
+        return true;
+    }
+
+    public int foo() {
+        int a;
+
+        boolean b;
+
+        CompileMethodInvocation ant;
+
+        ant = new CompileMethodInvocation();
+
+        ant.call();
+
+        return 0;
+    }
 }
