@@ -1,27 +1,17 @@
-import io;
+import B;
 
-class CompileMethodInvocation {
-
-    public static void main(String[] args) {
-
-    }
-
-    public boolean call()
+class A{
+    public int call(int a)
     {
-        return true;
+        return 0;
+
     }
-
-    public int foo() {
-        int a;
-
-        boolean b;
-
-        CompileMethodInvocation ant;
-
-        ant = new CompileMethodInvocation();
-
-        ant.call();
-
+    public int foo()
+    {
+        int f;
+        A a;
+        a = new A();
+        a.call((new A()).foo());
         return 0;
     }
 }
