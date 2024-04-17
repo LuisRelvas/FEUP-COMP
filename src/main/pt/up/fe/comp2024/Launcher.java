@@ -52,7 +52,6 @@ public class Launcher {
         JasminBackendImpl jasminGen = new JasminBackendImpl();
         JasminResult jasminResult = jasminGen.toJasmin(ollirResult);
         TestUtils.noErrors(jasminResult.getReports());
-
         // Print Jasmin code
         System.out.println(jasminResult.getJasminCode());
 

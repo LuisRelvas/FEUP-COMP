@@ -27,4 +27,14 @@ public class AppTest {
         var result = TestUtils.runJasmin(jasminResult.getJasminCode(), Collections.emptyMap());
         assertEquals("30", result.strip());
     }
+
+    @Test
+    public void testParams()
+    {
+        var code = SpecsIo.getResource("pt/up/fe/comp/cp2/apps/Fields.jmm");
+        var jasminResult = TestUtils.backend(code, Collections.emptyMap());
+        System.out.println(jasminResult.getJasminCode());
+        var result = TestUtils.runJasmin(jasminResult.getJasminCode(), Collections.emptyMap());
+        System.out.println(result.strip());
+    }
 }
