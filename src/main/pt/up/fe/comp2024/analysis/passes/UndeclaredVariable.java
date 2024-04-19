@@ -36,39 +36,8 @@ public class UndeclaredVariable extends AnalysisVisitor {
         addVisit(Kind.VAR_REF, this::visitVarRef);
         addVisit(Kind.METHOD_CALL_EXPR, this::visitMethodCallExpr);
         addVisit(Kind.VAR_DECL, this::visitVarDecl);
-        addVisit(Kind.IMPORT_DECLARATION, this::visitImportDecl);
     }
 
-    private Void visitImportDecl(JmmNode importDecl, SymbolTable table)
-    {
-        var imports = table.getImports();
-        var refactoredImports = new ArrayList<String>();
-        var wholePathImports = new ArrayList<String>();
-        //check if the import is complex if so only consider the last part of the import
-        for(var s : imports)
-        {
-            if(s.contains("."))
-            {
-                var whole = wholePathImports.add(s);
-                var aux = s.split("\\.");
-                refactoredImports.add(aux[aux.length - 1]);
-            }
-            else {
-                refactoredImports.add(s);
-            }
-        }
-        //check in the refactoredImports list if the import is duplicated
-        for(var s : refactoredImports)
-        {
-            int frequency = Collections.frequency(refactoredImports,s);
-            if(frequency > 1)
-            {
-                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Import " + s + " is duplicated", null));
-                return null;
-            }
-        }
-       return null;
-    }
 
     private Void visitVarDecl(JmmNode varDecl, SymbolTable table)
     {
