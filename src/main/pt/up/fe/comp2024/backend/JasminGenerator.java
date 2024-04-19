@@ -293,8 +293,8 @@ public class JasminGenerator {
 
     private void loadOperand(StringBuilder result, Operand operand) {
         switch (operand.getType().getTypeOfElement()) {
-            case INT32, BOOLEAN -> result.append("iload").append(buildVarName(operand.getName()));
-            case OBJECTREF, STRING, ARRAYREF -> result.append("aload").append(buildVarName(operand.getName()));
+            case INT32, BOOLEAN -> result.append("iload").append(buildVariableStr(operand.getName()));
+            case OBJECTREF, STRING, ARRAYREF -> result.append("aload").append(buildVariableStr(operand.getName()));
             case THIS -> result.append("aload_0");
             default -> throw new NotImplementedException(operand.getType().getTypeOfElement());
         }
@@ -309,16 +309,16 @@ public class JasminGenerator {
 
         switch (elementType) {
             case OBJECTREF, THIS, STRING, ARRAYREF -> {
-                str.append("astore").append(buildVarName(variableName));
+                str.append("astore").append(buildVariableStr(variableName));
             }
             case INT32, BOOLEAN -> {
                 if (currentMethod.getVarTable().get(variableName).getVarType().getTypeOfElement().equals(ElementType.ARRAYREF)) {
                     str.append("iastore");
                 } else {
-                    str.append("istore").append(buildVarName(variableName)).append(NL);
+                    str.append("istore").append(buildVariableStr(variableName)).append(NL);
                     if(variable.getName().startsWith("tmp"))
                     {
-                        str.append("iload").append(buildVarName(variableName)).append(NL);
+                        str.append("iload").append(buildVariableStr(variableName)).append(NL);
                     }
                 }
             }
@@ -463,7 +463,7 @@ public class JasminGenerator {
         return result.toString();
     }
 
-    private String buildVarName(String var) {
+    private String buildVariableStr(String var) {
         StringBuilder result = new StringBuilder();
         var register = currentMethod.getVarTable().get(var).getVirtualReg();
 
