@@ -34,6 +34,7 @@ public enum Kind {
     NEW_OBJECT_EXPR,
     VAR_EXPR,
 
+    BLOCK_STMT,
     THIS_EXPR,
     NEW_ARRAY_EXPR,
 

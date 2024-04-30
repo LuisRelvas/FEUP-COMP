@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static pt.up.fe.comp2024.ast.Kind.*;
+import static pt.up.fe.comp2024.ast.TypeUtils.getExprType;
 
 /**
  * Generates OLLIR code from JmmNodes that are not expressions.
@@ -52,11 +53,81 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         addVisit(ASSIGN_STMT, this::visitAssignStmt);
         addVisit(VAR_DECL, this::visitVarDecl);
         addVisit(EXPR_STMT, this::visitExpr);
-
-
+        addVisit(IF_STMT, this::visitIfStmt);
+        addVisit(BLOCK_STMT,this::visitBlockStmt);
+        addVisit(WHILE_STMT,this::visitWhileStmt);
+        addVisit(ARRAY_ASSIGN_STMT,this::visitArrayAssignStmt);
         setDefaultVisit(this::defaultVisit);
     }
 
+
+
+    private String visitArrayAssignStmt(JmmNode arrayAssignStmt, Void unused)
+    {
+        StringBuilder computation = new StringBuilder();
+        String code = "";
+        var type = OptUtils.toOllirType(getExprType(arrayAssignStmt,table));
+        var index = exprVisitor.visit(arrayAssignStmt.getJmmChild(0));
+        var assign = exprVisitor.visit(arrayAssignStmt.getJmmChild(1));
+        computation.append(index.getComputation());
+        computation.append(assign.getComputation());
+        computation.append(arrayAssignStmt.get("value")).append("[").append(index.getCode()).append("]").append(type).append(SPACE).append(ASSIGN).append(SPACE).append(type).append(SPACE).append(assign.getCode()).append(END_STMT);
+        return computation.toString();
+    }
+    private String visitWhileStmt(JmmNode whileStmt, Void unused)
+    {
+        String code = "";
+        StringBuilder computation  = new StringBuilder();
+        int counter = 0;
+        var boolExpr = exprVisitor.visit(whileStmt.getJmmChild(0));
+        computation.append("goto ").append("while_cond_").append(counter).append(END_STMT);
+        computation.append("while_body_").append(counter).append(":").append(NL);
+        var stmt = visit(whileStmt.getJmmChild(1));
+        computation.append(stmt);
+        computation.append("while_cond_").append(counter).append(":").append(NL);
+        computation.append(boolExpr.getComputation());
+        computation.append("if( ").append(boolExpr.getCode()).append(" )").append("goto while_body_").append(counter).append(END_STMT);
+        return computation.toString();
+    }
+
+    private String visitBlockStmt(JmmNode blockStmt, Void unused)
+    {
+        StringBuilder code = new StringBuilder();
+        for (var child : blockStmt.getChildren()) {
+            var childCode = visit(child);
+            code.append(childCode);
+        }
+        return code.toString();
+    }
+
+    private int getCounterIfStmt(int counter)
+    {
+        counter += 1;
+        return counter;
+    }
+
+    private String visitIfStmt(JmmNode ifStmt, Void unused)
+    {
+        StringBuilder computation = new StringBuilder();
+        int counter = 0;
+        int aux;
+        //Primeira child é a boolean expr
+        var expr = exprVisitor.visit(ifStmt.getJmmChild(0));
+        //Block stmt do else
+        if(ifStmt.getChild(2).getChild(0).getKind().equals(IF_STMT.toString()))
+        {
+             aux = getCounterIfStmt(counter);
+        }
+        var stmt = visit(ifStmt.getJmmChild(2));
+        computation.append(expr.getComputation());
+        computation.append("if( ").append(expr.getCode()).append(" )").append("goto").append(SPACE).append("if_then_").append(counter).append(END_STMT);
+        computation.append(stmt).append("goto").append(SPACE).append("if_end_").append(counter).append(END_STMT);
+        computation.append("if_then_").append(counter).append(":").append(NL);
+        //Block stmt do if
+        computation.append(visit(ifStmt.getJmmChild(1)));
+        computation.append("if_end_").append(counter).append(":").append(NL);
+        return computation.toString();
+    }
 
     private String visitVarDecl(JmmNode var, Void unused) {
         //fields
@@ -88,7 +159,7 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
 
     private String visitAssignStmt(JmmNode node, Void unused) {
         var lhs = node.get("value");
-        var utilsType = TypeUtils.getExprType(node,table);
+        var utilsType = getExprType(node,table);
         var ollirType = OptUtils.toOllirType(utilsType);
         var rhs = exprVisitor.visit(node.getChild(0));
         //check where it is defined
@@ -213,6 +284,11 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
             if(i == params.size()-1)
             {
                 computation.append(s.getName());
+                if (s.getType().isArray())
+                {
+                    computation.append(".array");
+                }
+
                 computation.append(OptUtils.toOllirType(s.getType()));
 
             }
