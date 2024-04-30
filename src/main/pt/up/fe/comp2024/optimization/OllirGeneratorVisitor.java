@@ -34,6 +34,8 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
     private final OllirExprGeneratorVisitor exprVisitor;
 
     private String currentMethod;
+    int counter_IF = -1;
+    int counter_WHILE = -1;
 
     public OllirGeneratorVisitor(SymbolTable table) {
         this.table = table;
@@ -77,16 +79,18 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
     private String visitWhileStmt(JmmNode whileStmt, Void unused)
     {
         String code = "";
+        int aux;
         StringBuilder computation  = new StringBuilder();
-        int counter = 0;
         var boolExpr = exprVisitor.visit(whileStmt.getJmmChild(0));
-        computation.append("goto ").append("while_cond_").append(counter).append(END_STMT);
-        computation.append("while_body_").append(counter).append(":").append(NL);
+        counter_WHILE = getCounterWhileStmt(counter_WHILE);
+        aux = counter_WHILE;
+        computation.append("goto ").append("while_cond_").append(aux).append(END_STMT);
+        computation.append("while_body_").append(aux).append(":").append(NL);
         var stmt = visit(whileStmt.getJmmChild(1));
         computation.append(stmt);
-        computation.append("while_cond_").append(counter).append(":").append(NL);
+        computation.append("while_cond_").append(aux).append(":").append(NL);
         computation.append(boolExpr.getComputation());
-        computation.append("if( ").append(boolExpr.getCode()).append(" )").append("goto while_body_").append(counter).append(END_STMT);
+        computation.append("if( ").append(boolExpr.getCode()).append(" )").append("goto while_body_").append(aux).append(END_STMT);
         return computation.toString();
     }
 
@@ -100,6 +104,12 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         return code.toString();
     }
 
+    private int getCounterWhileStmt(int counter)
+    {
+        counter += 1;
+        return counter;
+    }
+
     private int getCounterIfStmt(int counter)
     {
         counter += 1;
@@ -109,23 +119,20 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
     private String visitIfStmt(JmmNode ifStmt, Void unused)
     {
         StringBuilder computation = new StringBuilder();
-        int counter = 0;
         int aux;
         //Primeira child é a boolean expr
         var expr = exprVisitor.visit(ifStmt.getJmmChild(0));
         //Block stmt do else
-        if(ifStmt.getChild(2).getChild(0).getKind().equals(IF_STMT.toString()))
-        {
-             aux = getCounterIfStmt(counter);
-        }
+        counter_IF = getCounterIfStmt(counter_IF);
+        aux =  counter_IF;
         var stmt = visit(ifStmt.getJmmChild(2));
         computation.append(expr.getComputation());
-        computation.append("if( ").append(expr.getCode()).append(" )").append("goto").append(SPACE).append("if_then_").append(counter).append(END_STMT);
-        computation.append(stmt).append("goto").append(SPACE).append("if_end_").append(counter).append(END_STMT);
-        computation.append("if_then_").append(counter).append(":").append(NL);
+        computation.append("if( ").append(expr.getCode()).append(" )").append("goto").append(SPACE).append("if_then_").append(aux).append(END_STMT);
+        computation.append(stmt).append("goto").append(SPACE).append("if_end_").append(aux).append(END_STMT);
+        computation.append("if_then_").append(aux).append(":").append(NL);
         //Block stmt do if
         computation.append(visit(ifStmt.getJmmChild(1)));
-        computation.append("if_end_").append(counter).append(":").append(NL);
+        computation.append("if_end_").append(aux).append(":").append(NL);
         return computation.toString();
     }
 
