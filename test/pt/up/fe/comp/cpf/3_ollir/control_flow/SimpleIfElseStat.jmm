@@ -7,14 +7,6 @@ class SimpleIfElseStat {
 		
         if(a < b){
           result = a;
-          if(result > 3)
-          {
-            result = b;
-          }
-          else
-          {
-            result = a;
-          }
         } else {
 			result = b;
         }
