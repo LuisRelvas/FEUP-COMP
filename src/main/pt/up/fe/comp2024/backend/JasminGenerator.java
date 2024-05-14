@@ -12,6 +12,7 @@ import pt.up.fe.specs.util.utilities.StringLines;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -418,8 +419,6 @@ public class JasminGenerator {
                 int indx2 = caller.indexOf(".");
                 String callerName = caller.substring(indx1+1, indx2);
                 var reg = currentMethod.getVarTable().get(callerName).getVirtualReg();
-                System.out.println(callInstruction.getCaller());
-                System.out.println(TAB+reg);
                 answer.append(loader("a",reg)+NL); //TODO rever para o tipo de caller // será necessário?
                 //objref pushado para a stack
                 var args = callInstruction.getArguments();
@@ -649,12 +648,24 @@ public class JasminGenerator {
         //TOdo clacular limit stack ver o tamanho máximo que a stack ocupa dentro de um método
         code.append(TAB).append(".limit stack 99").append(NL);
 
-        int limitLocals = this.currentMethod.getVarTable().size()+this.currentMethod.getParams().size();
-        System.out.println(this.currentMethod.getParams().size());
-        System.out.println(this.currentMethod.getVarTable().size());
-        if(!this.currentMethod.getMethodName().equals("main")){
-            limitLocals++;
+        int limitLocals = this.currentMethod.getVarTable().size();
+        System.out.println(this.currentMethod.getVarTable());
+        System.out.println(limitLocals);
+        for(var argument: this.currentMethod.getParams()){
+            int ind1 = argument.toString().indexOf(" ");
+            int ind2 = argument.toString().indexOf(".");
+            String name = argument.toString().substring(ind1+1,ind2);
+            if(this.currentMethod.getVarTable().get(name)==null){
+                limitLocals++;
+            }
         }
+        System.out.println(limitLocals);
+        if(!this.currentMethod.getMethodName().equals("main")){
+            if(this.currentMethod.getVarTable().get("this")==null){
+                limitLocals++;
+            }
+        }
+        System.out.println(limitLocals);
         //code.append(TAB).append(".limit stack ").append(limitLocals).append(NL);
         code.append(TAB).append(".limit locals ").append(limitLocals).append(NL);
 
