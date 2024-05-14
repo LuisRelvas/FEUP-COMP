@@ -84,13 +84,18 @@ public class JasminGenerator {
     }
 
     private String generateUnariyOperator(UnaryOpInstruction unaryOpInstruction) {
-        //TODO rever bem isto, confuso
+        //TODO rever,o ixor não parece estar correto
         StringBuilder answer = new StringBuilder();
-        var op = (Operand) unaryOpInstruction.getOperand();
-        var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
-        answer.append(loader("i",reg)+NL);
-        answer.append("iconst_1"+NL);
-        curStackSize++;
+        if(unaryOpInstruction.getOperand().getClass().toString().equals("class org.specs.comp.ollir.LiteralElement")){
+            answer.append(generators.apply(unaryOpInstruction.getOperand()));
+            answer.append("iconst_1"+NL);
+        }
+        else{
+            var op = (Operand) unaryOpInstruction.getOperand();
+            var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
+            answer.append(loader("i",reg)+NL);
+            answer.append("iconst_1"+NL);
+        }
         curStackSize++;
         if(this.curStackSize>this.maxStackSize){
             this.maxStackSize=this.curStackSize;
@@ -102,23 +107,29 @@ public class JasminGenerator {
 
     private String generateArrayOperand(ArrayOperand arrayOperand) {
         StringBuilder answer = new StringBuilder();
-        var index = (Operand) arrayOperand.getIndexOperands().get(0);
-        var reg = currentMethod.getVarTable().get(arrayOperand.getName()).getVirtualReg();
-        if(arrayOperand.getType().toString().equals("INT32")){
-            answer.append(loader("a",reg)+NL);
-            var reg2 = currentMethod.getVarTable().get(index.getName()).getVirtualReg();
-            answer.append(loader("i",reg2)+NL);
-            answer.append("iaload"+NL);
-            curStackSize--;
+        if(arrayOperand.getIndexOperands().get(0).getClass().toString().equals("class org.specs.comp.ollir.LiteralElement")){
+            answer.append(generators.apply(arrayOperand.getIndexOperands().get(0)));
+        }
+        else{
+            var index = (Operand) arrayOperand.getIndexOperands().get(0);
+            var reg = currentMethod.getVarTable().get(arrayOperand.getName()).getVirtualReg();
+            if(arrayOperand.getType().toString().equals("INT32")){
+                answer.append(loader("a",reg)+NL);
+                var reg2 = currentMethod.getVarTable().get(index.getName()).getVirtualReg();
+                answer.append(loader("i",reg2)+NL);
+                answer.append("iaload"+NL);
+                curStackSize--;
 
+            }
+            else if(arrayOperand.getType().toString().equals("BOOLEAN")){
+                answer.append(loader("a",reg)+NL);
+                var reg2 = currentMethod.getVarTable().get(index.getName()).getVirtualReg();
+                answer.append(loader("b",reg2));
+                answer.append("baload"+NL);
+                curStackSize--;
+            }
         }
-        else if(arrayOperand.getType().toString().equals("BOOLEAN")){
-            answer.append(loader("a",reg)+NL);
-            var reg2 = currentMethod.getVarTable().get(index.getName()).getVirtualReg();
-            answer.append(loader("b",reg2));
-            answer.append("baload"+NL);
-            curStackSize--;
-        }
+
         return answer.toString();
     }
 
@@ -307,9 +318,14 @@ public class JasminGenerator {
                 if(callInstruction.getOperands().get(1).getType().toString().equals("INT32")) {
                     for( var x : args){
                         if(x.equals(callInstruction.getCaller())){continue;}
-                        var op = (Operand) x;
-                        var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
-                        answer.append(loader("i",reg)+NL);
+                        if(x.getClass().toString().equals("class org.specs.comp.ollir.LiteralElement")){
+                            answer.append(generators.apply(x));
+                        }
+                        else{
+                            var op = (Operand) x;
+                            var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
+                            answer.append(loader("i",reg)+NL);
+                        }
                     }
                     answer.append("newarray int"+NL);
                 }
@@ -402,7 +418,9 @@ public class JasminGenerator {
                 int indx2 = caller.indexOf(".");
                 String callerName = caller.substring(indx1+1, indx2);
                 var reg = currentMethod.getVarTable().get(callerName).getVirtualReg();
-                answer.append(loader("a",reg)+NL); //TODO rever para o tipo de caller
+                System.out.println(callInstruction.getCaller());
+                System.out.println(TAB+reg);
+                answer.append(loader("a",reg)+NL); //TODO rever para o tipo de caller // será necessário?
                 //objref pushado para a stack
                 var args = callInstruction.getArguments();
                 for (var arg : args){
@@ -444,7 +462,7 @@ public class JasminGenerator {
                 for (var arg : args){
                     answer.append(ollirToJasminType(arg.getType().toString()));
                 }
-                answer.append(")");;
+                answer.append(")");
                 answer.append(ollirToJasminType(callInstruction.getReturnType().toString())+NL);
                 if (callInstruction.getMethodName().getType().toString().equals("STRING")) {
 //                    int ind1 = callInstruction.getMethodName().toString().indexOf('"');
@@ -696,13 +714,16 @@ public class JasminGenerator {
 
         // get register
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
-
-
         if(!operand.getChildren().isEmpty()){
-            var ind = (Operand) operand.getChildren().get(0);
             code.append(loader("a",reg)+NL);
-            var reg2 = currentMethod.getVarTable().get(ind.getName()).getVirtualReg();
-            code.append(loader("i",reg2)+NL);
+            if(operand.getChildren().get(0).getClass().toString().equals("class org.specs.comp.ollir.LiteralElement")){
+                code.append(generators.apply(operand.getChildren().get(0)));
+            }
+            else{
+                var ind = (Operand) operand.getChildren().get(0);
+                var reg2 = currentMethod.getVarTable().get(ind.getName()).getVirtualReg();
+                code.append(loader("i",reg2)+NL);
+            }
             code.append(generators.apply(assign.getRhs()));
             code.append("iastore"+NL);
 
@@ -718,9 +739,9 @@ public class JasminGenerator {
                 }
             }
             else if (operand.getType().toString().equals("INT32") ||operand.getType().toString().equals("BOOLEAN")){
-
                 code.append(storer("i", reg)+NL);
             }
+            
         }
 
         //TODO : fazer para os restantes tipos
