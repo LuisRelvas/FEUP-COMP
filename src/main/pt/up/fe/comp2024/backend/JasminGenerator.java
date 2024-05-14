@@ -741,7 +741,9 @@ public class JasminGenerator {
             else if (operand.getType().toString().equals("INT32") ||operand.getType().toString().equals("BOOLEAN")){
                 code.append(storer("i", reg)+NL);
             }
-            
+            else if(!assign.getRhs().toString().contains(" NEW ")) {
+                code.append(storer("a", reg) + NL);
+            }
         }
 
         //TODO : fazer para os restantes tipos
