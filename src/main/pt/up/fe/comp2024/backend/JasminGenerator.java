@@ -109,7 +109,15 @@ public class JasminGenerator {
     private String generateArrayOperand(ArrayOperand arrayOperand) {
         StringBuilder answer = new StringBuilder();
         if(arrayOperand.getIndexOperands().get(0).getClass().toString().equals("class org.specs.comp.ollir.LiteralElement")){
+            var reg = currentMethod.getVarTable().get(arrayOperand.getName()).getVirtualReg();
+            answer.append(loader("a",reg)+NL);
             answer.append(generators.apply(arrayOperand.getIndexOperands().get(0)));
+            if(arrayOperand.getType().toString().equals("INT32")){
+                answer.append("iaload"+NL);
+            }
+            if(arrayOperand.getType().toString().equals("BOOLEAN")){
+                answer.append("baload"+NL);
+            }
         }
         else{
             var index = (Operand) arrayOperand.getIndexOperands().get(0);
@@ -649,8 +657,6 @@ public class JasminGenerator {
         code.append(TAB).append(".limit stack 99").append(NL);
 
         int limitLocals = this.currentMethod.getVarTable().size();
-        System.out.println(this.currentMethod.getVarTable());
-        System.out.println(limitLocals);
         for(var argument: this.currentMethod.getParams()){
             int ind1 = argument.toString().indexOf(" ");
             int ind2 = argument.toString().indexOf(".");
@@ -659,14 +665,11 @@ public class JasminGenerator {
                 limitLocals++;
             }
         }
-        System.out.println(limitLocals);
         if(!this.currentMethod.getMethodName().equals("main")){
             if(this.currentMethod.getVarTable().get("this")==null){
                 limitLocals++;
             }
         }
-        System.out.println(limitLocals);
-        //code.append(TAB).append(".limit stack ").append(limitLocals).append(NL);
         code.append(TAB).append(".limit locals ").append(limitLocals).append(NL);
 
 
@@ -724,6 +727,7 @@ public class JasminGenerator {
         var operand = (Operand) lhs;
 
         // get register
+        System.out.println(assign);
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
         if(!operand.getChildren().isEmpty()){
             code.append(loader("a",reg)+NL);
