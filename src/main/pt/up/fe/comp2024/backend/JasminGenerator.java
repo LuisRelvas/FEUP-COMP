@@ -127,15 +127,12 @@ public class JasminGenerator {
                 var reg2 = currentMethod.getVarTable().get(index.getName()).getVirtualReg();
                 answer.append(loader("i",reg2)+NL);
                 answer.append("iaload"+NL);
-                curStackSize--;
-
             }
             else if(arrayOperand.getType().toString().equals("BOOLEAN")){
                 answer.append(loader("a",reg)+NL);
                 var reg2 = currentMethod.getVarTable().get(index.getName()).getVirtualReg();
                 answer.append(loader("b",reg2));
                 answer.append("baload"+NL);
-                curStackSize--;
             }
         }
 
@@ -183,8 +180,14 @@ public class JasminGenerator {
             case "LTH":
                 answer.append("if_icmplt ");
                 break;
+            case "LTE":
+                answer.append("if_icmple ");
+                break;
             case "GTE":
                 answer.append("if_icmpge ");
+                break;
+            case "GTH":
+                answer.append("if_icmpgt ");
                 break;
             default:
                 throw new NotImplementedException(condition);
@@ -356,7 +359,7 @@ public class JasminGenerator {
                 int indx1 = caller.indexOf("(");
                 int indx2 = caller.indexOf(")");
                 String callerName = caller.substring(indx1 + 1, indx2);
-
+            
                 for(var i : this.imports)
                 {
                     if(i.contains("."))
@@ -824,7 +827,6 @@ public class JasminGenerator {
                 break;
             case LTH:
                 this.noper = "iflt";
-                //code.append("iflt").append(NL);
                 break;
             default:
                 throw new NotImplementedException(binaryOp.getOperation().getOpType());
