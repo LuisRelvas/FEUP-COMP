@@ -49,7 +49,7 @@ public class Cpf3_Ollir {
         // Check if it has ifs and a gotos
         var ifInsts = CpUtils.getInstructions(CondBranchInstruction.class, method);
         var gotoInsts = CpUtils.getInstructions(GotoInstruction.class, method);
-
+        System.out.println(ollirResult.getOllirCode());
         CpUtils.assertTrue("Expected to find 1 if in method " + method.getMethodName(), ifInsts.size() == 1, ollirResult);
         CpUtils.assertTrue("Expected to find 1 goto in method " + method.getMethodName(), gotoInsts.size() == 1, ollirResult);
     }

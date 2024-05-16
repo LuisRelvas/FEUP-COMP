@@ -202,7 +202,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
             computation.append(visit(node.getChild(0)).getCode());
             this.ifCounter = getCounterIfStmt(this.ifCounter);
             int aux = this.ifCounter;
-            computation.append(") goto true_"+aux +";\n"); //TODO ta hard coded
+            computation.append(") goto true_"+aux +";\n");
             //caso seja falso
             computation.append(code+SPACE+ASSIGN+resOllirType+SPACE);
             computation.append("0.bool;\n");
@@ -214,8 +214,27 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
             computation.append(rhs.getCode()+END_STMT);
             computation.append("end_"+aux+":\n");
 
+
         }
-        else{
+        else if(node.get("op").toString().equals("&&") && node.getChild(1).getKind().toString().equals("BooleanLiteral")) {
+
+            computation.append("if(");
+            computation.append(visit(node.getChild(1)).getCode());
+            this.ifCounter = getCounterIfStmt(this.ifCounter);
+            int aux = this.ifCounter;
+            computation.append(") goto true_" + aux + ";\n");
+            //caso seja falso
+            computation.append(code + SPACE + ASSIGN + resOllirType + SPACE);
+            computation.append("0.bool;\n");
+            computation.append("goto end_" + aux + ";\n");
+            //caso seja falso
+            computation.append("true_" + aux + ":\n");
+            computation.append(lhs.getComputation());
+            computation.append(code + SPACE + ASSIGN + resOllirType + SPACE);
+            computation.append(lhs.getCode() + END_STMT);
+            computation.append("end_" + aux + ":\n");
+        }
+        else {
             computation.append(lhs.getComputation());
             computation.append(rhs.getComputation());
             computation.append(code).append(SPACE)

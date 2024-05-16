@@ -7,7 +7,7 @@ class Arithmetic_and {
 
 		c = new Arithmetic_and();
 
-		a = true && c.p(1);
+		a = c.p(1) && true;
 	}
 
 	boolean p(int value) {
