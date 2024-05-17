@@ -384,12 +384,25 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         // type
         if(node.getNumChildren() > 0) {
             var retType = OptUtils.toOllirType(node.getJmmChild(0));
-            if(retType.equals(".V"))
-            {
-                retType = "";
 
-            } // main
-            code.append(retType);
+            if(retType == null && node.getJmmChild(0).toString().equals("ArrayType")){
+
+                if(node.getChild(1).getChild(0).getChild(0).getKind().equals("IntType")){
+                    retType = ".array.i32";
+                }
+                else{
+                    retType = "array.bool";
+                }
+                code.append(retType);
+            }
+            else{
+                if(retType.equals(".V"))
+                {
+                    retType = "";
+
+                } // main
+                code.append(retType);
+            }
         }
         code.append(L_BRACKET);
 
