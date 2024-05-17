@@ -1,17 +1,11 @@
-import ioPlus;
-class SimpleWhileStat {
-
-
-    public int func(int a){
-        int c;
-        int i;
-        i = 0;
-
-        while (i < a) {
-            i = i + 1;
-        }
-
-        return i;
+class MyClass
+{
+    int foo(int... a)
+    {
+        return 0;
     }
 
+    int bar() {
+        return this.foo(1, 2);
+    }
 }

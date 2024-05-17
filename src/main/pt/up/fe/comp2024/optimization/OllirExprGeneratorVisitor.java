@@ -276,6 +276,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         String typeFunction = "";
         StringBuilder params = new StringBuilder(); // to store the parameters
         boolean hasArgs = false;
+        boolean hasVarArgs = false;
         Type returnType = new Type("int", false);
         var ollirType = ".V";
         var lhs = visit(node.getJmmChild(0));
@@ -330,6 +331,35 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 code = temp + ollirType;
                 computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
+            else if(node.hasAttribute("value"))
+            {
+                if(!table.getParameters(node.get("value")).isEmpty())
+                {
+                    var varArgs = table.getParameters(node.get("value"));
+                    for(Symbol s: varArgs)
+                    {
+                        if(s.getType().isArray())
+                        {
+                            hasVarArgs = true;
+                            //probably varargs handle as it was an array
+                            var temp = OptUtils.getTemp();
+                            ollirType = OptUtils.toOllirType(s.getType());
+                            code = temp + ollirType;
+                            String paramsString = params.toString();
+                            String[] aux = paramsString.split(",");
+                            //put the params in an array where the separator is the comma
+                            computation.append(temp).append(".array").append(ollirType).append(ASSIGN).append(".array").append(ollirType).append(SPACE).append("new").append("(array, ").append(SPACE).append(aux.length).append(".i32").append(")").append(ollirType).append(END_STMT);
+                            for(int i = 0; i < aux.length; i++)
+                            {
+                                computation.append(temp).append("[").append(i).append(".i32").append("]").append(".i32").append(ASSIGN).append(".i32").append(SPACE).append(aux[i]).append(SPACE).append(END_STMT);
+                            }
+                            var temp2 = OptUtils.getTemp();
+                            computation.append(temp2).append(ollirType).append(ASSIGN).append(ollirType);
+
+                        }
+                    }
+                }
+            }
             else
             {
                 var temp = OptUtils.getTemp();
@@ -340,7 +370,14 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
             computation.append(typeFunction).append("(").append(lhs.getCode()).append(",").append("\"").append(node.get("value")).append("\"");
             if(!params.isEmpty())
             {
+                if(hasVarArgs)
+                {
+                    computation.append(",tmp0.array").append(ollirType);
+                }
+                else
+                {
                 computation.append(",").append(params);
+                }
             }
             computation.append(")").append(ollirType).append(END_STMT);
         }

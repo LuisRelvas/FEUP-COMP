@@ -52,6 +52,12 @@ public class OptUtils {
             typeName = ".array" + typeName;
             return toOllirType(typeName);
         }
+        else if(typeNode.getKind().equals("ArrayType"))
+        {
+            typeName = toOllirType(typeNode.getChild(0));
+            typeName = "array" + typeName;
+            return toOllirType(typeName);
+        }
         else
         {
             return null;
