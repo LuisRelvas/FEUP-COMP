@@ -1,11 +1,10 @@
-class MyClass
-{
-    int foo(int... a)
-    {
-        return 0;
-    }
+import io;
 
-    int bar() {
-        return this.foo(1, 2);
+class ArrayInitialization {
+
+    public int foo() {
+        int a;
+        a = 10;
+        return a;
     }
 }

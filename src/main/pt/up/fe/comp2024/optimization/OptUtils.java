@@ -44,7 +44,7 @@ public class OptUtils {
         }*/
 
         if(typeNode.hasAttribute("value")) {
-             typeName = typeNode.get("value");
+            typeName = typeNode.get("value");
         }
         else if(typeNode.getKind().equals(NEW_ARRAY_EXPR.toString()))
         {
@@ -72,11 +72,11 @@ public class OptUtils {
 
     private static String toOllirType(String typeName) {
         String type = "." + switch (typeName) {
-                                case "int" -> "i32";
-                                case "boolean" -> "bool";
-                                case "String" -> "array.String";
-                                case "void" -> "V";
-                                default -> typeName;
+            case "int" -> "i32";
+            case "boolean" -> "bool";
+            case "String" -> "array.String";
+            case "void" -> "V";
+            default -> typeName;
         };
 
         return type;
