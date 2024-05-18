@@ -1,13 +1,14 @@
-import io;
+class PropSimple {
+    public int foo(){
+	  int a;
+	  int b;
+	  int c;
+	  a = 5;
+	  b = a + 5;
+	  c = b + a * a * a;
+        return c;
+	}
+    public static void main(String[] args) {
 
-class ArrayInitialization {
-
-
-    int foo() {
-        int[] a;
-
-        a = [1, 2, 3, 4];
-
-        return a[2];
     }
 }

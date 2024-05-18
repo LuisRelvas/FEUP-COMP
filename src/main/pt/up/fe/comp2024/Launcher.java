@@ -9,6 +9,7 @@ import pt.up.fe.comp2024.analysis.JmmAnalysisImpl;
 import pt.up.fe.comp2024.ast.Kind;
 import pt.up.fe.comp2024.backend.JasminBackendImpl;
 import pt.up.fe.comp2024.optimization.JmmOptimizationImpl;
+import pt.up.fe.comp2024.optimization_jasmin.AstToJasminImpl;
 import pt.up.fe.comp2024.parser.JmmParserImpl;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -32,6 +33,8 @@ public class Launcher {
         JmmParserResult parserResult = parser.parse(code, config);
         TestUtils.noErrors(parserResult.getReports());
 
+
+
         //Print AST
         System.out.println(parserResult.getRootNode().toTree());
 
@@ -42,6 +45,9 @@ public class Launcher {
 
         // Optimization stage
         JmmOptimizationImpl ollirGen = new JmmOptimizationImpl();
+        AstToJasminImpl astGen = new AstToJasminImpl();
+        semanticsResult = astGen.optimize(semanticsResult);
+        System.out.println(semanticsResult.getRootNode().toTree());
         OllirResult ollirResult = ollirGen.toOllir(semanticsResult);
         TestUtils.noErrors(ollirResult.getReports());
 
