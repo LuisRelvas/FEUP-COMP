@@ -306,7 +306,6 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
                 computation.append(",");
                 computation.append(SPACE);
                 i+=1;
-
             }
         }
         code = computation.toString();
