@@ -217,8 +217,13 @@ public class JasminGenerator {
                 }
 
             }
+            if(this.noper == null){
+                answer.append("ifne");
+            }
+            else{
+                answer.append(this.noper);
+            }
             this.noper = null;
-            answer.append("ifne");
             curStackSize = curStackSize-2;
 
         }
@@ -730,7 +735,6 @@ public class JasminGenerator {
         var operand = (Operand) lhs;
 
         // get register
-        System.out.println(assign);
         var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
         if(!operand.getChildren().isEmpty()){
             code.append(loader("a",reg)+NL);
@@ -779,10 +783,10 @@ public class JasminGenerator {
         if(integerVaue < 6){
             return "iconst_" + literal.getLiteral() + NL;
         }
-        if(integerVaue < maxByte){
+        if(integerVaue <= maxByte){
             return "bipush " + literal.getLiteral() + NL;
         }
-        if(integerVaue < maxShort){
+        if(integerVaue <= maxShort){
             return "sipush " + literal.getLiteral() + NL;
         }
         return "ldc " + literal.getLiteral() + NL;
@@ -828,6 +832,16 @@ public class JasminGenerator {
             case LTH:
                 this.noper = "iflt";
                 break;
+            case LTE:
+                this.noper = "ifle";
+                break;
+            case GTE:
+                this.noper = "ifge";
+                break;
+            case GTH:
+                this.noper = "ifeq";
+                break;
+
             default:
                 throw new NotImplementedException(binaryOp.getOperation().getOpType());
         }
