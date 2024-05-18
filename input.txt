@@ -1,20 +1,13 @@
 import io;
-class MyClass
-{
 
-    int aux(int[] a)
-    {
-        return 1;
+class ArrayInitialization {
+
+
+    int foo() {
+        int[] a;
+
+        a = [1, 2, 3, 4];
+
+        return a[2];
     }
-    int foo(int a, int f)
-    {
-        return 0;
-    }
-
-    int bar()
-    {
-        return this.foo(1,2);
-    }
-
-
 }
