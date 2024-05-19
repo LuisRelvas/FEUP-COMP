@@ -20,7 +20,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
     private final String R_BRACKET = "}\n";
 
     //create a map to store the values of the variables
-    private Map<String, Integer> nameValue = new HashMap<String, Integer>();
+    private Map<String, String> nameValue = new HashMap<String, String>();
 
     private int result = 0;
 
@@ -43,6 +43,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         addVisit(BINARY_EXPR,this::visitBinaryExpr);
         addVisit(VAR_REF, this::visitVarRef);
         addVisit(INTEGER_LITERAL,this::visitIntegerLiteral);
+        addVisit(BOOLEAN_LITERAL, this::visitBooleanLiteral);
         setDefaultVisit(this::defaultVisit);
     }
 
@@ -56,7 +57,15 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         //append to the map the varName and the varValue
         if(!assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()))
         {
-            nameValue.put(varName, Integer.parseInt(varValue));
+
+            if(nameValue.containsKey(varName))
+            {
+                nameValue.replace(varName, varValue);
+            }
+            else
+            {
+                nameValue.put(varName, varValue);
+            }
         }
         return "";
     }
@@ -72,15 +81,24 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
 
     public String visitVarRef(JmmNode varRef, Void unused)
     {
+        JmmNode newNode = new JmmNodeImpl("");
         //get the value of the varRef from the map
         if(nameValue.containsKey(varRef.get("value")))
         {
+            //o tipo será boolean ou inteiro se for inteiro entao teremos um numero como value se for true ou false entao é boolean
+            if(nameValue.get(varRef.get("value")).equals("true") || nameValue.get(varRef.get("value")).equals("false"))
+            {
+                newNode = new JmmNodeImpl(BOOLEAN_LITERAL.toString());
+            }
+            else
+            {
+                newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
+            }
             //criar um novo no com o valor da variavel e um kind diferente
-            JmmNode newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
-            newNode.put("value", Integer.toString(nameValue.get(varRef.get("value"))));
+            newNode.put("value", nameValue.get(varRef.get("value")));
             //dar replacement na AST com o valor da variavel
             varRef.replace(newNode);
-            return Integer.toString(nameValue.get(varRef.get("value")));
+            return nameValue.get(varRef.get("value"));
         }
         else
         {
@@ -91,6 +109,11 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
     public String visitIntegerLiteral(JmmNode integerLiteral, Void unused)
     {
         return integerLiteral.get("value");
+    }
+
+    public String visitBooleanLiteral(JmmNode booleanLiteral, Void unused)
+    {
+        return booleanLiteral.get("value");
     }
 
 
