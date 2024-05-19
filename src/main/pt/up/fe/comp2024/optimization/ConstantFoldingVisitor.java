@@ -47,7 +47,36 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
         addVisit(INTEGER_LITERAL,this::visitIntegerLiteral);
         addVisit(BOOLEAN_LITERAL, this::visitBooleanLiteral);
         addVisit(ASSIGN_STMT,this::visitAssignStmt);
+        addVisit(RETURN_STMT,this::visitReturnStmt);
+        addVisit(PARENTHESIS_EXPR, this::visitParenthesisExpr);
         setDefaultVisit(this::defaultVisit);
+    }
+
+    public String visitParenthesisExpr(JmmNode parenthesisExpr, Void unused)
+    {
+        return visit(parenthesisExpr.getChild(0));
+    }
+    public String visitReturnStmt(JmmNode returnStmt, Void unused)
+    {
+        var aux = visit(returnStmt.getChild(0));
+        if(aux.equals(""))
+        {
+            return "";
+        }
+        JmmNode newNode = new JmmNodeImpl("");
+        if(returnStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()))
+        {
+            if(!isBoolean) {
+                newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
+            }
+            else if(isBoolean)
+            {
+                newNode = new JmmNodeImpl(BOOLEAN_LITERAL.toString());
+            }
+            newNode.put("value", aux);
+            returnStmt.getChild(0).replace(newNode);
+        }
+        return "";
     }
         public String visitAssignStmt(JmmNode assignStmt, Void unused)
         {
@@ -94,7 +123,7 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             var right = visit(binaryOp.getChildren().get(1));
             boolean leftBoolean = false;
             boolean rightBoolean = false;
-            if(left.equals("true")|| left.equals("1"))
+            if(left.equals("true"))
             {
                 isBoolean = true;
                 leftBoolean = true;
@@ -115,6 +144,10 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
                 leftBoolean = false;
             }
             //get the result from the operation
+            if(left.equals("") || right.equals(""))
+            {
+                return "";
+            }
             switch(binaryOp.get("op"))
             {
                 case "+":
@@ -132,6 +165,7 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
                 case "&&":
                     resultBoolean = leftBoolean && rightBoolean;
                     break;
+
             }
             if(binaryOp.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
