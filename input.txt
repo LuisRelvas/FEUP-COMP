@@ -2,23 +2,8 @@ class A
 {
     public boolean foo()
     {
-        int a;
-        int b;
-        int c;
-        a = 10;
-        b = 20;
-        if(a < b)
-        {
-            b = 10;
-            c = b;
-        }
-        else
-        {
-            b = 20;
-            c = b;
-        }
-        return !!!!!!false;
-
+      int[] a;
+      a = [1,2,3,4];
+      return a[2] < 2;
     }
-
 }

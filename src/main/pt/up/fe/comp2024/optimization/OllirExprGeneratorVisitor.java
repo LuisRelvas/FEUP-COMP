@@ -77,7 +77,6 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         {
             computation.append(temp).append("[").append(i).append(".i32").append("]").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(visit(arrayCreationExpr.getJmmChild(i)).getCode()).append(END_STMT);
         }
-        computation.append(temp).append(".array").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(aux.getCode()).append(END_STMT);
 
         return new OllirExprResult(code, computation);
 
