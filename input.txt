@@ -1,0 +1,25 @@
+import io;
+class A
+{
+    int[] m;
+    int j;
+    public int foo(int[] a, int... b)
+    {
+
+        return 1;
+
+    }
+
+    public int call()
+    {
+        int a;
+        int b;
+        int[] f;
+        f = [1,2,3,4,5];
+        j = f[1];
+
+        return j;
+
+    }
+
+}

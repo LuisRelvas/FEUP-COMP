@@ -200,6 +200,7 @@ public class JmmSymbolTableBuilder {
 
         for(int i = 0; i < classDecl.getNumChildren(); i++)
         {
+            isArray = false;
             JmmNode child = classDecl.getChild(i);
             String varType = "";
             if(child.getKind().equals("VarDecl"))
