@@ -148,6 +148,10 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             {
                 return "";
             }
+            if(binaryOp.get("op").equals(">") || binaryOp.get("op").equals("<"))
+            {
+                isBoolean = true;
+            }
             switch(binaryOp.get("op"))
             {
                 case "+":
@@ -164,6 +168,12 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
                     break;
                 case "&&":
                     resultBoolean = leftBoolean && rightBoolean;
+                    break;
+                case "<":
+                    resultBoolean = Integer.parseInt(left) < Integer.parseInt(right);
+                    break;
+                case ">":
+                    resultBoolean = Integer.parseInt(left) > Integer.parseInt(right);
                     break;
 
             }

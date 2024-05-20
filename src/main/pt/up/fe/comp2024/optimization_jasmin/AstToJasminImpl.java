@@ -24,6 +24,8 @@ public class AstToJasminImpl implements AstToJasmin {
         ConstantFoldingVisitor optimization = new ConstantFoldingVisitor(semanticsResult.getSymbolTable());
         optimizationAst.visit(semanticsResult.getRootNode());
         optimization.visit(semanticsResult.getRootNode());
+        ConstantPropagationVisitor optimizationAst2 = new ConstantPropagationVisitor(semanticsResult.getSymbolTable());
+        optimizationAst2.visit(semanticsResult.getRootNode());
         return AstToJasmin.super.optimize(semanticsResult);
     }
 }

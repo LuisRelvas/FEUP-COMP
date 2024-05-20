@@ -1,0 +1,13 @@
+class A
+{
+    public boolean foo() {
+    int a;
+    boolean b;
+    boolean c;
+    b = true;
+    c = true;
+    a = 10;
+    a = 100 * 10;
+    return  b && c && (1 > 2) ;
+    }
+}
