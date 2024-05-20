@@ -44,14 +44,13 @@ public class Launcher {
         TestUtils.noErrors(semanticsResult.getReports());
 
         // Optimization stage
+
         JmmOptimizationImpl ollirGen = new JmmOptimizationImpl();
-        /*
         AstToJasminImpl astGen = new AstToJasminImpl();
         semanticsResult = astGen.optimize(semanticsResult);
         System.out.println(semanticsResult.getRootNode().toTree());
-
-         */
         OllirResult ollirResult = ollirGen.toOllir(semanticsResult);
+
         TestUtils.noErrors(ollirResult.getReports());
 
         // Print OLLIR code

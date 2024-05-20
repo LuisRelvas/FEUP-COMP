@@ -24,6 +24,8 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
 
     private int result = 0;
 
+    private boolean modifications = false;
+
 
     private final SymbolTable table;
 
@@ -60,7 +62,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         var varValue = visit(assignStmt.getChildren().get(0));
 
         //append to the map the varName and the varValue
-        if(!assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()))
+        if(!assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()) && !varValue.isEmpty() && !varName.isEmpty())
         {
 
             if(nameValue.containsKey(varName))
@@ -89,7 +91,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
     {
         JmmNode newNode = new JmmNodeImpl("");
         //get the value of the varRef from the map
-        if(nameValue.containsKey(varRef.get("value")))
+        if(nameValue.containsKey(varRef.get("value")) && !varRef.getParent().getKind().equals(ARRAY_ACCESS_EXPR.toString()))
         {
             //o tipo será boolean ou inteiro se for inteiro entao teremos um numero como value se for true ou false entao é boolean
             if(nameValue.get(varRef.get("value")).equals("true") || nameValue.get(varRef.get("value")).equals("false"))
@@ -104,6 +106,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
             newNode.put("value", nameValue.get(varRef.get("value")));
             //dar replacement na AST com o valor da variavel
             varRef.replace(newNode);
+            modifications = true;
             return nameValue.get(varRef.get("value"));
         }
         else
@@ -127,6 +130,10 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
     {
         var left = visit(binaryOp.getChildren().get(0));
         var right = visit(binaryOp.getChildren().get(1));
+        if(left.isEmpty() || right.isEmpty())
+        {
+            return "";
+        }
 
         return left + binaryOp.get("op") + right;
     }
@@ -137,7 +144,6 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         for (var child : node.getChildren()) {
             visit(child);
         }
-
-        return "";
+        return modifications+"";
     }
 }

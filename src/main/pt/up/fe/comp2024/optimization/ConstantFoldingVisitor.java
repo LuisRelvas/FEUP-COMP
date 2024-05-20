@@ -30,6 +30,8 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
 
     private boolean isBoolean = false;
 
+    private boolean modifications = false;
+
     private Map<String, String> nameValue = new HashMap<String, String>();
     private final OllirExprGeneratorVisitor exprVisitor;
 
@@ -49,14 +51,32 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
         addVisit(ASSIGN_STMT,this::visitAssignStmt);
         addVisit(RETURN_STMT,this::visitReturnStmt);
         addVisit(PARENTHESIS_EXPR, this::visitParenthesisExpr);
+        addVisit(ARRAY_ACCESS_EXPR,this::visitArrayAcessExpr);
         addVisit(UNARY_EXPR,this::visitUnaryExpr);
         setDefaultVisit(this::defaultVisit);
+    }
+
+    public String visitArrayAcessExpr(JmmNode arrayAccessExpr, Void unused)
+    {
+        var aux = visit(arrayAccessExpr.getChild(1));
+        if(!aux.isEmpty())
+        {
+            JmmNode newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
+            newNode.put("value", aux);
+            arrayAccessExpr.getChild(1).replace(newNode);
+            modifications = true;
+        }
+        return aux;
     }
 
 
     public String visitUnaryExpr(JmmNode unaryExpr, Void unused)
     {
         var aux = visit(unaryExpr.getChild(0));
+        if(aux.isEmpty())
+        {
+            return "";
+        }
         var auxBoolean = false;
         if(aux.equals("true"))
         {
@@ -92,12 +112,14 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             }
             newNode.put("value", aux);
             returnStmt.getChild(0).replace(newNode);
+            modifications = true;
         }
         else if(returnStmt.getChild(0).getKind().equals(UNARY_EXPR.toString()))
         {
             newNode = new JmmNodeImpl(BOOLEAN_LITERAL.toString());
             newNode.put("value", aux);
             returnStmt.getChild(0).replace(newNode);
+            modifications = true;
         }
         return "";
     }
@@ -107,6 +129,10 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             if(assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()))
             {
                 var aux = visit(assignStmt.getChild(0));
+                if(aux.equals(""))
+                {
+                    return "";
+                }
                 if(!isBoolean) {
                     newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
                 }
@@ -116,6 +142,7 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
                 }
                 newNode.put("value", aux);
                 assignStmt.getChild(0).replace(newNode);
+                modifications = true;
             }
             return "";
         }
@@ -144,6 +171,10 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
 
             var left = visit(binaryOp.getChildren().get(0));
             var right = visit(binaryOp.getChildren().get(1));
+            if(left.isEmpty() || right.isEmpty())
+            {
+                return "";
+            }
             boolean leftBoolean = false;
             boolean rightBoolean = false;
             if(left.equals("true"))
@@ -238,7 +269,7 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             visit(child);
         }
 
-        return "";
+        return modifications+"";
     }
 
 

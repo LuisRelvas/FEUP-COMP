@@ -1,9 +1,13 @@
 class A
 {
-    public boolean foo()
+    public int foo()
     {
-      int[] a;
-      a = [1,2,3,4];
-      return a[2] < 2;
+        int a;
+        int b;
+        int c;
+        a = 10 * 10;
+        return a;
+
     }
+
 }
