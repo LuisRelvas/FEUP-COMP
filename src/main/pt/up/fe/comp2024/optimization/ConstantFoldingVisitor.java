@@ -202,10 +202,6 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             {
                 return "";
             }
-            if(binaryOp.get("op").equals(">") || binaryOp.get("op").equals("<"))
-            {
-                isBoolean = true;
-            }
             switch(binaryOp.get("op"))
             {
                 case "+":
@@ -268,9 +264,11 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
         for (var child : node.getChildren()) {
             visit(child);
         }
-
-        return modifications+"";
+        return "";
     }
 
 
+    public boolean getModifications() {
+        return modifications;
+    }
 }
