@@ -49,9 +49,26 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
         addVisit(ASSIGN_STMT,this::visitAssignStmt);
         addVisit(RETURN_STMT,this::visitReturnStmt);
         addVisit(PARENTHESIS_EXPR, this::visitParenthesisExpr);
+        addVisit(UNARY_EXPR,this::visitUnaryExpr);
         setDefaultVisit(this::defaultVisit);
     }
 
+
+    public String visitUnaryExpr(JmmNode unaryExpr, Void unused)
+    {
+        var aux = visit(unaryExpr.getChild(0));
+        var auxBoolean = false;
+        if(aux.equals("true"))
+        {
+            auxBoolean = true;
+        }
+        else if(aux.equals("false"))
+        {
+            auxBoolean = false;
+        }
+        var returnString = !auxBoolean;
+        return returnString+"";
+    }
     public String visitParenthesisExpr(JmmNode parenthesisExpr, Void unused)
     {
         return visit(parenthesisExpr.getChild(0));
@@ -73,6 +90,12 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             {
                 newNode = new JmmNodeImpl(BOOLEAN_LITERAL.toString());
             }
+            newNode.put("value", aux);
+            returnStmt.getChild(0).replace(newNode);
+        }
+        else if(returnStmt.getChild(0).getKind().equals(UNARY_EXPR.toString()))
+        {
+            newNode = new JmmNodeImpl(BOOLEAN_LITERAL.toString());
             newNode.put("value", aux);
             returnStmt.getChild(0).replace(newNode);
         }

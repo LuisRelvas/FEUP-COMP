@@ -1,13 +1,24 @@
 class A
 {
-    public boolean foo() {
-    int a;
-    boolean b;
-    boolean c;
-    b = true;
-    c = true;
-    a = 10;
-    a = 100 * 10;
-    return  b && c && (1 > 2) ;
+    public boolean foo()
+    {
+        int a;
+        int b;
+        int c;
+        a = 10;
+        b = 20;
+        if(a < b)
+        {
+            b = 10;
+            c = b;
+        }
+        else
+        {
+            b = 20;
+            c = b;
+        }
+        return !!!!!!false;
+
     }
+
 }

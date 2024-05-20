@@ -40,6 +40,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
     {
         addVisit(METHOD_DECL,this::visitMethodDecl);
         addVisit(ASSIGN_STMT,this::visitAssignStmt);
+        addVisit(IF_STMT,this::visitIfStmt);
         addVisit(BINARY_EXPR,this::visitBinaryExpr);
         addVisit(VAR_REF, this::visitVarRef);
         addVisit(INTEGER_LITERAL,this::visitIntegerLiteral);
@@ -47,7 +48,11 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         setDefaultVisit(this::defaultVisit);
     }
 
-
+    public String visitIfStmt(JmmNode ifStmt, Void unused)
+    {
+        var aux = visit(ifStmt.getJmmChild(0));
+        return "";
+    }
     public String visitAssignStmt(JmmNode assignStmt, Void unused)
     {
         //in here I am going to save all the values from the assignments and put them in a map to be more easy to access them
@@ -75,6 +80,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         for (JmmNode child : methodDecl.getChildren()) {
             visit(child);
         }
+        nameValue.clear();
         return "";
     }
 
