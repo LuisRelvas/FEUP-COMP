@@ -4,6 +4,9 @@ class ComplexArrayAccess {
     int[] field1;
 
     public int func(int a) {
+        int[] k;
+
+        k = field1;
         field1[0] = 1;
         return field1[a];
     }
