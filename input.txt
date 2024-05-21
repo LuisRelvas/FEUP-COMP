@@ -1,19 +1,10 @@
-class A
-{
-    int[] b;
-    public int foo(int a ,int[] b, int... c)
-    {
-        return 0;
+class PropSimple {
+    public int foo(){
+	  int a;
+	  a = 10;
+	  return a;
+	}
+    public static void main(String[] args) {
+
     }
-
-    public int call()
-    {
-        int[] c;
-        c = new int[4];
-        b = [1,2,3,4,5];
-        b[10] = 1 * 2 * 3 * 4;
-        return this.foo(c[2], [1,2,3], 1,2,3,4,5,6,7,8,9,10);
-    }
-
-
 }
