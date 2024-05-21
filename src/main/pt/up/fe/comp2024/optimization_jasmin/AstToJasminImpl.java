@@ -20,16 +20,19 @@ public class AstToJasminImpl implements AstToJasmin {
 
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
-        boolean modificationsProp = false;
-        boolean modificationsFold = false;
-        ConstantPropagationVisitor optimizationAst = new ConstantPropagationVisitor(semanticsResult.getSymbolTable());
-        ConstantFoldingVisitor optimization = new ConstantFoldingVisitor(semanticsResult.getSymbolTable());
-        optimizationAst.visit(semanticsResult.getRootNode());
-        optimization.visit(semanticsResult.getRootNode());
-        modificationsFold = optimization.getModifications();
-        modificationsProp = optimizationAst.getModifications();
-        System.out.println("the value of the modificationsProp is " + modificationsProp);
-        System.out.println("the value of the modificationsFold is " + modificationsFold);
+        boolean modificationsProp = true;
+        boolean modificationsFold = true;
+        while(modificationsFold == true || modificationsProp == true) {
+            ConstantPropagationVisitor optimizationAst = new ConstantPropagationVisitor(semanticsResult.getSymbolTable());
+            ConstantFoldingVisitor optimization = new ConstantFoldingVisitor(semanticsResult.getSymbolTable());
+            optimizationAst.visit(semanticsResult.getRootNode());
+            optimization.visit(semanticsResult.getRootNode());
+            modificationsFold = optimization.getModifications();
+            modificationsProp = optimizationAst.getModifications();
+            System.out.println("the value of the modificationsProp is " + modificationsProp);
+            System.out.println("the value of the modificationsFold is " + modificationsFold);
+        }
         return AstToJasmin.super.optimize(semanticsResult);
+
     }
 }

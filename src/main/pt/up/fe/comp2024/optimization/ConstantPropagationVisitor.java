@@ -74,6 +74,10 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
                 nameValue.put(varName, varValue);
             }
         }
+        else if(assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()))
+        {
+            nameValue.remove(varName);
+        }
         return "";
     }
     public String visitMethodDecl(JmmNode methodDecl, Void unused)

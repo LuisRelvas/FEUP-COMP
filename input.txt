@@ -3,23 +3,12 @@ class A
 {
     int[] m;
     int j;
-    public int foo(int[] a, int... b)
-    {
-
-        return 1;
-
-    }
-
-    public int call()
+    public int foo()
     {
         int a;
-        int b;
-        int[] f;
-        f = [1,2,3,4,5];
-        j = f[1];
-
-        return j;
-
+        a = 10;
+        a = 10 * 10 * 1000 + a;
+        return a;
     }
-
 }
+
