@@ -1,9 +1,20 @@
-class PropSimple {
-    public int foo(){
-	  int a;
-	  a = 10;
-	  return a;
-	}
+import ioPlus;
+import test.popo;
+class ComplexArrayAccess {
+    int[] field1;
+
+    public int func(int a) {
+        field1[0] = 1;
+        return field1[a];
+    }
+
+    public int func2(int[] a)
+    {
+        a[0] = 10;
+        return a[2];
+
+    }
+
     public static void main(String[] args) {
 
     }

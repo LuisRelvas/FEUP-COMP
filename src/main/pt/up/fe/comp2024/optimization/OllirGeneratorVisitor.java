@@ -71,9 +71,54 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         var type = OptUtils.toOllirType(getExprType(arrayAssignStmt,table));
         var index = exprVisitor.visit(arrayAssignStmt.getJmmChild(0));
         var assign = exprVisitor.visit(arrayAssignStmt.getJmmChild(1));
+        //check where is the array defined
+        var optionalFields = table.getFields();
+        var optionalParams = table.getParametersTry(currentMethod);
+        var optionalLocals = table.getLocalVariablesTry(currentMethod);
+        var inFields = false;
+        var inParams = false;
+        var inLocals = false;
+        if(optionalLocals.isPresent())
+        {
+            for(Symbol s: optionalLocals.get())
+            {
+                if(s.getName().equals(arrayAssignStmt.get("value")))
+                {
+                    inLocals = true;
+                }
+            }
+        }
+        if(optionalParams.isPresent())
+        {
+            for(Symbol s: optionalParams.get())
+            {
+                if(s.getName().equals(arrayAssignStmt.get("value")))
+                {
+                    inParams = true;
+                }
+            }
+        }
+        for(Symbol s: optionalFields)
+        {
+            if(s.getName().equals(arrayAssignStmt.get("value")))
+            {
+                inFields = true;
+            }
+        }
+
+        if(inFields && (!inLocals && !inParams))
+        {
+            var temp = OptUtils.getTemp();
+            code = temp + ".array.i32";
+            computation.append(temp).append(".array.i32").append(SPACE).append(ASSIGN).append(SPACE).append(".i32").append(SPACE).append("getfield").append("(this.").append(table.getClassName()).append(",").append(arrayAssignStmt.get("value")).append(".array.i32").append(")").append(".array.i32").append(END_STMT);
+            computation.append(temp).append("[").append(index.getCode()).append("]").append(type).append(SPACE).append(ASSIGN).append(SPACE).append(type).append(SPACE).append(assign.getCode()).append(END_STMT);
+        }
+        else
+        {
         computation.append(index.getComputation());
         computation.append(assign.getComputation());
         computation.append(arrayAssignStmt.get("value")).append("[").append(index.getCode()).append("]").append(type).append(SPACE).append(ASSIGN).append(SPACE).append(type).append(SPACE).append(assign.getCode()).append(END_STMT);
+        }
         return computation.toString();
     }
     private String visitWhileStmt(JmmNode whileStmt, Void unused)

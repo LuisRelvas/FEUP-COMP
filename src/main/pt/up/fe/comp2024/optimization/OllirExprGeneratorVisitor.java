@@ -106,7 +106,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         var temp = OptUtils.getTemp();
         var ollirType = OptUtils.toOllirType(TypeUtils.getExprType(arrayAccessExpr,table));
         code = temp + ollirType;
-        computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(arrayAccessExpr.getJmmChild(0).get("value")).append("[").append(index.getCode()).append("]").append(ollirType).append(END_STMT);
+        computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(arrayAccessExpr.getChild(0).get("value")).append("[").append(index.getCode()).append("]").append(ollirType).append(END_STMT);
         return new OllirExprResult(code,computation);
     }
     private OllirExprResult visitUnaryExpr(JmmNode unaryNode, Void unused)
@@ -327,13 +327,15 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
             String code = "";
             if(type.isArray())
             {
-                code = temp + ".array" + ollirType;
+                code = temp;
+                computation.append(temp).append(".array.i32").append(SPACE).append(ASSIGN).append(".array.i32").append(SPACE).append("getfield").append(SPACE).append("(").append("this").append(",").append(node.get("value")).append(".array").append(ollirType).append(")").append(".array").append(ollirType).append(END_STMT);
             }
             else
             {
                 code = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append("getfield").append(SPACE).append("(").append("this").append(",").append(node.get("value")).append(ollirType).append(")").append(ollirType).append(END_STMT);
+
             }
-            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append("getfield").append(SPACE).append("(").append("this").append(",").append(node.get("value")).append(ollirType).append(")").append(ollirType).append(END_STMT);
             return new OllirExprResult(code,computation);
         }
         return new OllirExprResult("");
