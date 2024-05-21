@@ -1,25 +1,16 @@
-import ioPlus;
-import test.popo;
-class ComplexArrayAccess {
-    int[] field1;
-
-    public int func(int a) {
-        int[] k;
-        k = field1;
-        field1[0] = 1;
-        return field1[a];
-    }
-
-    public int func2(int[] a)
-    {
-        int[] f;
-        f = a;
-        a[0] = 10;
-        return a[2];
-
-    }
-
-    public static void main(String[] args) {
-
-    }
+class PropWithLoop {
+    public int foo(){
+	  int a;
+	  int i;
+	  int res;
+	  a = 10;
+	  i = 0;
+	  while (i < a){
+	    i=i+1;
+	  }
+	  res = i*a;
+	  return res;
+	}
+	public static void main(String[] args) {
+	}
 }
