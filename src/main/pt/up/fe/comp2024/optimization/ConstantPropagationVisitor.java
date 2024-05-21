@@ -47,12 +47,23 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         addVisit(VAR_REF, this::visitVarRef);
         addVisit(INTEGER_LITERAL,this::visitIntegerLiteral);
         addVisit(BOOLEAN_LITERAL, this::visitBooleanLiteral);
+        addVisit(BLOCK_STMT, this::visitBlockStmt);
         setDefaultVisit(this::defaultVisit);
+    }
+
+    public String visitBlockStmt(JmmNode blockStmt, Void unused)
+    {
+        for (JmmNode child : blockStmt.getChildren()) {
+            visit(child);
+        }
+        return "";
     }
 
     public String visitIfStmt(JmmNode ifStmt, Void unused)
     {
         var aux = visit(ifStmt.getJmmChild(0));
+        var left = visit(ifStmt.getJmmChild(1));
+        var right = visit(ifStmt.getJmmChild(2));
         return "";
     }
     public String visitAssignStmt(JmmNode assignStmt, Void unused)

@@ -127,7 +127,7 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
             JmmNode newNode = new JmmNodeImpl("");
             if(assignStmt.getParent().getKind().equals(BLOCK_STMT.toString()))
             {
-                if(assignStmt.getParent().getParent().getKind().equals(WHILE_STMT.toString()))
+                if(assignStmt.getParent().getParent().getKind().equals(WHILE_STMT.toString()) || assignStmt.getParent().getParent().getKind().equals(IF_STMT.toString()))
                 {
                     return "";
                 }

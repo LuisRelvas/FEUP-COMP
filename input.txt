@@ -4,11 +4,16 @@ class PropWithLoop {
 	  int i;
 	  int res;
 	  a = 10;
-	  i = 0;
-	  while (i < a){
-	    i=i+1;
+	  i = 10;
+	  if(i < a)
+	  {
+	    i = i + 1;
 	  }
-	  res = i*a;
+	  else
+	  {
+	    i = i - 1;
+	  }
+	  res = i * a;
 	  return res;
 	}
 	public static void main(String[] args) {
