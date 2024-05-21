@@ -5,7 +5,6 @@ class ComplexArrayAccess {
 
     public int func(int a) {
         int[] k;
-
         k = field1;
         field1[0] = 1;
         return field1[a];
@@ -13,6 +12,8 @@ class ComplexArrayAccess {
 
     public int func2(int[] a)
     {
+        int[] f;
+        f = a;
         a[0] = 10;
         return a[2];
 

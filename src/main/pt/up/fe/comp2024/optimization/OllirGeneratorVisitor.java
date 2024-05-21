@@ -262,7 +262,12 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
             {
                 computation.append(lhs).append(".array").append(ollirType);
                 computation.append(SPACE).append(ASSIGN);
-                computation.append(SPACE).append(".array").append(ollirType).append(SPACE).append(rhs.getCode()).append(".array").append(ollirType).append(END_STMT);
+                var aux = rhs.getCode();
+                if(rhs.getCode().contains(".array.i32"))
+                {
+                    aux = rhs.getCode().replace(".array.i32","");
+                }
+                computation.append(SPACE).append(".array").append(ollirType).append(SPACE).append(aux).append(".array").append(ollirType).append(END_STMT);
             }
             else
             {
