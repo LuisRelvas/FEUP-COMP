@@ -22,7 +22,8 @@ public class AstToJasminImpl implements AstToJasmin {
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
         boolean modificationsProp = true;
         boolean modificationsFold = true;
-        while(modificationsFold == true || modificationsProp == true) {
+        int counter = 0;
+        while(modificationsFold == true || modificationsProp == true ) {
             ConstantPropagationVisitor optimizationAst = new ConstantPropagationVisitor(semanticsResult.getSymbolTable());
             ConstantFoldingVisitor optimization = new ConstantFoldingVisitor(semanticsResult.getSymbolTable());
             optimizationAst.visit(semanticsResult.getRootNode());
@@ -31,6 +32,7 @@ public class AstToJasminImpl implements AstToJasmin {
             modificationsProp = optimizationAst.getModifications();
             System.out.println("the value of the modificationsProp is " + modificationsProp);
             System.out.println("the value of the modificationsFold is " + modificationsFold);
+            counter++;
         }
         return AstToJasmin.super.optimize(semanticsResult);
 

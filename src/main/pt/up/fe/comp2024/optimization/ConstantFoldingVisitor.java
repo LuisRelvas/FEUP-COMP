@@ -51,24 +51,23 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
         addVisit(ASSIGN_STMT,this::visitAssignStmt);
         addVisit(RETURN_STMT,this::visitReturnStmt);
         addVisit(PARENTHESIS_EXPR, this::visitParenthesisExpr);
-        addVisit(ARRAY_ACCESS_EXPR,this::visitArrayAcessExpr);
         addVisit(UNARY_EXPR,this::visitUnaryExpr);
+        addVisit(ARRAY_ASSIGN_STMT,this::visitArrayAssignStmt);
         setDefaultVisit(this::defaultVisit);
     }
 
-    public String visitArrayAcessExpr(JmmNode arrayAccessExpr, Void unused)
+    public String visitArrayAssignStmt(JmmNode arrayAssignStmt, Void unused)
     {
-        var aux = visit(arrayAccessExpr.getChild(1));
-        if(!aux.isEmpty())
+        var aux = visit(arrayAssignStmt.getChild(1));
+        if(!aux.isEmpty() && arrayAssignStmt.getChild(1).getKind().equals(BINARY_EXPR.toString()))
         {
             JmmNode newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
             newNode.put("value", aux);
-            arrayAccessExpr.getChild(1).replace(newNode);
+            arrayAssignStmt.getChild(1).replace(newNode);
             modifications = true;
         }
-        return aux;
+        return "";
     }
-
 
     public String visitUnaryExpr(JmmNode unaryExpr, Void unused)
     {
