@@ -172,6 +172,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         var ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getJmmChild(0),table));
         var temp = OptUtils.getTemp();
         code = temp + ollirType;
+        computation.append(aux.getComputation());
         computation.append(temp).append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(aux.getCode()).append(END_STMT);
         temp = OptUtils.getTemp();
         computation.append(temp).append(".array").append(ollirType).append(ASSIGN).append(".array").append(ollirType).append(" new(array,").append(code).append(" )").append(".array").append(ollirType).append(END_STMT);
