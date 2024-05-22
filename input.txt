@@ -9,8 +9,7 @@ class A
     public int call()
     {
         int[] f;
-        f = this.foo(new int[3]);
-        return 1;
-
+        f = this.foo(this.foo(this.foo(new int[3])));
+        return f[0];
     }
 }
