@@ -1,15 +1,20 @@
-import io;
-class A
-{
-    public int[] foo(int[] field)
-    {
-        return field;
+import ioPlus;
+import test.popo;
+class ComplexArrayAccess {
+    int[] field1;
+
+    public int func(int a) {
+        int i;
+        int[] b;
+
+        field1[0] = a;
+        field1 = b;
+        i = field1[a];
+
+        return 0;
     }
 
-    public int call()
-    {
-        int[] f;
-        f = this.foo(this.foo(this.foo(new int[3])));
-        return f[0];
+    public static void main(String[] args) {
+
     }
 }

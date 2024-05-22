@@ -280,21 +280,41 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         }
         else if(inFields)
         {
-            String code = "";
-            StringBuilder computation = new StringBuilder();
-            computation.append(rhs.getComputation());
-            computation.append("putfield");
-            computation.append(SPACE);
-            computation.append("(");
-            computation.append("this");
-            computation.append(",");
-            computation.append(lhs).append(ollirType);
-            computation.append(",");
-            computation.append(rhs.getCode());
-            computation.append(")");
-            computation.append(".V").append(END_STMT);
-            code = computation.toString();
-            return code.toString();
+            if(utilsType.isArray())
+            {
+                String code ="";
+                StringBuilder computation = new StringBuilder();
+                computation.append(rhs.getComputation());
+                computation.append("putfield");
+                computation.append(SPACE);
+                computation.append("(");
+                computation.append("this");
+                computation.append(",");
+                computation.append(lhs).append(".array").append(ollirType);
+                computation.append(",");
+                computation.append(rhs.getCode());
+                computation.append(")");
+                computation.append(".V").append(END_STMT);
+                code = computation.toString();
+                return code.toString();
+            }
+            else {
+                String code = "";
+                StringBuilder computation = new StringBuilder();
+                computation.append(rhs.getComputation());
+                computation.append("putfield");
+                computation.append(SPACE);
+                computation.append("(");
+                computation.append("this");
+                computation.append(",");
+                computation.append(lhs).append(ollirType);
+                computation.append(",");
+                computation.append(rhs.getCode());
+                computation.append(")");
+                computation.append(".V").append(END_STMT);
+                code = computation.toString();
+                return code.toString();
+            }
         }
 
         return "";
