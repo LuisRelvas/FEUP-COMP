@@ -1,15 +1,17 @@
+import io;
 class A
 {
-    public int foo(int[] field)
+    public int foo(int[] field, int... a)
     {
-        int[] a;
+        field = a;
         return a.length;
     }
 
     public int call()
     {
         int a;
-        a = this.foo(new int[5]);
+        int[] f;
+        io.call([1,2,3],this.foo(f,1,1,1));
         return a;
 
     }
