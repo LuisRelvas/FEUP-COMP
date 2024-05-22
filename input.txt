@@ -1,15 +1,16 @@
 class A
 {
-
-    int[] field;
-    public int foo()
+    public int foo(int[] field)
     {
         int[] a;
-        a = [field[1], field[2]];
-        return a[1];
-
-
+        return a.length;
     }
 
+    public int call()
+    {
+        int a;
+        a = this.foo(new int[5]);
+        return a;
 
+    }
 }

@@ -393,7 +393,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 //iterate over the parameters of the method
                 for(int i = 0; i < paramsAux.size(); i++) {
                     if (paramsAux.get(i).getType().isArray()) {
-                        if (!node.getJmmChild(i+1).getKind().equals(ARRAY_CREATION_EXPR.toString())) {
+                        if (!node.getJmmChild(i+1).getKind().equals(ARRAY_CREATION_EXPR.toString()) && !node.getJmmChild(i+1).getKind().equals(NEW_ARRAY_EXPR.toString())) {
                             indexVarArgsStart = i + 1;
                             varArgs = true;
                             var temp2 = OptUtils.getTemp();
@@ -404,23 +404,10 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                             //append the rest of the childs
                             computation.append(node.getNumChildren() - 1 - i).append(".i32 )").append(ollirType).append(END_STMT);
                             for (int j = 0; j < node.getNumChildren() - 1 - i; j++) {
-                                computation.append(temp2).append("[").append(j).append(".i32").append("]").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(visit(node.getJmmChild(j + 1 + i)).getCode()).append(END_STMT);
+                                var aux = visit(node.getJmmChild(j + 1 + i));
+                                computation.append(temp2).append("[").append(j).append(".i32").append("]").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(aux.getCode()).append(END_STMT);
                             }
                         }
-                        /*
-                        else if(node.getJmmChild(i+1).getKind().equals(ARRAY_CREATION_EXPR.toString()))
-                        {
-                            var temp2 = OptUtils.getTemp();
-                            ollirType = OptUtils.toOllirType(paramsAux.get(i).getType());
-                            arraysCode.append(temp2).append(".array").append(ollirType).append(",");
-                            computation.append(temp2).append(".array").append(ollirType).append(ASSIGN).append(".array").append(ollirType).append(SPACE).append("new(array, ").append(node.getJmmChild(i + 1).getNumChildren()).append(".i32").append(" )").append(".array").append(ollirType).append(END_STMT);
-                            for(int j = 0; j < node.getJmmChild(i+1).getNumChildren(); j++)
-                            {
-                                computation.append(temp2).append("[").append(j).append(".i32").append("]").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(visit(node.getJmmChild(i+1).getJmmChild(j)).getCode()).append(END_STMT);
-                            }
-                        }
-
-                         */
                     }
 
                 }
