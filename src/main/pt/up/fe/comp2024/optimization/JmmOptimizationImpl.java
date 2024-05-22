@@ -42,6 +42,7 @@ public class JmmOptimizationImpl implements JmmOptimization {
             System.out.println("the value of the modificationsFold is " + modificationsFold);
             counter++;
         }
+
         return JmmOptimization.super.optimize(semanticsResult);
     }
 

@@ -75,7 +75,9 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         computation.append(temp).append(".array").append(ollirType).append(ASSIGN).append(".array").append(ollirType).append(" new(array, ").append(arrayCreationExpr.getNumChildren()).append(".i32)").append(".array").append(ollirType).append(END_STMT);
         for(int i = 0; i < arrayCreationExpr.getNumChildren(); i++)
         {
-            computation.append(temp).append("[").append(i).append(".i32").append("]").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(visit(arrayCreationExpr.getJmmChild(i)).getCode()).append(END_STMT);
+            var auxiliar = visit(arrayCreationExpr.getJmmChild(i));
+            computation.append(auxiliar.getComputation());
+            computation.append(temp).append("[").append(i).append(".i32").append("]").append(ollirType).append(SPACE).append(ASSIGN).append(SPACE).append(ollirType).append(SPACE).append(auxiliar.getCode()).append(END_STMT);
         }
 
         return new OllirExprResult(code, computation);
@@ -106,7 +108,13 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         var temp = OptUtils.getTemp();
         var ollirType = OptUtils.toOllirType(TypeUtils.getExprType(arrayAccessExpr,table));
         code = temp + ollirType;
-        computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(arrayAccessExpr.getChild(0).get("value")).append("[").append(index.getCode()).append("]").append(ollirType).append(END_STMT);
+        if(array.getCode().contains("tmp"))
+        {
+            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(array.getCode()).append("[").append(index.getCode()).append("]").append(ollirType).append(END_STMT);
+        }
+        else {
+            computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append(arrayAccessExpr.getChild(0).get("value")).append("[").append(index.getCode()).append("]").append(ollirType).append(END_STMT);
+        }
         return new OllirExprResult(code,computation);
     }
     private OllirExprResult visitUnaryExpr(JmmNode unaryNode, Void unused)

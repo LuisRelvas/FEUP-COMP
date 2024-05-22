@@ -122,147 +122,147 @@ public class ConstantFoldingVisitor extends AJmmVisitor<Void, String> {
         }
         return "";
     }
-        public String visitAssignStmt(JmmNode assignStmt, Void unused)
+    public String visitAssignStmt(JmmNode assignStmt, Void unused)
+    {
+        JmmNode newNode = new JmmNodeImpl("");
+        if(assignStmt.getParent().getKind().equals(BLOCK_STMT.toString()))
         {
-            JmmNode newNode = new JmmNodeImpl("");
-            if(assignStmt.getParent().getKind().equals(BLOCK_STMT.toString()))
-            {
-                if(assignStmt.getParent().getParent().getKind().equals(WHILE_STMT.toString()) || assignStmt.getParent().getParent().getKind().equals(IF_STMT.toString()))
-                {
-                    return "";
-                }
-            }
-            if(assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()))
-            {
-                var aux = visit(assignStmt.getChild(0));
-                if(aux.equals(""))
-                {
-                    return "";
-                }
-                if(!isBoolean) {
-                    newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
-                }
-                else if(isBoolean)
-                {
-                    newNode = new JmmNodeImpl(BOOLEAN_LITERAL.toString());
-                }
-                newNode.put("value", aux);
-                assignStmt.getChild(0).replace(newNode);
-                modifications = true;
-            }
-            return "";
-        }
-        public String visitVarRef(JmmNode varRef, Void unused)
-        {
-            //get the value of the variable and put it in the map
-            if(nameValue.containsKey(varRef.get("value")))
-            {
-                return nameValue.get(varRef.get("value"));
-            }
-            return "";
-        }
-
-        public String visitIntegerLiteral(JmmNode integerLiteral, Void unused)
-        {
-            return integerLiteral.get("value");
-        }
-
-        public String visitBooleanLiteral(JmmNode booleanLiteral, Void unused)
-        {
-            return booleanLiteral.get("value");
-        }
-
-        public String visitBinaryExpr(JmmNode binaryOp, Void unused)
-        {
-
-            var left = visit(binaryOp.getChildren().get(0));
-            var right = visit(binaryOp.getChildren().get(1));
-            if(left.isEmpty() || right.isEmpty())
+            if(assignStmt.getParent().getParent().getKind().equals(WHILE_STMT.toString()) || assignStmt.getParent().getParent().getKind().equals(IF_STMT.toString()))
             {
                 return "";
             }
-            boolean leftBoolean = false;
-            boolean rightBoolean = false;
-            if(left.equals("true"))
-            {
-                isBoolean = true;
-                leftBoolean = true;
-            }
-            else if(left.equals("false"))
-            {
-                isBoolean = true;
-                leftBoolean = false;
-            }
-            if(right.equals("true"))
-            {
-                isBoolean = true;
-                rightBoolean = true;
-            }
-            else if(right.equals("false"))
-            {
-                isBoolean = true;
-                leftBoolean = false;
-            }
-            //get the result from the operation
-            if(left.equals("") || right.equals(""))
+        }
+        if(assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()))
+        {
+            var aux = visit(assignStmt.getChild(0));
+            if(aux.equals(""))
             {
                 return "";
             }
-            switch(binaryOp.get("op"))
-            {
-                case "+":
-                    result = Integer.parseInt(left) + Integer.parseInt(right);
-                    break;
-                case "-":
-                    result = Integer.parseInt(left) - Integer.parseInt(right);
-                    break;
-                case "*":
-                    result = Integer.parseInt(left) * Integer.parseInt(right);
-                    break;
-                case "/":
-                    result = Integer.parseInt(left) / Integer.parseInt(right);
-                    break;
-                case "&&":
-                    resultBoolean = leftBoolean && rightBoolean;
-                    break;
-                case "<":
-                    resultBoolean = Integer.parseInt(left) < Integer.parseInt(right);
-                    break;
-                case ">":
-                    resultBoolean = Integer.parseInt(left) > Integer.parseInt(right);
-                    break;
-
-            }
-            if(binaryOp.getParent().getKind().equals(ASSIGN_STMT.toString()))
-            {
-                if(nameValue.containsKey(binaryOp.getParent().get("value")) && !isBoolean)
-                {
-                    nameValue.replace(binaryOp.getParent().get("value"), ""+result);
-                }
-                else if(nameValue.containsKey(binaryOp.getParent().get("value") )&& isBoolean)
-                {
-                    nameValue.replace(binaryOp.getParent().get("value"),""+resultBoolean);
-                }
-                else if(!nameValue.containsKey(binaryOp.getParent().get("value")) && !isBoolean)
-                {
-                    nameValue.put(binaryOp.getParent().get("value"), ""+result);
-                }
-                else if(!nameValue.containsKey(binaryOp.getParent().get("value"))&& isBoolean)
-                {
-                    nameValue.put(binaryOp.getParent().get("value"), ""+resultBoolean);
-                }
-            }
-            String resultString = "";
             if(!isBoolean) {
-                resultString = "" + result + "";
+                newNode = new JmmNodeImpl(INTEGER_LITERAL.toString());
             }
             else if(isBoolean)
             {
-                resultString = ""+ resultBoolean;
+                newNode = new JmmNodeImpl(BOOLEAN_LITERAL.toString());
             }
-
-            return resultString;
+            newNode.put("value", aux);
+            assignStmt.getChild(0).replace(newNode);
+            modifications = true;
         }
+        return "";
+    }
+    public String visitVarRef(JmmNode varRef, Void unused)
+    {
+        //get the value of the variable and put it in the map
+        if(nameValue.containsKey(varRef.get("value")))
+        {
+            return nameValue.get(varRef.get("value"));
+        }
+        return "";
+    }
+
+    public String visitIntegerLiteral(JmmNode integerLiteral, Void unused)
+    {
+        return integerLiteral.get("value");
+    }
+
+    public String visitBooleanLiteral(JmmNode booleanLiteral, Void unused)
+    {
+        return booleanLiteral.get("value");
+    }
+
+    public String visitBinaryExpr(JmmNode binaryOp, Void unused)
+    {
+
+        var left = visit(binaryOp.getChildren().get(0));
+        var right = visit(binaryOp.getChildren().get(1));
+        if(left.isEmpty() || right.isEmpty())
+        {
+            return "";
+        }
+        boolean leftBoolean = false;
+        boolean rightBoolean = false;
+        if(left.equals("true"))
+        {
+            isBoolean = true;
+            leftBoolean = true;
+        }
+        else if(left.equals("false"))
+        {
+            isBoolean = true;
+            leftBoolean = false;
+        }
+        if(right.equals("true"))
+        {
+            isBoolean = true;
+            rightBoolean = true;
+        }
+        else if(right.equals("false"))
+        {
+            isBoolean = true;
+            leftBoolean = false;
+        }
+        //get the result from the operation
+        if(left.equals("") || right.equals(""))
+        {
+            return "";
+        }
+        switch(binaryOp.get("op"))
+        {
+            case "+":
+                result = Integer.parseInt(left) + Integer.parseInt(right);
+                break;
+            case "-":
+                result = Integer.parseInt(left) - Integer.parseInt(right);
+                break;
+            case "*":
+                result = Integer.parseInt(left) * Integer.parseInt(right);
+                break;
+            case "/":
+                result = Integer.parseInt(left) / Integer.parseInt(right);
+                break;
+            case "&&":
+                resultBoolean = leftBoolean && rightBoolean;
+                break;
+            case "<":
+                resultBoolean = Integer.parseInt(left) < Integer.parseInt(right);
+                break;
+            case ">":
+                resultBoolean = Integer.parseInt(left) > Integer.parseInt(right);
+                break;
+
+        }
+        if(binaryOp.getParent().getKind().equals(ASSIGN_STMT.toString()))
+        {
+            if(nameValue.containsKey(binaryOp.getParent().get("value")) && !isBoolean)
+            {
+                nameValue.replace(binaryOp.getParent().get("value"), ""+result);
+            }
+            else if(nameValue.containsKey(binaryOp.getParent().get("value") )&& isBoolean)
+            {
+                nameValue.replace(binaryOp.getParent().get("value"),""+resultBoolean);
+            }
+            else if(!nameValue.containsKey(binaryOp.getParent().get("value")) && !isBoolean)
+            {
+                nameValue.put(binaryOp.getParent().get("value"), ""+result);
+            }
+            else if(!nameValue.containsKey(binaryOp.getParent().get("value"))&& isBoolean)
+            {
+                nameValue.put(binaryOp.getParent().get("value"), ""+resultBoolean);
+            }
+        }
+        String resultString = "";
+        if(!isBoolean) {
+            resultString = "" + result + "";
+        }
+        else if(isBoolean)
+        {
+            resultString = ""+ resultBoolean;
+        }
+
+        return resultString;
+    }
 
 
     private String defaultVisit(JmmNode node, Void unused) {
