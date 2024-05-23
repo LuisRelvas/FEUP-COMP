@@ -471,6 +471,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                     code = temp;
                     computation.append(code).append(ollirType).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
                 }
+
                 else
                 {
                     code = temp + ollirType;
@@ -520,6 +521,13 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 code = temp + ollirType;
                 computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
+            else if(node.getParent().getKind().equals(ARRAY_ASSIGN_STMT.toString()))
+            {
+                var temp = OptUtils.getTemp();
+                ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
+                code = temp + ollirType;
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
+            }
             else if(!node.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
                 var temp = OptUtils.getTemp();// get a new temp
@@ -527,6 +535,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 code = temp + ollirType;
                 computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
+
             else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
                 var temp = OptUtils.getTemp();
