@@ -15,7 +15,9 @@ class A
     int i;
     int j;
     int k;
-    a  = this.foo(a);
+    int[] aux;
+    field = a;
+    a = field;
     return a.length;
     }
 

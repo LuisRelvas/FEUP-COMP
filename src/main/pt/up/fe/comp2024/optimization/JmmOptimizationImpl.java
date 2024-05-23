@@ -21,27 +21,7 @@ public class JmmOptimizationImpl implements JmmOptimization {
 
     @Override
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
-        String optimizationConfig = semanticsResult.getConfig().get("optimize");
-        boolean applyOptimizations = optimizationConfig != null && optimizationConfig.equals("true");
-        if(!applyOptimizations)
-        {
-            return JmmOptimization.super.optimize(semanticsResult);
-        }
 
-        boolean modificationsProp = true;
-        boolean modificationsFold = true;
-        int counter = 0;
-        while(modificationsFold == true || modificationsProp == true ) {
-            ConstantPropagationVisitor optimizationAst = new ConstantPropagationVisitor(semanticsResult.getSymbolTable());
-            ConstantFoldingVisitor optimization = new ConstantFoldingVisitor(semanticsResult.getSymbolTable());
-            optimizationAst.visit(semanticsResult.getRootNode());
-            optimization.visit(semanticsResult.getRootNode());
-            modificationsFold = optimization.getModifications();
-            modificationsProp = optimizationAst.getModifications();
-            System.out.println("the value of the modificationsProp is " + modificationsProp);
-            System.out.println("the value of the modificationsFold is " + modificationsFold);
-            counter++;
-        }
 
         return JmmOptimization.super.optimize(semanticsResult);
     }
