@@ -17,7 +17,7 @@ class A
     int j;
     int k;
     boolean[] aux;
-    a[0] = this.call([1,2,3,4],field[1],field[1],field[2]);
+    a[0] = io.call([1,2,3,4],field[1],field[1],field[2]);
     return a.length;
     }
 

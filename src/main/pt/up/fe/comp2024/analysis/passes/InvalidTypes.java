@@ -108,11 +108,13 @@ public class InvalidTypes extends AnalysisVisitor {
         for(int i = 1; i < arrayAssignStmt.getNumChildren(); i++)
         {
             Type type = TypeUtils.getExprType(arrayAssignStmt.getChild(i), table);
-            if(!type.getName().equals(typeArray.getName()))
-            {
-                addReport(Report.newError(Stage.SEMANTIC,0,0,"Type mismatch in the Assignment of the Array " + array, null));
-                return null;
+            if(!table.getImports().contains(type.getName())) {
+                if (!type.getName().equals(typeArray.getName())) {
+                    addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the Assignment of the Array " + array, null));
+                    return null;
+                }
             }
+
         }
         return null;
     }
