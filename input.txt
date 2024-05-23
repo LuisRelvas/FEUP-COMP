@@ -10,7 +10,7 @@ class A
 
     }
 
-    public int maybe()
+    public int maybe(int[] a, int... f)
     {
         return 0;
     }
@@ -24,7 +24,7 @@ class A
     int k;
     int[] aux;
     auxiliar = new A();
-    k = auxiliar.call([1,2,3,this.maybe()],1,2,3);
+    k = auxiliar.call([this.call([1,2],3),2,3],field[1],field[1],field[2]);
     return a.length;
     }
 
