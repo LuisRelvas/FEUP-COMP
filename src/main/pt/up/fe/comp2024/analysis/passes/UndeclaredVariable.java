@@ -145,7 +145,19 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                             return null;
                                         }
                                     }
-                                } else {
+                                }
+                                else if(expr.getJmmChild(i+1).getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
+                                {
+                                    hasArray = true;
+                                    var m = TypeUtils.getExprType(expr.getJmmChild(i+1).getJmmChild(0),table);
+                                    if(!m.getName().equals(params.get(0).getType().getName()))
+                                    {
+                                        addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                        return null;
+                                    }
+
+                                }
+                                else {
                                     if (i >= expr.getNumChildren() - 1) {
                                         addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Invalid number of parameters", null));
                                         return null;

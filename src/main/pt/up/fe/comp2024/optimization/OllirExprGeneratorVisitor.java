@@ -535,7 +535,6 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 if(returnType.isArray())
                 {
                     ollirType = ".array" + ollirType;
-
                 }
                 code = temp + ollirType;
                 computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);

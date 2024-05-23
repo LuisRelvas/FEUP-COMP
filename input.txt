@@ -4,7 +4,7 @@ class A
     int l;
     int[] field;
 
-    public int call(int[] a)
+    public int call(int... a)
     {
         return a.length;
 
@@ -17,7 +17,7 @@ class A
     int j;
     int k;
     int[] aux;
-    a = io.cama(i,k,[1,2,3],field);
+    a[0] = this.call(field[1],field[2],field[3]);
     return a.length;
     }
 
