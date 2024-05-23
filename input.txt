@@ -1,18 +1,23 @@
-import ioPlus;
+class A
+{
+    int l;
+    int[] field;
 
-class HelloWorld {
-    public static void main(String[] args) {
-        int x;
-        int i;
-        x = 1;
-        i = 0;
-        while(i < 6) {
-            if (1 < i && i < 4) {
-                x = 100 + i;
-            } else {}
+    public int call(int[] a)
+    {
+        return a.length;
 
-            ioPlus.printResult(x);
-            i = i + 1;
-        }
     }
+
+    public int foo(int[] a)
+    {
+    int[] m;
+    int i;
+    int j;
+    int k;
+    a  = this.foo(a);
+    return a.length;
+    }
+
+
 }
