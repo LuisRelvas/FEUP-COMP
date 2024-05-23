@@ -17,7 +17,7 @@ class A
     int j;
     int k;
     int[] aux;
-    io.cama(field);
+    a = io.cama(i,k,[1,2,3],field);
     return a.length;
     }
 

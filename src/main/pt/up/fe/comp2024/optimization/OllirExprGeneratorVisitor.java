@@ -530,7 +530,13 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
             else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
                 var temp = OptUtils.getTemp();
+                returnType = TypeUtils.getExprType(node.getParent(),table);
                 ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
+                if(returnType.isArray())
+                {
+                    ollirType = ".array" + ollirType;
+
+                }
                 code = temp + ollirType;
                 computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE);
             }
