@@ -10,6 +10,11 @@ class A
 
     }
 
+    public int maybe()
+    {
+        return 0;
+    }
+
     public int foo(int[] a)
     {
     A auxiliar;
@@ -17,9 +22,9 @@ class A
     int i;
     int j;
     int k;
-    boolean[] aux;
+    int[] aux;
     auxiliar = new A();
-    k = auxiliar.call([this.call([1,2],3),2,3],field[1],field[1],field[2]);
+    k = auxiliar.call([1,2,3,this.maybe()],1,2,3);
     return a.length;
     }
 
