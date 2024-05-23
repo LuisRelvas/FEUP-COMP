@@ -97,12 +97,12 @@ public class JasminGenerator {
             answer.append(loader("i",reg)+NL);
             answer.append("iconst_1"+NL);
         }
-        curStackSize++;
+        this.curStackSize = this.curStackSize+1;
         if(this.curStackSize>this.maxStackSize){
             this.maxStackSize=this.curStackSize;
         }
         answer.append("ixor"+NL);
-        curStackSize--;
+        this.curStackSize = this.curStackSize-1;
         return answer.toString();
     }
 
@@ -135,7 +135,11 @@ public class JasminGenerator {
                 answer.append("baload"+NL);
             }
         }
-
+        this.curStackSize = this.curStackSize+2;
+        if(this.curStackSize>this.maxStackSize){
+            this.maxStackSize=this.curStackSize;
+        }
+        this.curStackSize = this.curStackSize-1;
         return answer.toString();
     }
 
@@ -152,16 +156,11 @@ public class JasminGenerator {
         fullCond = fullCond.replace("Inst: BINARYOPER ","");
         StringBuilder answer = new StringBuilder();
         var operands = condBranchInstruction.getOperands();
-
-
         for (var op : operands){
             if(op.getClass().toString().equals("class org.specs.comp.ollir.LiteralElement")){
                 fullCond = fullCond.replace(op.toString(),"");
                 answer.append(generators.apply(op));
-                curStackSize++;
-                if(this.curStackSize>this.maxStackSize){
-                    this.maxStackSize=this.curStackSize;
-                }
+
             }
             else{
                 var operand = (Operand) op;
@@ -169,7 +168,6 @@ public class JasminGenerator {
                 var reg = currentMethod.getVarTable().get(operand.getName()).getVirtualReg();
                 answer.append(loader("i", reg)+NL);
             }
-
         }
         String condition = fullCond.replace(" ","");
 
@@ -202,20 +200,15 @@ public class JasminGenerator {
         if(singleOpCondInstruction.getCondition().getInstType().toString().equals("NOPER")){
             var args = singleOpCondInstruction.getOperands();
             for(var ele : args){
-
                 if(ele.getClass().toString().equals("class org.specs.comp.ollir.LiteralElement")){
                     answer.append(generators.apply(ele));
-                    curStackSize++;
-                    if(this.curStackSize>this.maxStackSize){
-                        this.maxStackSize=this.curStackSize;
-                    }
+
                 }
                 else{
                     var op = (Operand) ele;
                     var reg = currentMethod.getVarTable().get(op.getName()).getVirtualReg();
                     answer.append(loader("i", reg)+NL);
                 }
-
             }
             if(this.noper == null){
                 answer.append("ifne");
@@ -224,16 +217,15 @@ public class JasminGenerator {
                 answer.append(this.noper);
             }
             this.noper = null;
-            curStackSize = curStackSize-2;
+            curStackSize = curStackSize-1;
 
-        }
-        else{
-            System.out.println("here no else ghu8af");
         }
         answer.append(SPACE+singleOpCondInstruction.getLabel()+NL);
         this.lastlabel.add(singleOpCondInstruction.getLabel());
         return answer.toString();
     }
+
+
 
 
     private String getIntFromLiteral(Element ele){
@@ -380,6 +372,10 @@ public class JasminGenerator {
                 }
                 answer.append("new "+ callerName+NL);
                 answer.append("dup"+NL);
+                this.curStackSize = this.curStackSize+2;
+                if(this.curStackSize>this.maxStackSize){
+                    this.maxStackSize=this.curStackSize;
+                }
                 answer.append(callInstruction.getInvocationType() + SPACE);
                 answer.append(callerName);
                 answer.append("/<init>()V" + NL);
@@ -654,15 +650,43 @@ public class JasminGenerator {
             params.append(newParam);
         }
 
+        StringBuilder codeAux = new StringBuilder();
+        for (var inst : method.getInstructions()) {
+
+            if(this.lastlabel.isEmpty()){}
+            else{
+                for (int i= 0; i < this.lastlabel.size(); i++){
+                    if(method.getLabels().get(this.lastlabel.get(i)).equals(inst)){
+                        codeAux.append(this.lastlabel.get(i)+" :"+NL);
+                        this.lastlabel.remove(i);
+                    }
+                }
+            }
+
+
+            var instCode = StringLines.getLines(generators.apply(inst)).stream()
+                    .collect(Collectors.joining(NL + TAB, TAB, NL));
+            codeAux.append(instCode);
+
+        }
 
         code.append("\n.method ").append(modifier).append(isStatic).append(methodName).append("("+params+")"+returnType).append(NL);
 
-        // Add limits
         //TODO rever se o calLimLoc está certo
-        //var limitLocals = calculateLimitLocals();
-
         //TOdo clacular limit stack ver o tamanho máximo que a stack ocupa dentro de um método
-        code.append(TAB).append(".limit stack 99").append(NL);
+        int limitStackValue = calculateLimitLocals();
+
+
+        var x = this.currentMethod.getVarTable().values();
+
+        int answer = 0;
+        for(var value : x){
+            if(value.getVirtualReg() > answer){
+                answer = value.getVirtualReg();
+            }
+        }
+
+        code.append(TAB).append(".limit stack ").append(answer+1).append(NL);
 
         int limitLocals = this.currentMethod.getVarTable().size();
         for(var argument: this.currentMethod.getParams()){
@@ -681,23 +705,8 @@ public class JasminGenerator {
         code.append(TAB).append(".limit locals ").append(limitLocals).append(NL);
 
 
-        for (var inst : method.getInstructions()) {
-            if(this.lastlabel.isEmpty()){}
-            else{
-                for (int i= 0; i < this.lastlabel.size(); i++){
-                    if(method.getLabels().get(this.lastlabel.get(i)).equals(inst)){
-                        code.append(this.lastlabel.get(i)+" :"+NL);
-                        this.lastlabel.remove(i);
-                    }
-                }
-            }
 
-
-            var instCode = StringLines.getLines(generators.apply(inst)).stream()
-                    .collect(Collectors.joining(NL + TAB, TAB, NL));
-            code.append(instCode);
-
-        }
+        code.append(codeAux);
         code.append(".end method\n");
 
         // unset method
@@ -748,7 +757,7 @@ public class JasminGenerator {
             }
             code.append(generators.apply(assign.getRhs()));
             code.append("iastore"+NL);
-
+            this.curStackSize = this.curStackSize-3;
         }
         else{
             code.append(generators.apply(assign.getRhs()));
@@ -779,6 +788,10 @@ public class JasminGenerator {
     }
 
     private String generateLiteral(LiteralElement literal) {
+        this.curStackSize = this.curStackSize+1;
+        if(this.curStackSize>this.maxStackSize){
+            this.maxStackSize=this.curStackSize;
+        }
         var integerVaue = Integer.parseInt(literal.getLiteral());
         if(integerVaue < 6){
             return "iconst_" + literal.getLiteral() + NL;
@@ -809,7 +822,7 @@ public class JasminGenerator {
         var code = new StringBuilder();
         code.append(generators.apply(binaryOp.getLeftOperand()));
         code.append(generators.apply(binaryOp.getRightOperand()));
-        this.curStackSize--;
+        this.curStackSize = this.curStackSize-1;
         switch (binaryOp.getOperation().getOpType()){
             case ADD :
                 code.append("iadd").append(NL);
@@ -858,6 +871,7 @@ public class JasminGenerator {
         else{
             code.append(generators.apply(returnInst.getOperand()));
             code.append("ireturn");
+            this.curStackSize = this.curStackSize-1;
         }
 
         return code.toString();
