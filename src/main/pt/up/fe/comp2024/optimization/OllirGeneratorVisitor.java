@@ -136,6 +136,8 @@ public class OllirGeneratorVisitor extends AJmmVisitor<Void, String> {
         computation.append("while_cond_").append(aux).append(":").append(NL);
         computation.append(boolExpr.getComputation());
         computation.append("if( ").append(boolExpr.getCode()).append(" )").append("goto while_body_").append(aux).append(END_STMT);
+        computation.append("goto while_end_").append(aux).append(END_STMT);
+        computation.append("while_end_").append(aux).append(":").append(NL);
         return computation.toString();
     }
 
