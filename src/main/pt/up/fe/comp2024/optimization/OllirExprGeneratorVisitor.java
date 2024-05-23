@@ -412,9 +412,10 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                                     total++;
                                 }
                             }
-                            computation.append(total).append(".i32 )").append(ollirType).append(END_STMT);
+                            computation.append(total).append(".i32 )").append(".array").append(ollirType).append(END_STMT);
                             for (int j = 0; j < node.getNumChildren() - 1 - i; j++) {
                                 var aux = visit(node.getJmmChild(j + 1 + i));
+                                computation.append(aux.getComputation());
                                 computation.append(temp2).append("[").append(j).append(".i32").append("]").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(aux.getCode()).append(END_STMT);
                             }
                         }
