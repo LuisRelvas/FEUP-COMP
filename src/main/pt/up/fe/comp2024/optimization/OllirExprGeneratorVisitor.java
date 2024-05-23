@@ -226,7 +226,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         var temp = OptUtils.getTemp();
         String code = temp + resOllirType;
 
-        if(node.get("op").toString().equals("&&") && node.getChild(0).getKind().toString().equals("BooleanLiteral")){
+        if(node.get("op").toString().equals("&&") && node.getChild(0).getKind().toString().equals("BooleanLiteral")&& !node.getParent().getKind().equals(IF_STMT.toString())){
 
             computation.append("if(");
             computation.append(visit(node.getChild(0)).getCode());
@@ -246,7 +246,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
 
 
         }
-        else if(node.get("op").toString().equals("&&") && node.getChild(1).getKind().toString().equals("BooleanLiteral")) {
+        else if(node.get("op").toString().equals("&&") && node.getChild(1).getKind().toString().equals("BooleanLiteral") && !node.getParent().getKind().equals(IF_STMT.toString())) {
 
             computation.append("if(");
             computation.append(visit(node.getChild(1)).getCode());
@@ -278,6 +278,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
 
         return new OllirExprResult(code, computation);
     }
+
 
     private OllirExprResult visitVarRef(JmmNode node, Void unused) {
         StringBuilder computation = new StringBuilder();

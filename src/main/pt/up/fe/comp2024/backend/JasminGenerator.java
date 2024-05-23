@@ -662,7 +662,7 @@ public class JasminGenerator {
         //var limitLocals = calculateLimitLocals();
 
         //TOdo clacular limit stack ver o tamanho máximo que a stack ocupa dentro de um método
-        code.append(TAB).append(".limit stack 5").append(NL);
+        code.append(TAB).append(".limit stack 99").append(NL);
 
         int limitLocals = this.currentMethod.getVarTable().size();
         for(var argument: this.currentMethod.getParams()){

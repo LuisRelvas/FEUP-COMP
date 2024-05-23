@@ -1,9 +1,24 @@
-class PropWithLoop {
-    public int foo(){
-	  int a;
-	  a = 10;
-	  return 1;
-	}
-	public static void main(String[] args) {
-	}
+import io;
+class IfElseInMain {
+
+    int a;
+
+    public boolean test2(int x){
+        return true;
+    }
+
+    public int test(){
+        int b;
+        if(50<10 && true){
+          a = 10;
+        } else {
+          b = a;
+        }
+        return a;
+    }
+
+    public static void main(String[] args){
+
+    }
+
 }
