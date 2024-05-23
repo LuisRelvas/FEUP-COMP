@@ -148,9 +148,28 @@ public class UndeclaredVariable extends AnalysisVisitor {
                                 }
                                 else if(expr.getJmmChild(i+1).getKind().equals(Kind.ARRAY_ACCESS_EXPR.toString()))
                                 {
-                                    hasArray = true;
+                                    //calculate the number of parameters that are left to check
+                                    var aux = params.size() - i;
+                                    if(aux == 1 && i < expr.getNumChildren() -1)
+                                    {
+                                        for(int j = i+ 1; j < expr.getNumChildren(); j++)
+                                        {
+                                            hasArray = true;
+                                            if(j >= expr.getNumChildren())
+                                            {
+                                                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Invalid number of parameters", null));
+                                                return null;
+                                            }
+
+                                            if (!params.get(i).getType().getName().equals(TypeUtils.getExprType(expr.getJmmChild(j ).getJmmChild(0), table).getName())) {
+                                                addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
+                                                return null;
+                                            }
+
+                                        }
+                                    }
                                     var m = TypeUtils.getExprType(expr.getJmmChild(i+1).getJmmChild(0),table);
-                                    if(!m.getName().equals(params.get(0).getType().getName()))
+                                    if(!m.getName().equals(params.get(i).getType().getName()))
                                     {
                                         addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Type mismatch in the parameters of the method " + expr.get("value"), null));
                                         return null;
