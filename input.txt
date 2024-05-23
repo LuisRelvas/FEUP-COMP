@@ -1,27 +1,16 @@
-import io;
-class A
-{
-    int l;
-    int[] field;
+import ioPlus;
+class ConstProp {
+	public static void main(String[] args) {
+	    int i;
+	    int x;
+	    x = 50;
+	    i = 1;
 
-    public int call(int[] c,int... a)
-    {
-        return c.length;
-
-    }
-
-    public int foo(int[] a)
-    {
-    A auxiliar;
-    int[] m;
-    int i;
-    int j;
-    int k;
-    int[] aux;
-    auxiliar = new A();
-    k = auxiliar.call([this.call([1],2),2,3],1,2);
-    return a.length;
-    }
-
-
+	    while (i < 10) {
+	        ioPlus.printResult(x);
+	        x = i;
+	        i = i * 2;
+	    }
+	    x = i;
+	}
 }

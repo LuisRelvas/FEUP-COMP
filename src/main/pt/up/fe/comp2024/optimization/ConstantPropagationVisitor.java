@@ -22,6 +22,8 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
     //create a map to store the values of the variables
     private Map<String, String> nameValue = new HashMap<String, String>();
 
+    private Map<String, String> nameValueInCondition = new HashMap<>();
+
     private int result = 0;
 
     private boolean modifications = false;
@@ -64,6 +66,11 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         var aux = visit(ifStmt.getJmmChild(0));
         var left = visit(ifStmt.getJmmChild(1));
         var right = visit(ifStmt.getJmmChild(2));
+        for(var entry : nameValueInCondition.entrySet())
+        {
+            //remove from the nameValue map the values that are in the condition
+            nameValue.remove(entry.getKey());
+        }
         return "";
     }
     public String visitAssignStmt(JmmNode assignStmt, Void unused)
@@ -72,8 +79,13 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
         var varName = assignStmt.get("value");
         var varValue = visit(assignStmt.getChildren().get(0));
 
+        if(assignStmt.getAncestor(IF_STMT).isPresent())
+        {
+            nameValueInCondition.put(varName, varValue);
+        }
+
         //append to the map the varName and the varValue
-        if(!assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()) && !varValue.isEmpty() && !varName.isEmpty())
+        else if(!assignStmt.getChild(0).getKind().equals(BINARY_EXPR.toString()) && !varValue.isEmpty() && !varName.isEmpty())
         {
 
             if(nameValue.containsKey(varName))
