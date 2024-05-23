@@ -9,14 +9,13 @@ class ArrayVarargs {
         a.bar();
     }
 
-    int foo(int... a) {
+    int foo(int[] c, int... a) {
         return 1;
     }
 
     int bar() {
         int res;
-
-        res = this.foo(1);
+        res = this.foo([1,2,3,4]);
         io.println(res);
 
         return res;

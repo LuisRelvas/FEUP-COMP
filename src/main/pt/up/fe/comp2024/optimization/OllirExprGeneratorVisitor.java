@@ -396,7 +396,8 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 //iterate over the parameters of the method
                 for(int i = 0; i < paramsAux.size(); i++) {
                     if (paramsAux.get(i).getType().isArray()) {
-                        if(node.getNumChildren() > 1) {
+                        var paramsSize = paramsAux.size();
+                        if(node.getNumChildren() > paramsSize) {
                             if (!node.getJmmChild(i + 1).getKind().equals(ARRAY_CREATION_EXPR.toString()) && !node.getJmmChild(i + 1).getKind().equals(NEW_ARRAY_EXPR.toString()) && !node.getJmmChild(i + 1).getKind().equals(VAR_REF.toString())) {
                                 indexVarArgsStart = i + 1;
                                 varArgs = true;
