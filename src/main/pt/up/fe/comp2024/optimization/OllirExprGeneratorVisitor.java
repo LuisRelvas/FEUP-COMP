@@ -398,19 +398,23 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                         if (!node.getJmmChild(i+1).getKind().equals(ARRAY_CREATION_EXPR.toString()) && !node.getJmmChild(i+1).getKind().equals(NEW_ARRAY_EXPR.toString()) && !node.getJmmChild(i+1).getKind().equals(VAR_REF.toString())) {
                             indexVarArgsStart = i + 1;
                             varArgs = true;
-                            var total = -1;
                             var temp2 = OptUtils.getTemp();
                             tempFixed = temp2;
                             ollirType = OptUtils.toOllirType(paramsAux.get(i).getType());
                             arraysCode.append(temp2).append(".array").append(ollirType).append(",");
                             computation.append(temp2).append(".array").append(ollirType).append(ASSIGN).append(".array").append(ollirType).append(SPACE).append("new(array, ");
                             //append the rest of the childs that are not varRef
+                            var total = -1;
                             for(int m = 0; m < node.getNumChildren(); m++)
                             {
                                 if(!node.getJmmChild(m).getKind().equals(VAR_REF.toString()))
                                 {
                                     total++;
                                 }
+                            }
+                            if(node.getParent().getKind().equals(ARRAY_CREATION_EXPR.toString()) && node.getParent().getParent().getKind().equals(METHOD_CALL_EXPR.toString()))
+                            {
+                                total = total - 1;
                             }
                             computation.append(total).append(".i32 )");
                             if(!ollirType.contains(".array"))
