@@ -106,7 +106,7 @@ public class ConstantPropagationVisitor extends AJmmVisitor<Void, String> {
     {
         JmmNode newNode = new JmmNodeImpl("");
         //get the value of the varRef from the map
-        if(nameValue.containsKey(varRef.get("value")) && !varRef.getParent().getKind().equals(ARRAY_ACCESS_EXPR.toString()) && !varRef.getParent().getKind().equals(IF_STMT.toString()))
+        if(nameValue.containsKey(varRef.get("value")) && !varRef.getParent().getKind().equals(ARRAY_ACCESS_EXPR.toString()) && !varRef.getParent().getKind().equals(IF_STMT.toString()) && !varRef.getAncestor(WHILE_STMT).isPresent())
         {
             //o tipo será boolean ou inteiro se for inteiro entao teremos um numero como value se for true ou false entao é boolean
             if(nameValue.get(varRef.get("value")).equals("true") || nameValue.get(varRef.get("value")).equals("false"))

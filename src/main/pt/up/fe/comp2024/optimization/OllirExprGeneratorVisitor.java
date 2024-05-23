@@ -461,43 +461,6 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
             }
             else if(node.getParent().getKind().equals(ASSIGN_STMT.toString()))
             {
-                //check from where does the variable comes from
-                var getParams = table.getParametersTry(currentMethod);
-                var getFields = table.getFields();
-                var getLocals = table.getLocalVariablesTry(currentMethod);
-                var inLocals = false;
-                var inFields = false;
-                var inParams = false;
-                if(getLocals.isPresent())
-                {
-                    for(Symbol s: getLocals.get())
-                    {
-                        if(s.getName().equals(node.getParent().get("value")))
-                        {
-                            inLocals = true;
-                        }
-                    }
-                }
-                if(getParams.isPresent())
-                {
-                    for(Symbol s: getParams.get())
-                    {
-                        if(s.getName().equals(node.getParent().get("value")))
-                        {
-                            inParams = true;
-                        }
-                    }
-                }
-                if(!getFields.isEmpty())
-                {
-                    for(Symbol s : getFields)
-                    {
-                        if(s.getName().equals(node.getParent().get("value")))
-                        {
-                            inFields = true;
-                        }
-                    }
-                }
                 var aux = TypeUtils.getExprType(node.getParent(),table);
                 var temp = OptUtils.getTemp();
                 ollirType = OptUtils.toOllirType(TypeUtils.getExprType(node.getParent(),table));
