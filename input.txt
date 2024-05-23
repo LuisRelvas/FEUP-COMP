@@ -1,0 +1,9 @@
+class PropWithLoop {
+    public int foo(){
+	  int a;
+	  a = 10;
+	  return 1;
+	}
+	public static void main(String[] args) {
+	}
+}
