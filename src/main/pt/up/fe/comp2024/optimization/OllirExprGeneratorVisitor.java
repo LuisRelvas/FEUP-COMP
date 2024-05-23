@@ -339,12 +339,12 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
             if(type.isArray())
             {
                 code = temp;
-                computation.append(temp).append(".array.i32").append(SPACE).append(ASSIGN).append(".array.i32").append(SPACE).append("getfield").append(SPACE).append("(").append("this").append(",").append(node.get("value")).append(".array").append(ollirType).append(")").append(".array").append(ollirType).append(END_STMT);
+                computation.append(temp).append(".array.i32").append(SPACE).append(ASSIGN).append(".array.i32").append(SPACE).append("getfield").append(SPACE).append("(").append("this.").append(table.getClassName()).append(",").append(node.get("value")).append(".array").append(ollirType).append(")").append(".array").append(ollirType).append(END_STMT);
             }
             else
             {
                 code = temp + ollirType;
-                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append("getfield").append(SPACE).append("(").append("this").append(",").append(node.get("value")).append(ollirType).append(")").append(ollirType).append(END_STMT);
+                computation.append(code).append(SPACE).append(ASSIGN).append(ollirType).append(SPACE).append("getfield").append(SPACE).append("(").append("this.").append(table.getClassName()).append(",").append(node.get("value")).append(ollirType).append(")").append(ollirType).append(END_STMT);
 
             }
             return new OllirExprResult(code,computation);
