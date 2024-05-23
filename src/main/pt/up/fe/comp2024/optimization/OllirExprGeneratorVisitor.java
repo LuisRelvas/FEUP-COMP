@@ -360,7 +360,9 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         StringBuilder params = new StringBuilder(); // to store the parameters
         boolean hasArgs = false;
         boolean varArgs = false;
+        boolean hasvarArgsEmpty = false;
         StringBuilder arraysCode = new StringBuilder();
+        StringBuilder varArgsEmpty  = new StringBuilder();
         Type returnType = new Type("int", false);
         var ollirType = ".V";
         var lhs = visit(node.getJmmChild(0));
@@ -395,9 +397,18 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 var paramsAux = table.getParameters(node.get("value"));
                 //iterate over the parameters of the method
                 for(int i = 0; i < paramsAux.size(); i++) {
-                    if (paramsAux.get(i).getType().isArray()) {
-                        var paramsSize = paramsAux.size();
-                        if(node.getNumChildren() > paramsSize) {
+                    //check if there is i + 1 child in the node
+                    if(node.getNumChildren() - 1 < i + 1)
+                    {
+                        //varArgs is empty
+                        var tempAux = OptUtils.getTemp();
+                        tempFixed = tempAux;
+                        ollirType = OptUtils.toOllirType(paramsAux.get(i).getType());
+                        computation.append(tempAux).append(".array").append(ollirType).append(SPACE).append(ASSIGN).append(".array").append(ollirType).append(SPACE).append("new").append(SPACE).append("(").append("array").append(",").append("0.i32").append(")").append(".array").append(ollirType).append(END_STMT);
+                        hasvarArgsEmpty = true;
+                        varArgsEmpty.append(tempAux).append(".array").append(ollirType);
+                    }
+                    else if (paramsAux.get(i).getType().isArray()) {
                             if (!node.getJmmChild(i + 1).getKind().equals(ARRAY_CREATION_EXPR.toString()) && !node.getJmmChild(i + 1).getKind().equals(NEW_ARRAY_EXPR.toString()) && !node.getJmmChild(i + 1).getKind().equals(VAR_REF.toString())) {
                                 indexVarArgsStart = i + 1;
                                 varArgs = true;
@@ -428,7 +439,6 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                                     }
                                     computation.append(temp2).append("[").append(j).append(".i32").append("]").append(ollirType).append(ASSIGN).append(ollirType).append(SPACE).append(aux.getCode()).append(END_STMT);
                                 }
-                            }
                         }
                     }
                 }
@@ -441,6 +451,11 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                     if (i != node.getNumChildren() - 1) {
                         params.append(",");
                     }
+                    else if(hasvarArgsEmpty)
+                    {
+                        params.append(",");
+                        params.append(varArgsEmpty);
+                    }
                 }
                 else
                 {
@@ -451,6 +466,7 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                             if (i != node.getNumChildren() - 1) {
                                 params.append(",");
                             }
+
                         }
                     }
                     else
