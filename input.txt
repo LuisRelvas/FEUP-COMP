@@ -9,7 +9,7 @@ class ArrayVarargs {
         a.bar();
     }
 
-    int foo(int[] b, int... a) {
+    int foo(int[] f, int... a) {
         return 1;
     }
 

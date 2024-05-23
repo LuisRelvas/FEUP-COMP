@@ -451,11 +451,6 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                     if (i != node.getNumChildren() - 1) {
                         params.append(",");
                     }
-                    else if(hasvarArgsEmpty)
-                    {
-                        params.append(",");
-                        params.append(varArgsEmpty);
-                    }
                 }
                 else
                 {
@@ -479,6 +474,14 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
                 }
 
                 hasArgs = true;
+            }
+            if(varArgsEmpty.length() > 0)
+            {
+                if(!params.isEmpty())
+                {
+                    params.append(",");
+                }
+                params.append(varArgsEmpty);
             }
             if(node.getParent().getKind().equals(EXPR_STMT.toString()))
             {
