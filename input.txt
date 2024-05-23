@@ -4,13 +4,13 @@ class A
     int l;
     int[] field;
 
-    public boolean[] call(boolean[] c,int... a)
+    public int call(int[] c,int... a)
     {
-        return c;
+        return c.length;
 
     }
 
-    public int foo(boolean[] a)
+    public int foo(int[] a)
     {
     A auxiliar;
     int[] m;
@@ -19,7 +19,7 @@ class A
     int k;
     boolean[] aux;
     auxiliar = new A();
-    a = auxiliar.call([true,false,true],field[1],field[1],field[2]);
+    k = auxiliar.call([this.call([1,2],3),2,3],field[1],field[1],field[2]);
     return a.length;
     }
 
