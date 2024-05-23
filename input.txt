@@ -1,3 +1,4 @@
+import io;
 class A
 {
     int l;
@@ -16,8 +17,7 @@ class A
     int j;
     int k;
     int[] aux;
-    field = a;
-    a = field;
+    io.cama(field);
     return a.length;
     }
 

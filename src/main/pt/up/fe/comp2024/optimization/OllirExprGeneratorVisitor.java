@@ -497,7 +497,13 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
 
                 var rhs = visit(node.getJmmChild(i));
                 computation.append(rhs.getComputation());
-                params.append(rhs.getCode());
+                if(!rhs.getCode().contains(".i32"))
+                {
+                    params.append(rhs.getCode()).append(".array.i32");
+                }
+                else {
+                    params.append(rhs.getCode());
+                }
                 if(i != node.getNumChildren() - 1)
                 {
                     params.append(",");
