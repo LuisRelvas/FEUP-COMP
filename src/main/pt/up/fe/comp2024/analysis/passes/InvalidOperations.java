@@ -52,7 +52,6 @@ public class InvalidOperations extends AnalysisVisitor {
     {
         if(arrayCreationExpr.getNumChildren() == 0)
         {
-            addReport(Report.newError(Stage.SEMANTIC, 0, 0, "Array creation expression must have at least one element", null));
             return null;
         }
         return null;

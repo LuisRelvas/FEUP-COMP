@@ -68,16 +68,23 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
     {
         StringBuilder computation = new StringBuilder();
         String code = "";
-        var aux = visit(arrayCreationExpr.getJmmChild(0));
-        var ollirType = OptUtils.toOllirType(TypeUtils.getExprType(arrayCreationExpr.getJmmChild(0),table));
-        var temp = OptUtils.getTemp();
-        code = temp + ".array" + ollirType;
-        computation.append(temp).append(".array").append(ollirType).append(ASSIGN).append(".array").append(ollirType).append(" new(array, ").append(arrayCreationExpr.getNumChildren()).append(".i32)").append(".array").append(ollirType).append(END_STMT);
-        for(int i = 0; i < arrayCreationExpr.getNumChildren(); i++)
+        if(arrayCreationExpr.getNumChildren() == 0)
         {
-            var auxiliar = visit(arrayCreationExpr.getJmmChild(i));
-            computation.append(auxiliar.getComputation());
-            computation.append(temp).append("[").append(i).append(".i32").append("]").append(ollirType).append(SPACE).append(ASSIGN).append(SPACE).append(ollirType).append(SPACE).append(auxiliar.getCode()).append(END_STMT);
+            var temp = OptUtils.getTemp();
+            code = temp + ".array" + ".i32";
+            computation.append(temp).append(".array").append(".i32").append(ASSIGN).append(".array").append(".i32").append(" new(array, ").append(arrayCreationExpr.getNumChildren()).append(".i32)").append(".array").append(".i32").append(END_STMT);
+        }
+        else {
+            var aux = visit(arrayCreationExpr.getJmmChild(0));
+            var ollirType = OptUtils.toOllirType(TypeUtils.getExprType(arrayCreationExpr.getJmmChild(0), table));
+            var temp = OptUtils.getTemp();
+            code = temp + ".array" + ollirType;
+            computation.append(temp).append(".array").append(ollirType).append(ASSIGN).append(".array").append(ollirType).append(" new(array, ").append(arrayCreationExpr.getNumChildren()).append(".i32)").append(".array").append(ollirType).append(END_STMT);
+            for (int i = 0; i < arrayCreationExpr.getNumChildren(); i++) {
+                var auxiliar = visit(arrayCreationExpr.getJmmChild(i));
+                computation.append(auxiliar.getComputation());
+                computation.append(temp).append("[").append(i).append(".i32").append("]").append(ollirType).append(SPACE).append(ASSIGN).append(SPACE).append(ollirType).append(SPACE).append(auxiliar.getCode()).append(END_STMT);
+            }
         }
 
         return new OllirExprResult(code, computation);

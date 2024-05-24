@@ -53,7 +53,12 @@ public class InvalidTypes extends AnalysisVisitor {
     }
     private Void visitArrayCreationExpr(JmmNode arrayCreationExpr, SymbolTable table)
     {
+        if(arrayCreationExpr.getNumChildren() == 0)
+        {
+            return null;
+        }
         Type type = TypeUtils.getExprType(arrayCreationExpr.getChild(0),table);
+
         for(int i = 1; i < arrayCreationExpr.getNumChildren(); i++)
         {
             if(!type.equals(TypeUtils.getExprType(arrayCreationExpr.getChild(i),table)))
