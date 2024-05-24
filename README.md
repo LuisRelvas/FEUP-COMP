@@ -1,3 +1,9 @@
 # Comp2024 Project
 
-Contains a reference implementation for an initial version of the project that supports a small portion of Java--.
+## Group 
+| Name             | Number    | Work Distribution|
+| ---------------- | --------- |-----------|
+| Andre Gonçalves Pinto | 202108856 | 35% |
+| Luis Vieira Relvas | 202108661 | 45% |
+| Rodrigo Moisés Baptista Ribeiro | 202108679 | 20% |
+
