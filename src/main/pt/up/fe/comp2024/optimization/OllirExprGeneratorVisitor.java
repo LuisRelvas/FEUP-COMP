@@ -233,8 +233,8 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
         var temp = OptUtils.getTemp();
         String code = temp + resOllirType;
 
-        if(node.get("op").toString().equals("&&") && node.getChild(0).getKind().toString().equals("BooleanLiteral")&& !node.getParent().getKind().equals(IF_STMT.toString())){
-
+        if(node.get("op").toString().equals("&&") && !node.getParent().getKind().equals(IF_STMT.toString())){
+            computation.append(visit(node.getJmmChild(0)).getComputation());
             computation.append("if(");
             computation.append(visit(node.getChild(0)).getCode());
             this.ifCounter = getCounterIfStmt(this.ifCounter);
@@ -253,8 +253,8 @@ public class OllirExprGeneratorVisitor extends AJmmVisitor<Void, OllirExprResult
 
 
         }
-        else if(node.get("op").toString().equals("&&") && node.getChild(1).getKind().toString().equals("BooleanLiteral") && !node.getParent().getKind().equals(IF_STMT.toString())) {
-
+        else if(node.get("op").toString().equals("&&") && !node.getParent().getKind().equals(IF_STMT.toString())) {
+            computation.append(visit(node.getJmmChild(1)).getComputation());
             computation.append("if(");
             computation.append(visit(node.getChild(1)).getCode());
             this.ifCounter = getCounterIfStmt(this.ifCounter);

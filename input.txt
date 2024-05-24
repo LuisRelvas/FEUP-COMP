@@ -1,24 +1,13 @@
-import io;
+class A{
 
-class ArrayVarargs {
-
-    public static void main(String[] args) {
-        ArrayVarargs a;
-        a = new ArrayVarargs();
-
-        a.bar();
-    }
-
-    int foo(int[] a) {
-        return 1;
-    }
-
-    int bar() {
+    public int testAnd(){
+        boolean b1;
+        boolean b2;
+        boolean b3;
         int res;
-        res = this.foo([]);
-        io.println(res);
+
+        b1 = b1 && b2 && b3;
 
         return res;
     }
-
 }
