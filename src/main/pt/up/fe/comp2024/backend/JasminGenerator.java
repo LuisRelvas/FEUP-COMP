@@ -475,6 +475,7 @@ public class JasminGenerator {
                 }
                 answer.append(")");
                 answer.append(ollirToJasminType(callInstruction.getReturnType().toString())+NL);
+                this.curStackSize = this.curStackSize - args.size();
                 if (callInstruction.getMethodName().getType().toString().equals("STRING")) {
 //                    int ind1 = callInstruction.getMethodName().toString().indexOf('"');
 //                    String argAux = callInstruction.getMethodName().toString().substring(ind1 + 1);
@@ -509,9 +510,7 @@ public class JasminGenerator {
     }
 
 
-    private int calculateLimitLocals(){
-        return this.currentMethod.getVarTable().size();
-    }
+
 
     public List<Report> getReports() {
         return reports;
@@ -652,7 +651,6 @@ public class JasminGenerator {
 
         StringBuilder codeAux = new StringBuilder();
         for (var inst : method.getInstructions()) {
-
             if(this.lastlabel.isEmpty()){}
             else{
                 for (int i= 0; i < this.lastlabel.size(); i++){
@@ -663,30 +661,20 @@ public class JasminGenerator {
                 }
             }
 
-
             var instCode = StringLines.getLines(generators.apply(inst)).stream()
                     .collect(Collectors.joining(NL + TAB, TAB, NL));
             codeAux.append(instCode);
-
         }
 
         code.append("\n.method ").append(modifier).append(isStatic).append(methodName).append("("+params+")"+returnType).append(NL);
 
         //TODO rever se o calLimLoc está certo
         //TOdo clacular limit stack ver o tamanho máximo que a stack ocupa dentro de um método
-        int limitStackValue = calculateLimitLocals();
+        int limitStackValue = this.maxStackSize;
 
 
-        var x = this.currentMethod.getVarTable().values();
 
-        int answer = 0;
-        for(var value : x){
-            if(value.getVirtualReg() > answer){
-                answer = value.getVirtualReg();
-            }
-        }
-
-        code.append(TAB).append(".limit stack ").append(answer+1).append(NL);
+        code.append(TAB).append(".limit stack ").append(limitStackValue).append(NL);
 
         int limitLocals = this.currentMethod.getVarTable().size();
         for(var argument: this.currentMethod.getParams()){
