@@ -1,24 +1,24 @@
 import io;
-class IfElseInMain {
 
-    int a;
+class ArrayVarargs {
 
-    public boolean test2(int x){
-        return true;
+    public static void main(String[] args) {
+        ArrayVarargs a;
+        a = new ArrayVarargs();
+
+        a.bar();
     }
 
-    public int test(){
-        int b;
-        if(50<10 && true){
-          a = 10;
-        } else {
-          b = a;
-        }
-        return a;
+    int foo(int[] f, int... a) {
+        return 1;
     }
 
-    public static void main(String[] args){
+    int bar() {
+        int res;
+        res = this.foo([1,2,3]);
+        io.println(res);
 
+        return res;
     }
 
 }
